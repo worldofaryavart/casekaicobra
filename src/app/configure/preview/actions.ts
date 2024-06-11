@@ -60,7 +60,7 @@ export const createCheckoutSession = async ({
     name: 'Custom iPhone Case',
     images: [configuration.imageUrl],
     default_price_data: {
-      currency: 'USD',
+      currency: 'INR',
       unit_amount: price,
     },
   })
@@ -70,7 +70,7 @@ export const createCheckoutSession = async ({
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
     payment_method_types: ['card'],
     mode: 'payment',
-    shipping_address_collection: { allowed_countries: ['DE', 'US'] },
+    shipping_address_collection: { allowed_countries: ['IN', 'US'] },
     metadata: {
       userId: user.id,
       orderId: order.id,

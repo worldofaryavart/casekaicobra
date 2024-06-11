@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export const formatPrice = (price: number) => {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
   })
 
   return formatter.format(price)
@@ -39,9 +39,9 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: '@joshtriedcoding',
+      creator: '',
     },
     icons,
-    metadataBase: new URL("https://casecobra.vercel.app/")
+    metadataBase: new URL("https://casekaicobra.vercel.app/")
   }
 }

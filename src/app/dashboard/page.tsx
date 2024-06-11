@@ -71,8 +71,8 @@ import {
       },
     })
   
-    const WEEKLY_GOAL = 500
-    const MONTHLY_GOAL = 2500
+    const WEEKLY_GOAL = 5000
+    const MONTHLY_GOAL = 25000
   
     return (
       <div className='flex min-h-screen w-full bg-muted/40'>
