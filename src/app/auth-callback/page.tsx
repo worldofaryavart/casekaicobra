@@ -23,10 +23,12 @@ const Page = () => {
     })
 
     if (data?.success) {
-        localStorage.removeItem('configurationId')
-        router.push(`/configure/preview?id=${configId}`)
-    } else {
-        router.push('/')
+        if (configId){
+            localStorage.removeItem('configurationId')
+            router.push(`/configure/preview?id=${configId}`)
+        } else {
+            router.push('/')
+        }
     }
 
     return (
