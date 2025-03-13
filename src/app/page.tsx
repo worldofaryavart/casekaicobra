@@ -94,15 +94,39 @@ export default function Home() {
 
           <div className="col-span-full lg:col-span-1 w-full flex justify-center px-8 sm:px-16 md:px-0 mt-32 lg:mx-0 lg:mt-20 h-fit">
             <div className="relative md:max-w-xl">
-              <img
-                src="/your-image.png"
-                className="absolute w-40 lg:w-52 left-56 -top-20 select-none hidden sm:block lg:hidden xl:block"
-              />
+              {/* Decorative elements */}
               <img
                 src="/line.png"
                 className="absolute w-20 -left-6 -bottom-6 select-none"
+                alt="Decorative line"
               />
-              <Phone className="w-64" imgSrc="/testimonials/1.jpg" />
+
+              {/* Main t-shirt image */}
+              <div className="relative w-full h-auto flex justify-center items-center">
+                {/* For Next.js Image component */}
+                <Image
+                  src="/image.png"
+                  width={400}
+                  height={500}
+                  alt="T-shirt product image"
+                  className="object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  priority
+                />
+
+                {/* For regular img tag (alternative) */}
+                {/* <img 
+        src="/image.png"
+        alt="T-shirt product image"
+        className="w-full max-w-md object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+      /> */}
+              </div>
+
+              {/* Additional decorative element */}
+              <img
+                src="/your-image.png"
+                className="absolute w-40 lg:w-52 left-56 -top-20 select-none hidden sm:block lg:hidden xl:block"
+                alt="Decorative element"
+              />
             </div>
           </div>
         </MaxWidthWrapper>
