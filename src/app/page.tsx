@@ -180,8 +180,8 @@ export default function Home() {
               </div>
               <div>
                 <p>
-                  The t-shirt fabric feels premium and I've received multiple
-                  compliments on the design. I've worn and washed it several
+                  The t-shirt fabric feels premium and I&apos;ve received multiple
+                  compliments on the design. I&apos;ve worn and washed it several
                   times over the past two months and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">
                     the print is still vibrant and crisp
@@ -216,8 +216,8 @@ export default function Home() {
               </div>
               <div>
                 <p>
-                  I'm pretty rough on my clothes during workouts and outdoor
-                  activities, and most custom shirts don't hold up well. This
+                  I&apos;m pretty rough on my clothes during workouts and outdoor
+                  activities, and most custom shirts don&apos;t hold up well. This
                   one maintains its shape and the fabric doesn't pill or thin
                   out. The design is gorgeous and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">

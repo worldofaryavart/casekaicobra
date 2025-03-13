@@ -4,15 +4,17 @@ import { HTMLAttributes, useEffect, useRef, useState } from 'react'
 import MaxWidthWrapper from './MaxWidthWrapper'
 import { useInView } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import Phone from './Phone'
 
-const PHONES = [
-  '/testimonials/1.jpg',
-  '/testimonials/2.jpg',
-  '/testimonials/3.jpg',
-  '/testimonials/4.jpg',
-  '/testimonials/5.jpg',
-  '/testimonials/6.jpg',
+const TEES = [
+  '/teedesigns/kathakali_mask.png',
+  '/teedesigns/assam_bihu.png',
+  '/teedesigns/madurai_sungudi_pattern2.png',
+  '/teedesigns/pattchitra_inspired_design.png',
+  '/teedesigns/pulkari_embroidery_motifs.png',
+  '/teedesigns/gond_motif_art.png',
+  '/teedesigns/ajrakh_block_print.png',
+  '/teedesigns/warli_tribal_art.png',
+  '/teedesigns/kalamkari_inspired_prints.png',
 ]
 
 function splitArray<T>(array: Array<T>, numParts: number) {
@@ -101,7 +103,12 @@ function Review({ imgSrc, className, ...props }: ReviewProps) {
       )}
       style={{ animationDelay }}
       {...props}>
-      <Phone imgSrc={imgSrc} />
+      {/* Add the image inside the div */}
+      <img 
+        src={imgSrc} 
+        alt="Product" 
+        className="w-full h-auto rounded-xl object-cover"
+      />
     </div>
   )
 }
@@ -109,7 +116,7 @@ function Review({ imgSrc, className, ...props }: ReviewProps) {
 function ReviewGrid() {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const isInView = useInView(containerRef, { once: true, amount: 0.4 })
-  const columns = splitArray(PHONES, 3)
+  const columns = splitArray(TEES, 3)
   const column1 = columns[0]
   const column2 = columns[1]
   const column3 = splitArray(columns[2], 2)
