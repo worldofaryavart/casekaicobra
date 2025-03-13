@@ -3,6 +3,7 @@ import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import Link from "next/link";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import ChichoreLogoComponent from "./Logo";
 
 const Navbar = async () => {
   const { getUser } = getKindeServerSession();
@@ -13,8 +14,15 @@ const Navbar = async () => {
     <nav className="sticky z-[100] h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
       <MaxWidthWrapper>
         <div className="flex h-14 items-center justify-between border-b border-zinc-200">
-          <Link href="/" className="flex z-40 font-semibold">
-            Chi<span className="text-fuchsia-600">chore</span>
+          <Link href="/" className="flex z-40 items-center">
+            <ChichoreLogoComponent
+              fontSize="text-2xl md:text-3xl"
+              textColor="text-indigo-900"
+              letterSpacing="tracking-wider"
+              fontWeight="font-medium"
+              hoverEffect={true}
+              className="transition-all duration-300 hover:scale-105"
+            />
           </Link>
 
           <div className="h-full flex items-center space-x-4">
