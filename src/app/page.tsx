@@ -152,7 +152,6 @@ export default function Home() {
               </span>{" "}
               say
             </h2>
-            <img src="/snake-2.png" className="w-24 order-0 lg:order-2" />
           </div>
 
           <div className="mx-auto grid max-w-2xl grid-cols-1 px-4 lg:mx-0 lg:max-w-none lg:grid-cols-2 gap-y-16">
@@ -166,23 +165,23 @@ export default function Home() {
                 <div className="flex flex-col">
                   <p className="font-semibold">Jonathan</p>
                   <div className="flex gap-1.5 items-center text-zinc-600">
-                    <Check className="h-4 w-4 stroke-[3px] text-indigo-600" />
+                    <Check className="h-4 w-4 stroke-[3px] text-indigo-900" />
                     <p className="text-sm">Verified Purchase</p>
                   </div>
                 </div>
               </div>
               <div className="flex gap-0.5 mb-2">
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
               </div>
               <div>
                 <p>
-                  The t-shirt fabric feels premium and I&apos;ve received multiple
-                  compliments on the design. I&apos;ve worn and washed it several
-                  times over the past two months and{" "}
+                  The t-shirt fabric feels premium and I&apos;ve received
+                  multiple compliments on the design. I&apos;ve worn and washed
+                  it several times over the past two months and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">
                     the print is still vibrant and crisp
                   </span>
@@ -202,24 +201,24 @@ export default function Home() {
                 <div className="flex flex-col">
                   <p className="font-semibold">Jessica</p>
                   <div className="flex gap-1.5 items-center text-zinc-600">
-                    <Check className="h-4 w-4 stroke-[3px] text-indigo-600" />
+                    <Check className="h-4 w-4 stroke-[3px] text-indigo-900" />
                     <p className="text-sm">Verified Purchase</p>
                   </div>
                 </div>
               </div>
               <div className="flex gap-0.5 mb-2">
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
-                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
+                <Star className="h-5 w-5 text-indigo-900 fill-indigo-900" />
               </div>
               <div>
                 <p>
-                  I&apos;m pretty rough on my clothes during workouts and outdoor
-                  activities, and most custom shirts don&apos;t hold up well. This
-                  one maintains its shape and the fabric doesn't pill or thin
-                  out. The design is gorgeous and{" "}
+                  I&apos;m pretty rough on my clothes during workouts and
+                  outdoor activities, and most custom shirts don&apos;t hold up
+                  well. This one maintains its shape and the fabric doesn't pill
+                  or thin out. The design is gorgeous and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">
                     looks as fresh as day one even after six months of regular
                     wear
@@ -239,11 +238,11 @@ export default function Home() {
       <section>
         <MaxWidthWrapper className="py-24">
           <div className="mb-12 px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl sm:text-center">
-              <h2 className="order-1 mt-2 tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl text-gray-900">
-                Upload your photo and get{" "}
-                <span className="relative px-2 bg-indigo-600 text-white">
-                  your own case
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="tracking-tight font-bold text-4xl md:text-5xl text-gray-900 inline-block mx-auto">
+                Upload your photo and get your{" "}
+                <span className="relative px-2 bg-indigo-900 text-white">
+                  own design
                 </span>{" "}
                 now
               </h2>
@@ -257,32 +256,37 @@ export default function Home() {
                 className="absolute top-[25rem] md:top-1/2 -translate-y-1/2 z-10 left-1/2 -translate-x-1/2 rotate-90 md:rotate-0"
               />
 
-              <div className="relative h-80 md:h-full w-full md:justify-self-end max-w-sm rounded-xl bg-gray-900/5 ring-inset ring-gray-900/10 lg:rounded-2xl">
+              <div className="relative h-60 md:h-80 w-full md:justify-self-end max-w-xs rounded-xl bg-gray-900/5 ring-inset ring-gray-900/10 lg:rounded-2xl">
                 <img
-                  src="/horse.jpg"
-                  className="rounded-md object-cover bg-white shadow-2xl ring-1 ring-gray-900/10 h-full w-full"
+                  src="/teedesigns/kathakali_mask.png"
+                  className="rounded-md object-contain bg-white shadow-2xl ring-1 ring-gray-900/10 h-full w-full"
                 />
               </div>
 
-              <Phone className="w-60" imgSrc="/horse_phone.jpg" />
+              <div className="relative h-96 md:h-full w-full max-w-md">
+                <img
+                  src="/models/kathakali_mask_man.png"
+                  className="rounded-md object-cover bg-white shadow-2xl ring-1 ring-gray-900/10 h-full w-full"
+                />
+              </div>
             </div>
           </div>
 
           <ul className="mx-auto mt-12 max-w-prose sm:text-lg space-y-2 w-fit">
             <li className="w-fit">
-              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
-              High-quality silicone material
+              <Check className="h-5 w-5 text-indigo-900 inline mr-1.5" />
+              Premium cotton blend material
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
-              Scratch- and fingerprint resistant coating
+              <Check className="h-5 w-5 text-indigo-900 inline mr-1.5" />
+              Fade-resistant vibrant printing
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
-              Wireless charging compatible
+              <Check className="h-5 w-5 text-indigo-900 inline mr-1.5" />
+              Machine washable, keeps shape
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />5 year
+              <Check className="h-5 w-5 text-indigo-900 inline mr-1.5" />2 year
               print warranty
             </li>
 
@@ -290,11 +294,13 @@ export default function Home() {
               <Link
                 className={buttonVariants({
                   size: "lg",
-                  className: "mx-auto mt-8 bg-indigo-600",
+                  className:
+                    "mx-auto mt-8 bg-indigo-900 hover:bg-indigo-950 transition-colors",
                 })}
                 href="/configure/upload"
               >
-                Create your case now <ArrowRight className="h-4 w-4 ml-1.5" />
+                Create your t-shirt now{" "}
+                <ArrowRight className="h-4 w-4 ml-1.5" />
               </Link>
             </div>
           </ul>
