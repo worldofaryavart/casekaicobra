@@ -299,7 +299,7 @@ export default function Home() {
                 })}
                 href="/configure/upload"
               >
-                Create your t-shirt now{" "}
+                Get your t-shirt now{" "}
                 <ArrowRight className="h-4 w-4 ml-1.5" />
               </Link>
             </div>

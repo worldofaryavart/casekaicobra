@@ -92,7 +92,7 @@ const Navbar = async () => {
                       "hidden sm:flex items-center gap-1 bg-indigo-900 hover:bg-indigo-950",
                   })}
                 >
-                  Create case
+                  Get T-Shirt
                   <ArrowRight className="ml-1.5 h-5 w-5" />
                 </Link>
               </>
