@@ -290,17 +290,14 @@ export default function Home() {
               print warranty
             </li>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-4">
               <Link
-                className={buttonVariants({
+                className={`${buttonVariants({
                   size: "lg",
-                  className:
-                    "mx-auto mt-8 bg-indigo-900 hover:bg-indigo-950 transition-colors",
-                })}
+                })} hidden sm:flex items-center gap-2 bg-indigo-900 hover:bg-indigo-950 text-white px-6 py-3 text-base font-medium mt-2`}
                 href="/configure/upload"
               >
-                Get your t-shirt now{" "}
-                <ArrowRight className="h-4 w-4 ml-1.5" />
+                Get your t-shirt now <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
             </div>
           </ul>

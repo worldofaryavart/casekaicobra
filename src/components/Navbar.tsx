@@ -86,11 +86,9 @@ const Navbar = async () => {
 
                 <Link
                   href="/configure/upload"
-                  className={buttonVariants({
+                  className={`${buttonVariants({
                     size: "sm",
-                    className:
-                      "hidden sm:flex items-center gap-1 bg-indigo-900 hover:bg-indigo-950",
-                  })}
+                  })} hidden sm:flex items-center gap-1 bg-indigo-900 hover:bg-indigo-950 text-white`}
                 >
                   Get t-shirt
                   <ArrowRight className="ml-1.5 h-5 w-5" />
