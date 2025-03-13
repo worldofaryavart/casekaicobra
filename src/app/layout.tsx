@@ -9,8 +9,8 @@ import Providers from "@/components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CaseKaiCobra",
-  description: "Create you own Phone Case.",
+  title: "CHICHORÉ",
+  description: "Get your own Personalized Clothing.",
 };
 
 export default function RootLayout({
