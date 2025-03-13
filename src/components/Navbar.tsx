@@ -89,7 +89,7 @@ const Navbar = async () => {
                   className={buttonVariants({
                     size: "sm",
                     className:
-                      "hidden sm:flex items-center gap-1 bg-fuchsia-600 hover:bg-fuchsia-700",
+                      "hidden sm:flex items-center gap-1 bg-indigo-900 hover:bg-indigo-950",
                   })}
                 >
                   Create case

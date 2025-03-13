@@ -1,4 +1,8 @@
+"use client";
+
+import EnhancedChichoreLogoComponent from "@/components/EnhancedLogo";
 import { Icons } from "@/components/Icons";
+import ChichoreLogoComponent from "@/components/Logo";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";
 import Phone from "@/components/Phone";
 import { Reviews } from "@/components/Reviews";
@@ -14,33 +18,45 @@ export default function Home() {
         <MaxWidthWrapper className="pb-24 pt-10 lg:grid lg:grid-cols-3 sm:pb-32 lg:gap-x-0 xl:gap-x-8 lg:pt-24 xl:pt-32 lg:pb-52">
           <div className="col-span-2 px-6 lg:px-0 lg:pt-4">
             <div className="relative mx-auto text-center lg:text-left flex flex-col items-center lg:items-start">
-              <div className="absolute w-28 left-0 -top-20 hidden lg:block">
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t via-slate-50/50 from-slate-50 h-28" />
-                <img src="/snake-1.png" className="w-full" />
+              {/* Improved logo positioning and styling */}
+              <div className="absolute pb-1 lg:pb-2 left-0 hidden lg:flex items-center">
+                <ChichoreLogoComponent
+                  fontSize="text-3xl lg:text-4xl"
+                  textColor="text-indigo-900"
+                  letterSpacing="tracking-wider"
+                  fontWeight="font-semibold"
+                  hoverEffect={true}
+                  className="transition-all duration-300"
+                />
+                <span className="text-indigo-900 text-xl font-serif ml-1 italic">
+                  Fashion
+                </span>
               </div>
-              <h1 className="relative w-fit tracking-tight text-balance mt-16 font-bold !leading-tight text-gray-900 text-5xl md:text-6xl lg:text-7xl">
+
+              <h1 className="relative w-fit tracking-tight text-balance mt-14 font-bold !leading-tight text-gray-900 text-5xl md:text-6xl lg:text-7xl">
                 Personalized your{" "}
-                <span className="bg-fuchsia-600 px-2 text-white">Fashion</span>{" "}
+                <span className="bg-indigo-900 px-2 text-white">Fashion</span>{" "}
                 your own way
               </h1>
               <p className="mt-8 text-lg lg:pr-10 max-w-prose text-center lg:text-left text-balance md:text-wrap">
-                Wear your story, your way. <span>ChiChore</span> brings
-                hyper-personalized fashion that&apos;s as bold and unique as
-                you.
+                Wear your story, your way.{" "}
+                <span className="font-medium text-indigo-900">CHICHORÉ</span>{" "}
+                brings hyper-personalized fashion that&apos;s as bold and unique
+                as you.
               </p>
 
               <ul className="mt-8 space-y-2 text-left font-medium flex flex-col items-center sm:items-start">
                 <div className="space-y-2">
                   <li className="flex gap-1.5 items-center text-left">
-                    <Check className="h-5 w-5 shrink-0 text-fuchsia-600" />
+                    <Check className="h-5 w-5 shrink-0 text-indigo-900" />
                     High-quality, durable material
                   </li>
                   <li className="flex gap-1.5 items-center text-left">
-                    <Check className="h-5 w-5 shrink-0 text-fuchsia-600" />
+                    <Check className="h-5 w-5 shrink-0 text-indigo-900" />
                     AI integrated
                   </li>
                   <li className="flex gap-1.5 items-center text-left">
-                    <Check className="h-5 w-5 shrink-0 text-fuchsia-600" />
+                    <Check className="h-5 w-5 shrink-0 text-indigo-900" />
                     Ultra modern designs
                   </li>
                 </div>
@@ -77,11 +93,11 @@ export default function Home() {
 
                 <div className="flex flex-col justify-between items-center sm:items-start">
                   <div className="flex gap-0.5">
-                    <Star className="h-4 w-4 text-fuchsia-600 fill-fuchsia-600" />
-                    <Star className="h-4 w-4 text-fuchsia-600 fill-fuchsia-600" />
-                    <Star className="h-4 w-4 text-fuchsia-600 fill-fuchsia-600" />
-                    <Star className="h-4 w-4 text-fuchsia-600 fill-fuchsia-600" />
-                    <Star className="h-4 w-4 text-fuchsia-600 fill-fuchsia-600" />
+                    <Star className="h-4 w-4 text-indigo-900 fill-indigo-900" />
+                    <Star className="h-4 w-4 text-indigo-900 fill-indigo-900" />
+                    <Star className="h-4 w-4 text-indigo-900 fill-indigo-900" />
+                    <Star className="h-4 w-4 text-indigo-900 fill-indigo-900" />
+                    <Star className="h-4 w-4 text-indigo-900 fill-indigo-900" />
                   </div>
 
                   <p>
@@ -112,13 +128,6 @@ export default function Home() {
                   className="object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
                   priority
                 />
-
-                {/* For regular img tag (alternative) */}
-                {/* <img 
-        src="/image.png"
-        alt="T-shirt product image"
-        className="w-full max-w-md object-contain rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-      /> */}
               </div>
 
               {/* Additional decorative element */}
