@@ -101,7 +101,7 @@ export default function Home() {
                   </div>
 
                   <p>
-                    <span className="font-semibold">1.250</span> happy customers
+                    <span className="font-semibold">1,250</span> happy customers
                   </p>
                 </div>
               </div>
@@ -148,7 +148,7 @@ export default function Home() {
               What our{" "}
               <span className="relative px-2">
                 customers{" "}
-                <Icons.underline className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-fuchsia-500" />
+                <Icons.underline className="hidden sm:block pointer-events-none absolute inset-x-0 -bottom-6 text-indigo-500" />
               </span>{" "}
               say
             </h2>
@@ -166,27 +166,29 @@ export default function Home() {
                 <div className="flex flex-col">
                   <p className="font-semibold">Jonathan</p>
                   <div className="flex gap-1.5 items-center text-zinc-600">
-                    <Check className="h-4 w-4 stroke-[3px] text-fuchsia-600" />
-                    <p className="text-sm">Verified Purchange</p>
+                    <Check className="h-4 w-4 stroke-[3px] text-indigo-600" />
+                    <p className="text-sm">Verified Purchase</p>
                   </div>
                 </div>
               </div>
               <div className="flex gap-0.5 mb-2">
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
               </div>
               <div>
                 <p>
-                  The case feels durable and I even got a compliment on the
-                  design. Had the case for two and a half months now and{" "}
+                  The t-shirt fabric feels premium and I've received multiple
+                  compliments on the design. I've worn and washed it several
+                  times over the past two months and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">
-                    the image is super clear
+                    the print is still vibrant and crisp
                   </span>
-                  , on the case I had before, the image started fading into
-                  yellow-ish color after a couple weeks. Love it.
+                  . With my previous custom shirts, the design started fading
+                  after a few washes. The fit is perfect and the material
+                  breathes well. Absolutely love it.
                 </p>
               </div>
             </div>
@@ -198,30 +200,32 @@ export default function Home() {
                   className="rounded-full h-12 w-12 object-cover"
                 />
                 <div className="flex flex-col">
-                  <p className="font-semibold">Jesica</p>
+                  <p className="font-semibold">Jessica</p>
                   <div className="flex gap-1.5 items-center text-zinc-600">
-                    <Check className="h-4 w-4 stroke-[3px] text-fuchsia-600" />
-                    <p className="text-sm">Verified Purchange</p>
+                    <Check className="h-4 w-4 stroke-[3px] text-indigo-600" />
+                    <p className="text-sm">Verified Purchase</p>
                   </div>
                 </div>
               </div>
               <div className="flex gap-0.5 mb-2">
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
-                <Star className="h-5 w-5 text-fuchsia-600 fill-fuchsia-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
+                <Star className="h-5 w-5 text-indigo-600 fill-indigo-600" />
               </div>
               <div>
                 <p>
-                  I usually keep my phone together with my keys in my pocket and
-                  that led to some pretty heavy scratchmarks on all of my last
-                  phone cases. This one, besides a barely noticeable scratch on
-                  the corner,{" "}
+                  I'm pretty rough on my clothes during workouts and outdoor
+                  activities, and most custom shirts don't hold up well. This
+                  one maintains its shape and the fabric doesn't pill or thin
+                  out. The design is gorgeous and{" "}
                   <span className="p-0.5 bg-slate-800 text-white">
-                    looks brand new after about half a year
+                    looks as fresh as day one even after six months of regular
+                    wear
                   </span>
-                  . I dig it.
+                  . The colors remain true and the fit is still perfect.
+                  Definitely ordering more designs.
                 </p>
               </div>
             </div>
@@ -238,7 +242,7 @@ export default function Home() {
             <div className="mx-auto max-w-2xl sm:text-center">
               <h2 className="order-1 mt-2 tracking-tight text-center text-balance !leading-tight font-bold text-5xl md:text-6xl text-gray-900">
                 Upload your photo and get{" "}
-                <span className="relative px-2 bg-fuchsia-600 text-white">
+                <span className="relative px-2 bg-indigo-600 text-white">
                   your own case
                 </span>{" "}
                 now
@@ -266,19 +270,19 @@ export default function Home() {
 
           <ul className="mx-auto mt-12 max-w-prose sm:text-lg space-y-2 w-fit">
             <li className="w-fit">
-              <Check className="h-5 w-5 text-fuchsia-600 inline mr-1.5" />
+              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
               High-quality silicone material
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-fuchsia-600 inline mr-1.5" />
+              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
               Scratch- and fingerprint resistant coating
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-fuchsia-600 inline mr-1.5" />
+              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />
               Wireless charging compatible
             </li>
             <li className="w-fit">
-              <Check className="h-5 w-5 text-fuchsia-600 inline mr-1.5" />5 year
+              <Check className="h-5 w-5 text-indigo-600 inline mr-1.5" />5 year
               print warranty
             </li>
 
@@ -286,7 +290,7 @@ export default function Home() {
               <Link
                 className={buttonVariants({
                   size: "lg",
-                  className: "mx-auto mt-8 bg-fuchsia-600",
+                  className: "mx-auto mt-8 bg-indigo-600",
                 })}
                 href="/configure/upload"
               >
