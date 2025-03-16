@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 const STEPS = [
   {
     name: "Step 1: Add image",
-    description: "Choose an image for your case",
+    description: "Choose an image for your t-shirt",
     url: "/upload",
   },
   {
     name: "Step 2: Customize design",
-    description: "Make the case yours",
+    description: "Customize your design",
     url: "/design",
   },
   {
