@@ -86,7 +86,7 @@ const Navbar = async () => {
 
                 <Link
                   href="/configure/upload"
-                  className="hidden sm:flex items-center gap-2 bg-indigo-900 hover:bg-indigo-950 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex items-center justify-center gap-2 bg-indigo-900 hover:bg-indigo-950 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mt-6 w-full sm:w-auto"
                 >
                   Get t-shirt
                   <ArrowRight className="ml-1.5 h-5 w-5" />
