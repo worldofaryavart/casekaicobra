@@ -4,12 +4,14 @@ import { buttonVariants } from "./ui/button";
 import Link from "next/link";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import ChichoreLogoComponent from "./Logo";
+import MobileNav from "./MobileNav";
 
 const Navbar = async () => {
   const { getUser } = getKindeServerSession();
 
   const user = await getUser();
   const isAdmin = user?.email === process.env.ADMIN_EMAIL;
+
   return (
     <nav className="sticky z-[100] h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
       <MaxWidthWrapper>
@@ -25,7 +27,8 @@ const Navbar = async () => {
             />
           </Link>
 
-          <div className="h-full flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex h-full items-center space-x-4">
             {user ? (
               <>
                 <Link
@@ -53,7 +56,7 @@ const Navbar = async () => {
                   className={buttonVariants({
                     size: "sm",
                     className:
-                      "hidden sm:flex items-center gap-1 bg-fuchsia-600 hover:bg-fuchsia-700",
+                      "items-center gap-1 bg-indigo-900 hover:bg-indigo-950",
                   })}
                 >
                   Create case
@@ -82,17 +85,22 @@ const Navbar = async () => {
                   Login
                 </Link>
 
-                <div className="h-8 w-px bg-zinc-200 hidden sm:block" />
+                <div className="h-8 w-px bg-zinc-200" />
 
                 <Link
                   href="/configure/upload"
-                  className="flex items-center justify-center gap-2 bg-indigo-900 hover:bg-indigo-950 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mt-6 w-full sm:w-auto"
+                  className="flex items-center justify-center gap-1 bg-indigo-900 hover:bg-indigo-950 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Get t-shirt
                   <ArrowRight className="ml-1.5 h-5 w-5" />
                 </Link>
               </>
             )}
+          </div>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex items-center">
+            <MobileNav user={user} isAdmin={isAdmin} />
           </div>
         </div>
       </MaxWidthWrapper>
