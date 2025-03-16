@@ -10,9 +10,8 @@ import { RadioGroup } from '@headlessui/react'
 import { useRef, useState } from 'react'
 import {
   COLORS,
-  FINISHES,
-  MATERIALS,
-  MODELS,
+  FABRICS,
+  SIZES,
 } from '@/validators/option-validator'
 import { Label } from '@/components/ui/label'
 import {
@@ -63,14 +62,12 @@ const DesignConfigurator = ({
 
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number]
-    model: (typeof MODELS.options)[number]
-    material: (typeof MATERIALS.options)[number]
-    finish: (typeof FINISHES.options)[number]
+    size: (typeof SIZES.options)[number]
+    fabric: (typeof FABRICS.options)[number]
   }>({
     color: COLORS[0],
-    model: MODELS.options[0],
-    material: MATERIALS.options[0],
-    finish: FINISHES.options[0],
+    size: SIZES.options[0],
+    fabric: FABRICS.options[0],
   })
 
   const [renderedDimension, setRenderedDimension] = useState({
@@ -83,7 +80,7 @@ const DesignConfigurator = ({
     y: 205,
   })
 
-  const phoneCaseRef = useRef<HTMLDivElement>(null)
+  const tshirtRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   const { startUpload } = useUploadThing('imageUploader')
@@ -91,17 +88,17 @@ const DesignConfigurator = ({
   async function saveConfiguration() {
     try {
       const {
-        left: caseLeft,
-        top: caseTop,
+        left: tshirtLeft,
+        top: tshirtTop,
         width,
         height,
-      } = phoneCaseRef.current!.getBoundingClientRect()
+      } = tshirtRef.current!.getBoundingClientRect()
 
       const { left: containerLeft, top: containerTop } =
         containerRef.current!.getBoundingClientRect()
 
-      const leftOffset = caseLeft - containerLeft
-      const topOffset = caseTop - containerTop
+      const leftOffset = tshirtLeft - containerLeft
+      const topOffset = tshirtTop - containerTop
 
       const actualX = renderedPosition.x - leftOffset
       const actualY = renderedPosition.y - topOffset
@@ -155,25 +152,24 @@ const DesignConfigurator = ({
     <div className='relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20'>
       <div
         ref={containerRef}
-        className='relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'>
-        <div className='relative w-60 bg-opacity-50 pointer-events-none aspect-[896/1831]'>
+        className='relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2'
+      >
+        <div className='relative w-60 bg-opacity-50 pointer-events-none aspect-[3/4]'>
           <AspectRatio
-            ref={phoneCaseRef}
-            ratio={896 / 1831}
-            className='pointer-events-none relative z-50 aspect-[896/1831] w-full'>
+            ref={tshirtRef}
+            ratio={3 / 4}
+            className='pointer-events-none relative z-50 aspect-[3/4] w-full'
+          >
             <NextImage
               fill
-              alt='phone image'
-              src='/phone-template.png'
+              alt='t-shirt image'
+              src='/t-shirt-template-removebg-preview.png'
               className='pointer-events-none z-50 select-none'
             />
           </AspectRatio>
-          <div className='absolute z-40 inset-0 left-[3px] top-px right-[3px] bottom-px rounded-[32px] shadow-[0_0_0_99999px_rgba(229,231,235,0.6)]' />
+          {/* Overlay with chosen color */}
           <div
-            className={cn(
-              'absolute inset-0 left-[3px] top-px right-[3px] bottom-px rounded-[32px]',
-              `bg-${options.color.tw}`
-            )}
+            className={cn('absolute inset-0', `bg-${options.color.tw}`)}
           />
         </div>
 
@@ -203,7 +199,8 @@ const DesignConfigurator = ({
             bottomLeft: <HandleComponent />,
             topRight: <HandleComponent />,
             topLeft: <HandleComponent />,
-          }}>
+          }}
+        >
           <div className='relative w-full h-full'>
             <NextImage
               src={imageUrl}
@@ -221,14 +218,11 @@ const DesignConfigurator = ({
             aria-hidden='true'
             className='absolute z-10 inset-x-0 bottom-0 h-12 bg-gradient-to-t from-white pointer-events-none'
           />
-
           <div className='px-8 pb-12 pt-8'>
             <h2 className='tracking-tight font-bold text-3xl'>
-              Customize your case
+              Customize your T‑shirt
             </h2>
-
             <div className='w-full h-px bg-zinc-200 my-6' />
-
             <div className='relative mt-4 h-full flex flex-col justify-between'>
               <div className='flex flex-col gap-6'>
                 <RadioGroup
@@ -238,7 +232,8 @@ const DesignConfigurator = ({
                       ...prev,
                       color: val,
                     }))
-                  }}>
+                  }}
+                >
                   <Label>Color: {options.color.label}</Label>
                   <div className='mt-3 flex items-center space-x-3'>
                     {COLORS.map((color) => (
@@ -252,7 +247,8 @@ const DesignConfigurator = ({
                               [`border-${color.tw}`]: active || checked,
                             }
                           )
-                        }>
+                        }
+                      >
                         <span
                           className={cn(
                             `bg-${color.tw}`,
@@ -265,106 +261,105 @@ const DesignConfigurator = ({
                 </RadioGroup>
 
                 <div className='relative flex flex-col gap-3 w-full'>
-                  <Label>Model</Label>
+                  <Label>Size</Label>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant='outline'
                         role='combobox'
-                        className='w-full justify-between'>
-                        {options.model.label}
+                        className='w-full justify-between'
+                      >
+                        {options.size.label}
                         <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {MODELS.options.map((model) => (
+                      {SIZES.options.map((size) => (
                         <DropdownMenuItem
-                          key={model.label}
+                          key={size.label}
                           className={cn(
                             'flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100',
                             {
                               'bg-zinc-100':
-                                model.label === options.model.label,
+                                size.label === options.size.label,
                             }
                           )}
                           onClick={() => {
-                            setOptions((prev) => ({ ...prev, model }))
-                          }}>
+                            setOptions((prev) => ({ ...prev, size }))
+                          }}
+                        >
                           <Check
                             className={cn(
                               'mr-2 h-4 w-4',
-                              model.label === options.model.label
+                              size.label === options.size.label
                                 ? 'opacity-100'
                                 : 'opacity-0'
                             )}
                           />
-                          {model.label}
+                          {size.label}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
 
-                {[MATERIALS, FINISHES].map(
-                  ({ name, options: selectableOptions }) => (
-                    <RadioGroup
-                      key={name}
-                      value={options[name]}
-                      onChange={(val) => {
-                        setOptions((prev) => ({
-                          ...prev,
-                          [name]: val,
-                        }))
-                      }}>
-                      <Label>
-                        {name.slice(0, 1).toUpperCase() + name.slice(1)}
-                      </Label>
-                      <div className='mt-3 space-y-4'>
-                        {selectableOptions.map((option) => (
-                          <RadioGroup.Option
-                            key={option.value}
-                            value={option}
-                            className={({ active, checked }) =>
-                              cn(
-                                'relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between',
-                                {
-                                  'border-primary': active || checked,
-                                }
-                              )
-                            }>
-                            <span className='flex items-center'>
-                              <span className='flex flex-col text-sm'>
-                                <RadioGroup.Label
-                                  className='font-medium text-gray-900'
-                                  as='span'>
-                                  {option.label}
-                                </RadioGroup.Label>
-
-                                {option.description ? (
-                                  <RadioGroup.Description
-                                    as='span'
-                                    className='text-gray-500'>
-                                    <span className='block sm:inline'>
-                                      {option.description}
-                                    </span>
-                                  </RadioGroup.Description>
-                                ) : null}
-                              </span>
-                            </span>
-
-                            <RadioGroup.Description
+                <RadioGroup
+                  value={options.fabric}
+                  onChange={(val) => {
+                    setOptions((prev) => ({
+                      ...prev,
+                      fabric: val,
+                    }))
+                  }}
+                >
+                  <Label>Fabric</Label>
+                  <div className='mt-3 space-y-4'>
+                    {FABRICS.options.map((option) => (
+                      <RadioGroup.Option
+                        key={option.value}
+                        value={option}
+                        className={({ active, checked }) =>
+                          cn(
+                            'relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between',
+                            {
+                              'border-primary': active || checked,
+                            }
+                          )
+                        }
+                      >
+                        <span className='flex items-center'>
+                          <span className='flex flex-col text-sm'>
+                            <RadioGroup.Label
+                              className='font-medium text-gray-900'
                               as='span'
-                              className='mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right'>
-                              <span className='font-medium text-gray-900'>
-                                {formatPrice(option.price / 100)}
-                              </span>
-                            </RadioGroup.Description>
-                          </RadioGroup.Option>
-                        ))}
-                      </div>
-                    </RadioGroup>
-                  )
-                )}
+                            >
+                              {option.label}
+                            </RadioGroup.Label>
+                            {option.description ? (
+                              <RadioGroup.Description
+                                as='span'
+                                className='text-gray-500'
+                              >
+                                <span className='block sm:inline'>
+                                  {option.description}
+                                </span>
+                              </RadioGroup.Description>
+                            ) : null}
+                          </span>
+                        </span>
+
+                        <RadioGroup.Description
+                          as='span'
+                          className='mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right'
+                        >
+                          <span className='font-medium text-gray-900'>
+                            {formatPrice(option.price / 100)}
+                          </span>
+                        </RadioGroup.Description>
+                      </RadioGroup.Option>
+                    ))}
+                  </div>
+                </RadioGroup>
               </div>
             </div>
           </div>
@@ -375,26 +370,23 @@ const DesignConfigurator = ({
           <div className='w-full h-full flex justify-end items-center'>
             <div className='w-full flex gap-6 items-center'>
               <p className='font-medium whitespace-nowrap'>
-                {formatPrice(
-                  (BASE_PRICE + options.finish.price + options.material.price) /
-                    100
-                )}
+                {formatPrice((BASE_PRICE + options.fabric.price) / 100)}
               </p>
               <Button
                 isLoading={isPending}
                 disabled={isPending}
-                loadingText = "Saving"
+                loadingText="Saving"
                 onClick={() =>
                   saveConfig({
                     configId,
                     color: options.color.value,
-                    finish: options.finish.value,
-                    material: options.material.value,
-                    model: options.model.value,
+                    size: options.size.value,
+                    fabric: options.fabric.value,
                   })
                 }
                 size='sm'
-                className='w-full'>
+                className='w-full'
+              >
                 Continue
                 <ArrowRight className='h-4 w-4 ml-1.5 inline' />
               </Button>

@@ -1,81 +1,71 @@
-// bg-blue-950 border-blue-950
-// bg-zinc-900 border-zinc-900
-// bg-rose-950 border-rose-950
-
-import { PRODUCT_PRICES } from '@/config/products'
+import { PRODUCT_PRICES } from "@/config/products";
 
 export const COLORS = [
-  { label: 'Black', value: 'black', tw: 'zinc-900' },
+  { label: "Black", value: "black", tw: "zinc-900" },
   {
-    label: 'Blue',
-    value: 'blue',
-    tw: 'blue-950',
+    label: "Navy Blue",
+    value: "navy_blue",
+    tw: "navy-950", // assumes you have defined this custom color in Tailwind
   },
-  { label: 'Rose', value: 'rose', tw: 'rose-950' },
-] as const
+  { label: "White", value: "white", tw: "white-950" },
+] as const;
 
-export const MODELS = {
-  name: 'models',
+export const SIZES = {
+  name: "size",
   options: [
-    {
-      label: 'iPhone X',
-      value: 'iphonex',
-    },
-    {
-      label: 'iPhone 11',
-      value: 'iphone11',
-    },
-    {
-      label: 'iPhone 12',
-      value: 'iphone12',
-    },
-    {
-      label: 'iPhone 13',
-      value: 'iphone13',
-    },
-    {
-      label: 'iPhone 14',
-      value: 'iphone14',
-    },
-    {
-      label: 'iPhone 15',
-      value: 'iphone15',
-    },
+    { label: "XS", value: "xs" },
+    { label: "S", value: "s" },
+    { label: "M", value: "m" },
+    { label: "L", value: "l" },
+    { label: "XL", value: "xl" },
+    { label: "XXL", value: "xxl" },
   ],
-} as const
+} as const;
 
-export const MATERIALS = {
-  name: 'material',
+export const FABRICS = {
+  name: "fabric",
   options: [
     {
-      label: 'Silicone',
-      value: 'silicone',
+      label: "Polyester",
+      value: "polyester",
       description: undefined,
-      price: PRODUCT_PRICES.material.silicone,
+      price: PRODUCT_PRICES.fabric.polyester,
     },
     {
-      label: 'Soft Polycarbonate',
-      value: 'polycarbonate',
-      description: 'Scratch-resistant coating',
-      price: PRODUCT_PRICES.material.polycarbonate,
+      label: "Cotton",
+      value: "cotton",
+      description: undefined,
+      price: PRODUCT_PRICES.fabric.cotton,
+    },
+    {
+      label: "Polycotton",
+      value: "polycotton",
+      description: undefined,
+      price: PRODUCT_PRICES.fabric.polycotton,
+    },
+    {
+      label: "Dot-Knit",
+      value: "dotKnit",
+      description: undefined,
+      price: PRODUCT_PRICES.fabric.dotKnit,
     },
   ],
-} as const
+} as const;
 
 export const FINISHES = {
-  name: 'finish',
+  name: "finish",
   options: [
     {
-      label: 'Smooth Finish',
-      value: 'smooth',
-      description: undefined,
-      price: PRODUCT_PRICES.finish.smooth,
+      label: "Roundneck",
+      value: "roundneck",
+      description: "The classic roundneck finish.",
+      price: PRODUCT_PRICES.finish.roundneck,
     },
     {
-      label: 'Textured Finish',
-      value: 'textured',
-      description: 'Soft grippy texture',
-      price: PRODUCT_PRICES.finish.textured,
+      label: "Polo",
+      value: "polo",
+      description: "The classic polo finish.",
+      price: PRODUCT_PRICES.finish.polo,
     },
   ],
-} as const
+} as const;

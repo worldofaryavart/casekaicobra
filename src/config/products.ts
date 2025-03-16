@@ -1,11 +1,14 @@
+
 export const PRODUCT_PRICES = {
-    material: {
-        silicone: 100_00,
-        polycarbonate: 500_00,
+    fabric: {
+        polyester: 120_00,
+        polycotton: 150_00,
+        dotKnit: 170_00,
+        cotton: 200_00,
     },
     finish: {
-        smooth: 250_00,
-        textured: 130_00,
+        roundneck: 250_00,
+        polo: 130_00,
     },
 } as const 
 
