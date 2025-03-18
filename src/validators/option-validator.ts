@@ -1,3 +1,4 @@
+// option-validator.ts
 import { PRODUCT_PRICES } from "@/config/products";
 
 export const COLORS = [
@@ -5,9 +6,10 @@ export const COLORS = [
   {
     label: "Navy Blue",
     value: "navy_blue",
-    tw: "navy-950", // assumes you have defined this custom color in Tailwind
+    tw: "navy-950", // Tailwind now knows this color from the config
   },
   { label: "White", value: "white", tw: "white-950" },
+  { label: "Red", value: "red", tw: "red-950" }, // newly added red color
 ] as const;
 
 export const SIZES = {

@@ -1,3 +1,4 @@
+// DesignConfigurator.tsx
 'use client'
 
 import HandleComponent from '@/components/HandleComponent'
@@ -168,9 +169,7 @@ const DesignConfigurator = ({
             />
           </AspectRatio>
           {/* Overlay with chosen color */}
-          <div
-            className={cn('absolute inset-0', `bg-${options.color.tw}`)}
-          />
+          <div className={cn('absolute inset-0', `bg-${options.color.tw}`)} />
         </div>
 
         <Rnd
@@ -185,7 +184,6 @@ const DesignConfigurator = ({
               height: parseInt(ref.style.height.slice(0, -2)),
               width: parseInt(ref.style.width.slice(0, -2)),
             })
-
             setRenderedPosition({ x, y })
           }}
           onDragStop={(_, data) => {
@@ -228,10 +226,7 @@ const DesignConfigurator = ({
                 <RadioGroup
                   value={options.color}
                   onChange={(val) => {
-                    setOptions((prev) => ({
-                      ...prev,
-                      color: val,
-                    }))
+                    setOptions((prev) => ({ ...prev, color: val }))
                   }}
                 >
                   <Label>Color: {options.color.label}</Label>
@@ -243,9 +238,7 @@ const DesignConfigurator = ({
                         className={({ active, checked }) =>
                           cn(
                             'relative -m-0.5 flex cursor-pointer items-center justify-center rounded-full p-0.5 active:ring-0 focus:ring-0 active:outline-none focus:outline-none border-2 border-transparent',
-                            {
-                              [`border-${color.tw}`]: active || checked,
-                            }
+                            { [`border-${color.tw}`]: active || checked }
                           )
                         }
                       >
@@ -279,14 +272,9 @@ const DesignConfigurator = ({
                           key={size.label}
                           className={cn(
                             'flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100',
-                            {
-                              'bg-zinc-100':
-                                size.label === options.size.label,
-                            }
+                            { 'bg-zinc-100': size.label === options.size.label }
                           )}
-                          onClick={() => {
-                            setOptions((prev) => ({ ...prev, size }))
-                          }}
+                          onClick={() => setOptions((prev) => ({ ...prev, size }))}
                         >
                           <Check
                             className={cn(
@@ -306,10 +294,7 @@ const DesignConfigurator = ({
                 <RadioGroup
                   value={options.fabric}
                   onChange={(val) => {
-                    setOptions((prev) => ({
-                      ...prev,
-                      fabric: val,
-                    }))
+                    setOptions((prev) => ({ ...prev, fabric: val }))
                   }}
                 >
                   <Label>Fabric</Label>
@@ -321,9 +306,7 @@ const DesignConfigurator = ({
                         className={({ active, checked }) =>
                           cn(
                             'relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between',
-                            {
-                              'border-primary': active || checked,
-                            }
+                            { 'border-primary': active || checked }
                           )
                         }
                       >
@@ -335,19 +318,16 @@ const DesignConfigurator = ({
                             >
                               {option.label}
                             </RadioGroup.Label>
-                            {option.description ? (
+                            {option.description && (
                               <RadioGroup.Description
                                 as='span'
                                 className='text-gray-500'
                               >
-                                <span className='block sm:inline'>
-                                  {option.description}
-                                </span>
+                                {option.description}
                               </RadioGroup.Description>
-                            ) : null}
+                            )}
                           </span>
                         </span>
-
                         <RadioGroup.Description
                           as='span'
                           className='mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right'

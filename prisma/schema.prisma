@@ -26,6 +26,7 @@ enum TshirtColor {
   black
   navy_blue
   white
+  red
 }
 
 enum Fabric {

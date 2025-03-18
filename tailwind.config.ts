@@ -8,6 +8,16 @@ const config = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
+  safelist: [
+    'bg-zinc-900',
+    'bg-navy-950',
+    'bg-white-950',
+    'bg-red-950', // new red color
+    'border-zinc-900',
+    'border-navy-950',
+    'border-white-950',
+    'border-red-950' // new red color border
+  ],
   prefix: '',
   theme: {
     container: {
@@ -51,6 +61,12 @@ const config = {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+        },
+        navy: {
+          950: '#001f3f', // adjust the hex to your preferred navy blue
+        },
+        red: {
+          950: '#ff0000', // adjust to your preferred red shade
         },
       },
       borderRadius: {
