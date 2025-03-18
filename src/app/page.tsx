@@ -39,7 +39,7 @@ export default function Home() {
                 your own way
               </h1>
               <p className="mt-8 text-lg lg:pr-10 max-w-prose text-center lg:text-left text-balance md:text-wrap">
-                Wear your story, your way.{" "}
+                Wear your story: Where Tradition Meets Trend.{" "}
                 <span className="font-medium text-indigo-900">CHICHORÉ</span>{" "}
                 brings hyper-personalized fashion that&apos;s as bold and unique
                 as you.
