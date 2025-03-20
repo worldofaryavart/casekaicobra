@@ -33,9 +33,6 @@ interface DesignConfiguratorProps {
   imageDimensions: { width: number; height: number };
 }
 
-// Updated T-shirt component with round neck and borders
-
-
 // Updated COLORS array with hex values
 const COLORS = [
   { value: "blue", label: "Blue", tw: "blue-500", hex: "#3498db" },
@@ -54,6 +51,8 @@ const DesignConfigurator = ({
 }: DesignConfiguratorProps) => {
   const { toast } = useToast();
   const router = useRouter();
+
+  console.log("DesignConfiguratorProps", configId, imageUrl, imageDimensions);
 
   const { mutate: saveConfig, isPending } = useMutation({
     mutationKey: ["save-config"],
@@ -166,17 +165,6 @@ const DesignConfigurator = ({
         ref={containerRef}
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
-        <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[3/4]">
-          <AspectRatio
-            ref={tshirtRef}
-            ratio={3 / 4}
-            className="pointer-events-none relative z-50 aspect-[3/4] w-full"
-          >
-            {/* Render the T-shirt component with the selected color */}
-            <TShirt color={options.color.hex} />
-          </AspectRatio>
-        </div>
-
         <Rnd
           default={{
             x: 150,
@@ -213,6 +201,16 @@ const DesignConfigurator = ({
             />
           </div>
         </Rnd>
+        <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[3/4]">
+          <AspectRatio
+            ref={tshirtRef}
+            ratio={3 / 4}
+            className="pointer-events-none relative z-50 aspect-[3/4] w-full"
+          >
+            {/* Render the T-shirt component with the selected color */}
+            <TShirt color={options.color.hex} />
+          </AspectRatio>
+        </div>
       </div>
 
       <div className="h-[37.5rem] w-full col-span-full lg:col-span-1 flex flex-col bg-white">
@@ -228,17 +226,20 @@ const DesignConfigurator = ({
             <div className="w-full h-px bg-zinc-200 my-6" />
             <div className="relative mt-4 h-full flex flex-col justify-between">
               <div className="flex flex-col gap-6">
-                {/* Updated color selector with swatches */}
                 <div className="flex flex-col gap-3">
                   <Label>Color: {options.color.label}</Label>
                   <div className="flex flex-wrap gap-2">
                     {COLORS.map((color) => (
                       <button
                         key={color.label}
-                        onClick={() => setOptions((prev) => ({ ...prev, color }))}
+                        onClick={() =>
+                          setOptions((prev) => ({ ...prev, color }))
+                        }
                         className={cn(
                           "relative flex cursor-pointer items-center justify-center rounded-full p-0.5 border-2 border-transparent hover:border-gray-400 transition-all",
-                          { "border-black": color.value === options.color.value }
+                          {
+                            "border-black": color.value === options.color.value,
+                          }
                         )}
                         aria-label={color.label}
                       >
@@ -249,7 +250,6 @@ const DesignConfigurator = ({
                       </button>
                     ))}
                   </div>
-                  {/* Optional: Add a custom color picker */}
                   <div className="flex items-center mt-2">
                     <Label className="mr-3 text-sm">Custom:</Label>
                     <input
@@ -374,14 +374,14 @@ const DesignConfigurator = ({
                 isLoading={isPending}
                 disabled={isPending}
                 loadingText="Saving"
-                onClick={() =>
-                  saveConfig({
-                    configId,
-                    color: options.color.value,
-                    size: options.size.value,
-                    fabric: options.fabric.value,
-                  })
-                }
+                // onClick={() =>
+                //   saveConfig({
+                //     configId,
+                //     color: options.color.value,
+                //     size: options.size.value,
+                //     fabric: options.fabric.value,
+                //   })
+                // }
                 size="sm"
                 className="w-full"
               >
