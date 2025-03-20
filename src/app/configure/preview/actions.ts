@@ -26,12 +26,11 @@ export const createCheckoutSession = async ({
     throw new Error('You need to be logged in')
   }
 
-  const { finish, material } = configuration
+  const { fabric } = configuration
 
   let price = BASE_PRICE
-  if (finish === 'textured') price += PRODUCT_PRICES.finish.textured
-  if (material === 'polycarbonate')
-    price += PRODUCT_PRICES.material.polycarbonate
+  if (fabric === 'polycotton')
+    price += PRODUCT_PRICES.fabric.polycotton
 
   let order: Order | undefined = undefined
 
@@ -57,7 +56,7 @@ export const createCheckoutSession = async ({
   }
 
   const product = await stripe.products.create({
-    name: 'Custom iPhone Case',
+    name: 'Custom T-Shirt',
     images: [configuration.imageUrl],
     default_price_data: {
       currency: 'INR',
