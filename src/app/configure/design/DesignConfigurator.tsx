@@ -165,6 +165,7 @@ const DesignConfigurator = ({
         ref={containerRef}
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
+        {/* Change z-index of the Rnd component to be higher than T-shirt */}
         <Rnd
           default={{
             x: 150,
@@ -183,7 +184,7 @@ const DesignConfigurator = ({
             const { x, y } = data;
             setRenderedPosition({ x, y });
           }}
-          className="absolute z-20 border-[3px] border-primary"
+          className="absolute z-50 border-[3px] border-primary" // Changed z-index from z-20 to z-50
           lockAspectRatio
           resizeHandleComponent={{
             bottomRight: <HandleComponent />,
@@ -205,7 +206,7 @@ const DesignConfigurator = ({
           <AspectRatio
             ref={tshirtRef}
             ratio={3 / 4}
-            className="pointer-events-none relative z-50 aspect-[3/4] w-full"
+            className="pointer-events-none relative z-10 aspect-[3/4] w-full" // Changed z-index from z-50 to z-10
           >
             {/* Render the T-shirt component with the selected color */}
             <TShirt color={options.color.hex} />
