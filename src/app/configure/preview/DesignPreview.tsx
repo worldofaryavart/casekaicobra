@@ -63,7 +63,8 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
 
   const handleCheckout = () => {
     if (user) {
-      createPaymentSession({ configId: id });
+      // createPaymentSession({ configId: id });
+      router.push(`/checkout?configId=${id}`);
     } else {
       localStorage.setItem("configurationId", id);
       setIsLoginModalOpen(true);

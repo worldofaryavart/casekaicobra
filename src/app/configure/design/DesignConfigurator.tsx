@@ -260,7 +260,6 @@ const DesignConfigurator = ({
                       type="color"
                       value={options.color.hex}
                       onChange={(e) => {
-                        // Define a type that matches the expected type from COLORS array
                         type ColorOption = (typeof COLORS)[number];
 
                         const customColor: ColorOption = {
