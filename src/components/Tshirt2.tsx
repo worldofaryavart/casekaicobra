@@ -2,61 +2,29 @@ import React from 'react';
 
 const TShirt = ({ color }: { color: string }) => {
   return (
-    <svg viewBox="0 0 200 200" className="w-full h-full">
-      {/* Main t-shirt shape */}
-      <path 
-        d="
-          M80,20 
-          L50,50 
-          L40,80 
-          L30,100 
-          L30,150 
-          L170,150 
-          L170,100 
-          L160,80 
-          L150,50 
-          L120,20 
-          Q100,0 80,20 
-          Z
-        "
+    <svg
+    xmlns="http://www.w3.org/2000/svg"
+    id="svg1"
+    width="796.381"
+    height="677.388"
+    version="1.1"
+    viewBox="0 0 210.709 179.226"
+    className='w-full h-full'
+  >
+    <g id="layer1" transform="translate(-.09 -21.065)">
+      <path
+        id="path19"
         fill={color}
-        stroke="gray"
-        strokeWidth="2"
-      />
-      
-      {/* Wrinkles/highlights */}
-      <line 
-        x1="45" 
-        y1="70" 
-        x2="45" 
-        y2="90" 
-        stroke="white" 
-        strokeWidth="2" 
-        opacity="0.2" 
-        strokeLinecap="round"
-      />
-      <line 
-        x1="155" 
-        y1="70" 
-        x2="155" 
-        y2="90" 
-        stroke="white" 
-        strokeWidth="2" 
-        opacity="0.2" 
-        strokeLinecap="round"
-      />
-      
-      {/* Bottom hem */}
-      <rect 
-        x="30" 
-        y="145" 
-        width="140" 
-        height="5" 
-        fill="black" 
-        opacity="0.1" 
-        rx="2" 
-      />
-    </svg>
+        fillOpacity="0.98"
+        stroke="#000"
+        strokeDasharray="none"
+        strokeLinejoin="miter"
+        strokeOpacity="1"
+        strokeWidth="0.588"
+        d="M76.293 21.4.955 59.686.39 112.589l39.644-21.905.566 109.31 130.257-1.15-.566-108.16 40.21 21.905-.582-52.352L135.772 21.4c-18.202 10.379-39.526 11.784-59.479 0z"
+      ></path>
+    </g>
+  </svg>
   );
 };
 
