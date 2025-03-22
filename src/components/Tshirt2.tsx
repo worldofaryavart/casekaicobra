@@ -2,7 +2,7 @@ import React from 'react';
 
 interface TShirtProps {
   color: string;
-  imgSrc: string;
+  imgSrc?: string;
   width?: number;
   height?: number;
 }
@@ -37,18 +37,18 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
         </g>
       </svg>
       
-      {/* Image overlay on t-shirt with proper dimensions */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div 
-          className="w-[50%] flex items-center justify-center mt-4"
-          style={{
-            // Use actual dimensions and maintain aspect ratio
-            aspectRatio: aspectRatio || 1,
-            maxWidth: '70%', 
-            maxHeight: '60%'
-          }}
-        >
-          {imgSrc && 
+      {/* Only render the image overlay if imgSrc is provided */}
+      {imgSrc && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div 
+            className="w-[50%] flex items-center justify-center mt-4"
+            style={{
+              // Use actual dimensions and maintain aspect ratio
+              aspectRatio: aspectRatio || 1,
+              maxWidth: '70%', 
+              maxHeight: '60%'
+            }}
+          >
             <img 
               src={imgSrc} 
               alt="T-shirt design" 
@@ -60,9 +60,9 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
                 maxHeight: '100%'
               }}
             />
-          }
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
