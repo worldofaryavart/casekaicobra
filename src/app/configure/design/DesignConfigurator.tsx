@@ -9,7 +9,7 @@ import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { RadioGroup } from "@headlessui/react";
 import { useRef, useState } from "react";
-import { FABRICS, SIZES } from "@/validators/option-validator";
+import { FABRICS, SIZES, COLORS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -26,23 +26,13 @@ import { useMutation } from "@tanstack/react-query";
 import { saveConfig as _saveConfig, SaveConfigArgs } from "./actions";
 import { useRouter } from "next/navigation";
 import TShirt from "@/components/Tshirt2";
+import { TshirtColor } from "@prisma/client";
 
 interface DesignConfiguratorProps {
   configId: string;
   imageUrl: string;
   imageDimensions: { width: number; height: number };
 }
-
-// Updated COLORS array with hex values
-const COLORS = [
-  { value: "blue", label: "Blue", tw: "blue-500", hex: "#3498db" },
-  { value: "red", label: "Red", tw: "red-500", hex: "#e74c3c" },
-  { value: "green", label: "Green", tw: "green-500", hex: "#2ecc71" },
-  { value: "black", label: "Black", tw: "black", hex: "#34495e" },
-  { value: "white", label: "White", tw: "white", hex: "#ecf0f1" },
-  { value: "purple", label: "Purple", tw: "purple-500", hex: "#9b59b6" },
-  { value: "orange", label: "Orange", tw: "orange-500", hex: "#e67e22" },
-];
 
 const DesignConfigurator = ({
   configId,
@@ -159,6 +149,19 @@ const DesignConfigurator = ({
     return new Blob([byteArray], { type: mimeType });
   }
 
+  function mapColorToEnum(colorValue: string): TshirtColor {
+    // Map your component colors to Prisma enum values
+    const colorMap: Record<string, TshirtColor> = {
+      blue: "navy_blue", // Map blue to navy_blue if needed
+      black: "black",
+      white: "white",
+      // If custom, default to a valid enum value
+      custom: "black",
+    };
+
+    return colorMap[colorValue] || "black"; // Default fallback
+  }
+
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
       <div
@@ -257,8 +260,11 @@ const DesignConfigurator = ({
                       type="color"
                       value={options.color.hex}
                       onChange={(e) => {
-                        const customColor = {
-                          value: "custom",
+                        // Define a type that matches the expected type from COLORS array
+                        type ColorOption = (typeof COLORS)[number];
+
+                        const customColor: ColorOption = {
+                          value: "black", // Use a default valid value from the enum
                           label: "Custom",
                           tw: "custom",
                           hex: e.target.value,
@@ -375,14 +381,16 @@ const DesignConfigurator = ({
                 isLoading={isPending}
                 disabled={isPending}
                 loadingText="Saving"
-                // onClick={() =>
-                //   saveConfig({
-                //     configId,
-                //     color: options.color.value,
-                //     size: options.size.value,
-                //     fabric: options.fabric.value,
-                //   })
-                // }
+                onClick={() =>
+                  saveConfig({
+                    configId,
+                    // Map the color value to a valid TshirtColor enum value
+                    color: mapColorToEnum(options.color.value),
+                    size: options.size.value,
+                    fabric: options.fabric.value,
+                  })
+                }
+                // onClick= {(() => console.log("saveConfig is clicked"))}
                 size="sm"
                 className="w-full"
               >

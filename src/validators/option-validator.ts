@@ -2,15 +2,11 @@
 import { PRODUCT_PRICES } from "@/config/products";
 
 export const COLORS = [
-  { label: "Black", value: "black", tw: "zinc-900" },
-  {
-    label: "Navy Blue",
-    value: "navy_blue",
-    tw: "navy-950", // Tailwind now knows this color from the config
-  },
-  { label: "White", value: "white", tw: "white-950" },
-  { label: "Red", value: "red", tw: "red-950" }, // newly added red color
-] as const;
+  { value: "black", label: "Black", tw: "black", hex: "#34495e" },
+  { value: "navy_blue", label: "Navy Blue", tw: "blue-800", hex: "#2c3e50" },
+  { value: "white", label: "White", tw: "white", hex: "#ecf0f1" },
+  { value: "red", label: "Red", tw: "red-500", hex: "#e74c3c" },
+];
 
 export const SIZES = {
   name: "size",
