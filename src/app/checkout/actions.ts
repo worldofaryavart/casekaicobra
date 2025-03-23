@@ -46,16 +46,6 @@ const getOrCreateOrder = async (
     return existingOrder;
   }
 
-  // return await db.order.create({
-  //   data: {
-  //     amount: price / 100,
-  //     userId,
-  //     configurationId: configId,
-  //     paymentMethod,
-  //     paymentStatus: paymentMethod === 'cod' ? 'pending' : 'initiated',
-  //   },
-  // })
-
   return await db.order.create({
     data: {
       amount: price / 100,
@@ -198,31 +188,31 @@ export const createStripeCheckoutSession = async ({
 // }
 
 // // 4. Cash on Delivery
-// export const createCODOrder = async ({
-//   configId,
-// }: {
-//   configId: string
-// }) => {
-//   const { getUser } = getKindeServerSession()
-//   const user = await getUser()
+export const createCODOrder = async ({
+  configId,
+}: {
+  configId: string
+}) => {
+  const { getUser } = getKindeServerSession()
+  const user = await getUser()
 
-//   if (!user) {
-//     throw new Error('You need to be logged in')
-//   }
+  if (!user) {
+    throw new Error('You need to be logged in')
+  }
 
-//   const { configuration, price } = await getConfigurationAndPrice(configId)
+  const { configuration, price } = await getConfigurationAndPrice(configId)
 
-//   // Create or get order with COD payment method
-//   const order = await getOrCreateOrder(user.id, configId, price, 'cod')
+  // Create or get order with COD payment method
+  const order = await getOrCreateOrder(user.id, configId, price, 'cod')
 
-//   // For COD, we just need to create the order with the pending status
-//   await db.order.update({
-//     where: { id: order.id },
-//     data: {
-//       paymentIntentId: `cod_${uuidv4()}`,
-//       paymentStatus: 'pending'
-//     },
-//   })
+  // For COD, we just need to create the order with the pending status
+  await db.order.update({
+    where: { id: order.id },
+    data: {
+      paymentIntentId: `cod_${uuidv4()}`,
+      paymentStatus: 'pending'
+    },
+  })
 
-//   return { orderId: order.id }
-// }
+  return { orderId: order.id }
+}

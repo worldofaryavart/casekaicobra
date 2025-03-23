@@ -26,7 +26,7 @@ import { COLORS, SIZES } from "@/validators/option-validator";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Configuration } from "@prisma/client";
-import { createStripeCheckoutSession } from "./actions";
+import { createCODOrder, createStripeCheckoutSession } from "./actions";
 
 type PaymentMethod = "stripe" | "paypal" | "upi" | "cod";
 
@@ -110,21 +110,21 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
   //   },
   // });
 
-  // const { mutate: processCODOrder } = useMutation({
-  //   mutationKey: ["cod-order"],
-  //   mutationFn: createCODOrder,
-  //   onSuccess: ({ orderId }) => {
-  //     if (orderId) router.push(`/thank-you?orderId=${orderId}`);
-  //     else throw new Error("Unable to create COD order.");
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Order Error",
-  //       description: "There was an error processing your Cash on Delivery order. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
+  const { mutate: processCODOrder } = useMutation({
+    mutationKey: ["cod-order"],
+    mutationFn: createCODOrder,
+    onSuccess: ({ orderId }) => {
+      if (orderId) router.push(`/thank-you?orderId=${orderId}`);
+      else throw new Error("Unable to create COD order.");
+    },
+    onError: () => {
+      toast({
+        title: "Order Error",
+        description: "There was an error processing your Cash on Delivery order. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleCheckout = () => {
     if (!user) {
@@ -152,9 +152,9 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
       // case "upi":
       //   processUPIPayment({ configId });
       //   break;
-      // case "cod":
-      //   processCODOrder({ configId });
-      //   break;
+      case "cod":
+        processCODOrder({ configId: id });
+        break;
     }
   };
 
