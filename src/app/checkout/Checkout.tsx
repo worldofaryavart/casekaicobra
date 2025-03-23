@@ -26,12 +26,7 @@ import { COLORS, SIZES } from "@/validators/option-validator";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Configuration } from "@prisma/client";
-// import {
-//   createStripeCheckoutSession,
-//   createPayPalCheckoutSession,
-//   createUPICheckoutSession,
-//   createCODOrder
-// } from "./actions";
+import { createStripeCheckoutSession } from "./actions";
 
 type PaymentMethod = "stripe" | "paypal" | "upi" | "cod";
 
@@ -66,21 +61,22 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
   };
 
   // Payment handling mutations
-  // const { mutate: processStripePayment } = useMutation({
-  //   mutationKey: ["stripe-checkout"],
-  //   mutationFn: createStripeCheckoutSession,
-  //   onSuccess: ({ url }) => {
-  //     if (url) router.push(url);
-  //     else throw new Error("Unable to retrieve Stripe payment URL.");
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Payment Error",
-  //       description: "There was an error processing your Stripe payment. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
+  const { mutate: processStripePayment } = useMutation({
+    mutationKey: ["stripe-checkout"],
+    mutationFn: createStripeCheckoutSession,
+    onSuccess: ({ url }) => {
+      if (url) router.push(url);
+      else throw new Error("Unable to retrieve Stripe payment URL.");
+    },
+    onError: () => {
+      toast({
+        title: "Payment Error",
+        description:
+          "There was an error processing your Stripe payment. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // const { mutate: processPayPalPayment } = useMutation({
   //   mutationKey: ["paypal-checkout"],
@@ -130,37 +126,37 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
   //   },
   // });
 
-  // const handleCheckout = () => {
-  //   if (!user) {
-  //     if (configId) localStorage.setItem("configurationId", configId);
-  //     setIsLoginModalOpen(true);
-  //     return;
-  //   }
+  const handleCheckout = () => {
+    if (!user) {
+      if (id) localStorage.setItem("configurationId", id);
+      setIsLoginModalOpen(true);
+      return;
+    }
 
-  //   if (!configId) {
-  //     toast({
-  //       title: "Error",
-  //       description: "Configuration ID not found",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
+    if (!id) {
+      toast({
+        title: "Error",
+        description: "Configuration ID not found",
+        variant: "destructive",
+      });
+      return;
+    }
 
-  //   switch (selectedPayment) {
-  //     case "stripe":
-  //       processStripePayment({ configId });
-  //       break;
-  //     case "paypal":
-  //       processPayPalPayment({ configId });
-  //       break;
-  //     case "upi":
-  //       processUPIPayment({ configId });
-  //       break;
-  //     case "cod":
-  //       processCODOrder({ configId });
-  //       break;
-  //   }
-  // };
+    switch (selectedPayment) {
+      case "stripe":
+        processStripePayment({ configId: id });
+        break;
+      // case "paypal":
+      //   processPayPalPayment({ configId });
+      //   break;
+      // case "upi":
+      //   processUPIPayment({ configId });
+      //   break;
+      // case "cod":
+      //   processCODOrder({ configId });
+      //   break;
+    }
+  };
 
   // Display loading state
   if (loading) {
@@ -420,10 +416,7 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
                 >
                   Back to Preview
                 </Button>
-                <Button
-                // onClick={handleCheckout}
-                // disabled={!selectedPayment}
-                >
+                <Button onClick={handleCheckout} disabled={!selectedPayment}>
                   Complete Order
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
