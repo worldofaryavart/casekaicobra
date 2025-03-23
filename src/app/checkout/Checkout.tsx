@@ -78,22 +78,6 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
     },
   });
 
-  // const { mutate: processPayPalPayment } = useMutation({
-  //   mutationKey: ["paypal-checkout"],
-  //   mutationFn: createPayPalCheckoutSession,
-  //   onSuccess: ({ url }) => {
-  //     if (url) router.push(url);
-  //     else throw new Error("Unable to retrieve PayPal payment URL.");
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Payment Error",
-  //       description: "There was an error processing your PayPal payment. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
-
   // const { mutate: processUPIPayment } = useMutation({
   //   mutationKey: ["upi-checkout"],
   //   mutationFn: createUPICheckoutSession,
@@ -146,9 +130,6 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
       case "stripe":
         processStripePayment({ configId: id });
         break;
-      // case "paypal":
-      //   processPayPalPayment({ configId });
-      //   break;
       // case "upi":
       //   processUPIPayment({ configId });
       //   break;
@@ -319,35 +300,6 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
                           className="h-6 w-auto"
                         />
                       </div>
-                    </Label>
-                  </div>
-
-                  <div
-                    className={`flex items-center space-x-2 rounded-md border p-4 ${
-                      selectedPayment === "paypal"
-                        ? "border-2 border-primary"
-                        : ""
-                    }`}
-                  >
-                    <RadioGroupItem value="paypal" id="paypal" />
-                    <Label
-                      htmlFor="paypal"
-                      className="flex items-center space-x-2 cursor-pointer flex-1"
-                    >
-                      <div className="h-5 w-5 text-muted-foreground">₽</div>
-                      <div className="flex-1">
-                        <p className="font-medium">PayPal</p>
-                        <p className="text-sm text-muted-foreground">
-                          Pay using your PayPal account
-                        </p>
-                      </div>
-                      <Image
-                        src="/svglogos/paypal-svgrepo-com.svg"
-                        alt="PayPal"
-                        width={64}
-                        height={24}
-                        className="h-6 w-auto"
-                      />
                     </Label>
                   </div>
 

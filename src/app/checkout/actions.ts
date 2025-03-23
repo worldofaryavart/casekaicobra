@@ -110,45 +110,6 @@ export const createStripeCheckoutSession = async ({
   return { url: stripeSession.url };
 };
 
-// 2. PayPal Payment
-// export const createPayPalCheckoutSession = async ({
-//   configId,
-// }: {
-//   configId: string
-// }) => {
-//   const { getUser } = getKindeServerSession()
-//   const user = await getUser()
-
-//   if (!user) {
-//     throw new Error('You need to be logged in')
-//   }
-
-//   const { configuration, price } = await getConfigurationAndPrice(configId)
-
-//   // Create or get order
-//   const order = await getOrCreateOrder(user.id, configId, price, 'paypal')
-
-//   // Create PayPal session - this is a simplified example, in production you would use the PayPal SDK
-//   // For this example, we're returning a mock URL - in a real implementation, you'd create a PayPal order
-
-//   // In a real implementation:
-//   // 1. Create a PayPal order using their API
-//   // 2. Save the PayPal order ID to your database
-//   // 3. Return the approval URL
-
-//   const mockPayPalUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/paypal/checkout?orderId=${order.id}&configId=${configId}`
-
-//   // Update order with payment initiated status
-//   await db.order.update({
-//     where: { id: order.id },
-//     data: {
-//       paymentIntentId: `paypal_${uuidv4()}`,
-//       paymentStatus: 'initiated'
-//     },
-//   })
-
-//   return { url: mockPayPalUrl }
-// }
 
 // // 3. UPI Payment
 // export const createUPICheckoutSession = async ({
