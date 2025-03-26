@@ -54,7 +54,7 @@ const ThankYou = () => {
         <div className='max-w-xl'>
           <p className='text-base font-medium text-primary'>Thank you!</p>
           <h1 className='mt-2 text-4xl font-bold tracking-tight sm:text-5xl'>
-            Your case is on the way!
+            Your T-Shirt is on the way!
           </h1>
           <p className='mt-2 text-base text-zinc-500'>
             We've received your order and are now processing it.
@@ -72,7 +72,7 @@ const ThankYou = () => {
               You made a great choice!
             </h4>
             <p className='mt-2 text-sm text-zinc-600'>
-              We at CaseCobra believe that a phone case doesn't only need to
+              We at CHICHORÉ believe that a phone case doesn't only need to
               look good, but also last you for the years to come. We offer a
               5-year print guarantee: If you case isn't of the highest quality,
               we'll replace it for free.
