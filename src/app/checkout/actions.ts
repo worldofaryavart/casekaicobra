@@ -110,70 +110,105 @@ export const createStripeCheckoutSession = async ({
   return { url: stripeSession.url };
 };
 
-
 // // 3. UPI Payment
 // export const createUPICheckoutSession = async ({
 //   configId,
 // }: {
-//   configId: string
+//   configId: string;
 // }) => {
-//   const { getUser } = getKindeServerSession()
-//   const user = await getUser()
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
 
 //   if (!user) {
-//     throw new Error('You need to be logged in')
+//     throw new Error("You need to be logged in");
 //   }
 
-//   const { configuration, price } = await getConfigurationAndPrice(configId)
+//   const { configuration, price } = await getConfigurationAndPrice(configId);
 
 //   // Create or get order
-//   const order = await getOrCreateOrder(user.id, configId, price, 'upi')
+//   const order = await getOrCreateOrder(user.id, configId, price, "upi");
 
-//   // In a real implementation, you would:
-//   // 1. Generate a UPI payment link/QR code using a payment gateway that supports UPI
-//   // 2. Save the reference ID to your database
-//   // 3. Return the URL to the UPI payment page
+//   // Generate a transaction id (you might also tie this to the order id)
+//   const transactionId = "Tr-" + uuidv4().toString().slice(-6);
 
-//   const mockUpiUrl = `${process.env.NEXT_PUBLIC_SERVER_URL}/api/upi/checkout?orderId=${order.id}&configId=${configId}`
-
-//   // Update order with payment initiated status
-//   await db.order.update({
-//     where: { id: order.id },
-//     data: {
-//       paymentIntentId: `upi_${uuidv4()}`,
-//       paymentStatus: 'initiated'
+//   // Prepare the PhonePe payload
+//   const payload = {
+//     merchantId: process.env.NEXT_PUBLIC_MERCHANT_ID,
+//     merchantTransactionId: transactionId,
+//     merchantUserId: "MUID-" + uuidv4().toString().slice(-6),
+//     amount: 100 * amount, // converting to paise
+//     redirectUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/status/${transactionId}`,
+//     redirectMode: "REDIRECT",
+//     callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/status/${transactionId}`,
+//     paymentInstrument: {
+//       type: "PAY_PAGE",
 //     },
-//   })
+//   };
 
-//   return { url: mockUpiUrl }
-// }
+//   const dataPayload = JSON.stringify(payload);
+//   const dataBase64 = Buffer.from(dataPayload).toString("base64");
 
-// // 4. Cash on Delivery
-export const createCODOrder = async ({
-  configId,
-}: {
-  configId: string
-}) => {
-  const { getUser } = getKindeServerSession()
-  const user = await getUser()
+//   // PhonePe API endpoint and checksum calculation
+//   const UAT_PAY_API_URL = `${process.env.NEXT_PUBLIC_PHONE_PAY_HOST_URL}/pg/v1/pay`;
+//   const fullURL = dataBase64 + "/pg/v1/pay" + process.env.NEXT_PUBLIC_SALT_KEY;
+//   const dataSha256 = sha256(fullURL).toString();
+//   const checksum = dataSha256 + "###" + process.env.NEXT_PUBLIC_SALT_INDEX;
+
+//   try {
+//     // Call PhonePe API
+//     const response = await axios.post(
+//       UAT_PAY_API_URL,
+//       { request: dataBase64 },
+//       {
+//         headers: {
+//           accept: "application/json",
+//           "Content-Type": "application/json",
+//           "X-VERIFY": checksum,
+//         },
+//       }
+//     );
+
+//     // Update order with payment initiated status and record a payment intent ID
+//     await db.order.update({
+//       where: { id: order.id },
+//       data: {
+//         paymentIntentId: `upi_${transactionId}`,
+//         paymentStatus: "initiated",
+//       },
+//     });
+
+//     return {
+//       redirectUrl: response.data.data.instrumentResponse.redirectInfo.url,
+//       transactionId,
+//     };
+//   } catch (error) {
+//     console.error("Error in initiatePayment action:", error);
+//     throw error;
+//   }
+// };
+
+// 4. Cash on Delivery
+export const createCODOrder = async ({ configId }: { configId: string }) => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
   if (!user) {
-    throw new Error('You need to be logged in')
+    throw new Error("You need to be logged in");
   }
 
-  const { configuration, price } = await getConfigurationAndPrice(configId)
+  const { configuration, price } = await getConfigurationAndPrice(configId);
 
   // Create or get order with COD payment method
-  const order = await getOrCreateOrder(user.id, configId, price, 'cod')
+  const order = await getOrCreateOrder(user.id, configId, price, "cod");
 
   // For COD, we just need to create the order with the pending status
   await db.order.update({
     where: { id: order.id },
     data: {
       paymentIntentId: `cod_${uuidv4()}`,
-      paymentStatus: 'pending'
+      paymentStatus: "pending",
     },
-  })
+  });
 
-  return { orderId: order.id }
-}
+  return { orderId: order.id };
+};

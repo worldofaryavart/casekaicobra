@@ -26,7 +26,7 @@ import { COLORS, SIZES } from "@/validators/option-validator";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import { Separator } from "@radix-ui/react-dropdown-menu";
 import { Configuration } from "@prisma/client";
-import { createCODOrder, createStripeCheckoutSession } from "./actions";
+import { createCODOrder, createStripeCheckoutSession} from "./actions";
 
 type PaymentMethod = "stripe" | "paypal" | "upi" | "cod";
 
@@ -131,7 +131,7 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
         processStripePayment({ configId: id });
         break;
       // case "upi":
-      //   processUPIPayment({ configId });
+      //   processUPIPayment({ configId: id });
       //   break;
       case "cod":
         processCODOrder({ configId: id });
