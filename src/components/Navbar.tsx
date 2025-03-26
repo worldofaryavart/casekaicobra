@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShoppingBag, ShoppingBagIcon, StoreIcon } from "lucide-react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import Link from "next/link";
@@ -86,10 +86,16 @@ const Navbar = async () => {
                 </Link>
 
                 <div className="h-8 w-px bg-zinc-200" />
-
+                <Link
+                  href="/shop"
+                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                >
+                  Shop
+                  <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
+                </Link>
                 <Link
                   href="/configure/upload"
-                  className="flex items-center justify-center gap-1 bg-indigo-900 hover:bg-indigo-950 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                 >
                   Get t-shirt
                   <ArrowRight className="ml-1.5 h-5 w-5" />
