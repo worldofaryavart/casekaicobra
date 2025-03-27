@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Star, ChevronsUpDown, Check } from "lucide-react";
-// These imports assume you have corresponding UI components.
-// If not, you can replace them with your own implementations or simple HTML.
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
@@ -160,13 +158,7 @@ export default function ProductDetail({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
-      {/* Back to Shop Button */}
-      <div className="absolute top-4 left-4">
-        <Link href="/shop">
-          <div className="text-indigo-700 font-medium">Back to Shop</div>
-        </Link>
-      </div>
-
+    
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Side: Image Gallery */}
@@ -383,7 +375,7 @@ export default function ProductDetail({ params }: PageProps) {
         <h2 className="text-2xl font-bold text-black mb-4">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {similarProducts.map((prod) => (
-            <Link key={prod.id} href={`/product/${prod.id}`}>
+            <Link key={prod.id} href={`/shop/product/${prod.id}`}>
               <div className="border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-md transition">
                 <img
                   src={prod.images[0]}
