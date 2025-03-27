@@ -1,0 +1,415 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { Star, ChevronsUpDown, Check } from "lucide-react";
+// These imports assume you have corresponding UI components.
+// If not, you can replace them with your own implementations or simple HTML.
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { RadioGroup } from "@headlessui/react";
+
+// A helper function to join conditional class names
+function cn(...classes: (string | boolean | undefined | null)[]): string {
+    return classes.filter(Boolean).join(" ");
+  }
+
+// --- Type Definitions ---
+
+type Review = {
+  name: string;
+  rating: number;
+  comment: string;
+};
+
+type Product = {
+  id: number;
+  title: string;
+  description: string;
+  details: string;
+  rating: number;
+  realPrice: number;
+  discountPrice: number;
+  images: string[];
+  category: string;
+  reviews: Review[];
+};
+
+// --- Dummy Data ---
+
+const dummyProduct: Product = {
+  id: 1,
+  title: "Printed T-Shirt",
+  description: "A cool printed t-shirt for your everyday look.",
+  details:
+    "This printed t-shirt is made from high-quality cotton, ensuring comfort and durability. Its unique design resonates with modern fashion trends and makes it perfect for casual outings or special events. The fabric is breathable, and the fit is tailored for a contemporary look.",
+  rating: 4.5,
+  realPrice: 1999,
+  discountPrice: 1499,
+  images: [
+    "/teedesigns/kathakali_mask.png",
+    "https://via.placeholder.com/400?text=Angle+1",
+  ],
+  category: "This Week Collection",
+  reviews: [
+    {
+      name: "Alice",
+      rating: 5,
+      comment: "Absolutely love this t-shirt!",
+    },
+    {
+      name: "Bob",
+      rating: 4,
+      comment: "Very comfortable and stylish.",
+    },
+  ],
+};
+
+const similarProducts: Product[] = [
+  {
+    ...dummyProduct,
+    id: 2,
+    title: "Printed T-Shirt 2",
+    images: ["https://via.placeholder.com/400?text=Product+2"],
+    rating: 4.0,
+    realPrice: 2199,
+    discountPrice: 1699,
+    reviews: [],
+  },
+  {
+    ...dummyProduct,
+    id: 3,
+    title: "Printed T-Shirt 3",
+    images: ["https://via.placeholder.com/400?text=Product+3"],
+    rating: 4.8,
+    realPrice: 2499,
+    discountPrice: 1899,
+    reviews: [],
+  },
+  {
+    ...dummyProduct,
+    id: 4,
+    title: "Printed T-Shirt 4",
+    images: ["https://via.placeholder.com/400?text=Product+4"],
+    rating: 4.2,
+    realPrice: 2799,
+    discountPrice: 1999,
+    reviews: [],
+  },
+];
+
+// --- Selector Options ---
+
+const COLORS = [
+  { value: "red", label: "Red", hex: "#ff0000" },
+  { value: "blue", label: "Blue", hex: "#0000ff" },
+  { value: "green", label: "Green", hex: "#00ff00" },
+];
+const SIZES = {
+  options: [
+    { label: "S" },
+    { label: "M" },
+    { label: "L" },
+    { label: "XL" },
+  ],
+};
+const FABRICS = {
+  options: [
+    {
+      value: "cotton",
+      label: "Cotton",
+      description: "Soft and breathable",
+      price: 0,
+    },
+    {
+      value: "polyester",
+      label: "Polyester",
+      description: "Durable and vibrant",
+      price: 200,
+    },
+  ],
+};
+
+const formatPrice = (price: number) => `₹${price}`;
+
+// --- Page Component Props ---
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+// --- Main Component ---
+export default function ProductDetail({ params }: PageProps) {
+  // For demonstration, we use dummyProduct regardless of the id.
+  const product = dummyProduct;
+
+  // State to manage selected options and the selected image from the gallery.
+  const [options, setOptions] = useState({
+    color: COLORS[0],
+    size: SIZES.options[0],
+    fabric: FABRICS.options[0],
+    selectedImage: product.images[0],
+  });
+
+  return (
+    <div className="min-h-screen bg-white p-4 md:p-8 relative">
+      {/* Back to Shop Button */}
+      <div className="absolute top-4 left-4">
+        <Link href="/shop">
+          <div className="text-indigo-700 font-medium">Back to Shop</div>
+        </Link>
+      </div>
+
+      {/* Main Grid Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Side: Image Gallery */}
+        <div>
+          <img
+            src={options.selectedImage}
+            alt={product.title}
+            className="w-full rounded mb-4 object-cover"
+          />
+          <div className="flex space-x-2">
+            {product.images.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`${product.title} ${index + 1}`}
+                className={cn(
+                  "w-16 h-16 object-cover rounded cursor-pointer border",
+                  options.selectedImage === img
+                    ? "border-indigo-700"
+                    : "border-gray-300"
+                )}
+                onClick={() =>
+                  setOptions((prev) => ({ ...prev, selectedImage: img }))
+                }
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Right Side: Product Details and Options */}
+        <div className="flex flex-col space-y-6">
+          <h1 className="text-3xl font-bold text-black">{product.title}</h1>
+          <div className="flex items-center space-x-2">
+            <Star className="w-5 h-5 text-yellow-500" />
+            <span className="text-black font-medium">{product.rating}</span>
+          </div>
+          <p className="text-gray-700">{product.description}</p>
+          <div className="flex items-center space-x-2">
+            <span className="text-gray-500 line-through">
+              {formatPrice(product.realPrice)}
+            </span>
+            <span className="text-black font-bold">
+              {formatPrice(product.discountPrice)}
+            </span>
+          </div>
+
+          {/* Product Selectors */}
+          <div className="space-y-6">
+            {/* Color Selector */}
+            <div className="flex flex-col gap-3">
+              <Label>Color: {options.color.label}</Label>
+              <div className="flex flex-wrap gap-2">
+                {COLORS.map((color) => (
+                  <button
+                    key={color.label}
+                    onClick={() =>
+                      setOptions((prev) => ({ ...prev, color }))
+                    }
+                    className={cn(
+                      "relative flex cursor-pointer items-center justify-center rounded-full p-0.5 border-2 border-transparent hover:border-gray-400 transition-all",
+                      color.value === options.color.value && "border-black"
+                    )}
+                    aria-label={color.label}
+                  >
+                    <span
+                      className="h-8 w-8 rounded-full border border-black border-opacity-10"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                  </button>
+                ))}
+              </div>
+              <div className="flex items-center mt-2">
+                <Label className="mr-3 text-sm">Custom:</Label>
+                <input
+                  type="color"
+                  value={options.color.hex}
+                  onChange={(e) => {
+                    const customColor = {
+                      value: "custom",
+                      label: "Custom",
+                      hex: e.target.value,
+                    };
+                    setOptions((prev) => ({ ...prev, color: customColor }));
+                  }}
+                  className="h-8 w-8 rounded cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Size Selector */}
+            <div className="relative flex flex-col gap-3 w-full">
+              <Label>Size</Label>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    className="w-full justify-between"
+                  >
+                    {options.size.label}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {SIZES.options.map((size) => (
+                    <DropdownMenuItem
+                      key={size.label}
+                      className={cn(
+                        "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
+                        size.label === options.size.label && "bg-zinc-100"
+                      )}
+                      onClick={() =>
+                        setOptions((prev) => ({ ...prev, size }))
+                      }
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          size.label === options.size.label
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      {size.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Fabric Selector */}
+            <RadioGroup
+              value={options.fabric}
+              onChange={(val) => {
+                setOptions((prev) => ({ ...prev, fabric: val }));
+              }}
+            >
+              <Label>Fabric</Label>
+              <div className="mt-3 space-y-4">
+                {FABRICS.options.map((option) => (
+                  <RadioGroup.Option
+                    key={option.value}
+                    value={option}
+                    className={({ active, checked }) =>
+                      cn(
+                        "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none",
+                        (active || checked) && "border-indigo-700"
+                      )
+                    }
+                  >
+                    <span className="flex items-center">
+                      <span className="flex flex-col text-sm">
+                        <RadioGroup.Label
+                          className="font-medium text-gray-900"
+                          as="span"
+                        >
+                          {option.label}
+                        </RadioGroup.Label>
+                        {option.description && (
+                          <RadioGroup.Description
+                            as="span"
+                            className="text-gray-500"
+                          >
+                            {option.description}
+                          </RadioGroup.Description>
+                        )}
+                      </span>
+                    </span>
+                    <RadioGroup.Description
+                      as="span"
+                      className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right"
+                    >
+                      <span className="font-medium text-gray-900">
+                        {formatPrice(option.price)}
+                      </span>
+                    </RadioGroup.Description>
+                  </RadioGroup.Option>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
+
+          <Button className="bg-indigo-700 text-white py-2 px-4 rounded hover:bg-indigo-800">
+            Buy Now
+          </Button>
+        </div>
+      </div>
+
+      {/* Full Product Details Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-black mb-4">Product Details</h2>
+        <p className="text-gray-700">{product.details}</p>
+      </div>
+
+      {/* Customer Reviews Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-black mb-4">Customer Reviews</h2>
+        <div className="space-y-4">
+          {product.reviews.map((review, index) => (
+            <div key={index} className="border p-4 rounded">
+              <div className="flex items-center space-x-2">
+                <Star className="w-4 h-4 text-yellow-500" />
+                <span className="font-medium">{review.rating}</span>
+                <span className="text-sm text-gray-600">by {review.name}</span>
+              </div>
+              <p className="text-gray-700">{review.comment}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Similar Products Section */}
+      <div className="mt-12">
+        <h2 className="text-2xl font-bold text-black mb-4">Similar Products</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {similarProducts.map((prod) => (
+            <Link key={prod.id} href={`/product/${prod.id}`}>
+              <div className="border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-md transition">
+                <img
+                  src={prod.images[0]}
+                  alt={prod.title}
+                  className="mb-4 rounded object-cover"
+                />
+                <h3 className="text-xl font-bold text-black mb-2">
+                  {prod.title}
+                </h3>
+                <div className="flex items-center space-x-2">
+                  <Star className="w-4 h-4 text-yellow-500" />
+                  <span className="text-black font-medium">{prod.rating}</span>
+                </div>
+                <div className="mt-2">
+                  <span className="text-gray-500 line-through mr-2">
+                    {formatPrice(prod.realPrice)}
+                  </span>
+                  <span className="text-black font-bold">
+                    {formatPrice(prod.discountPrice)}
+                  </span>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
