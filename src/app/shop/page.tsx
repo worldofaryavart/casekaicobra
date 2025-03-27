@@ -20,7 +20,7 @@ const dummyProducts: Product[] = [
     rating: 4.5,
     realPrice: 1999,
     discountPrice: 1499,
-    image: "/teedesigns/kathakali_mask.png",
+    image: "/models/kathakali_mask_man.png",
     category: "This Week Collection",
   },
   {
