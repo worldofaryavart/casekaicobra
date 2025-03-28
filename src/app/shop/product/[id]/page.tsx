@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Star, ChevronsUpDown, Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
@@ -12,11 +12,12 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup } from "@headlessui/react";
+import { db } from "@/db";
 
 // A helper function to join conditional class names
 function cn(...classes: (string | boolean | undefined | null)[]): string {
-    return classes.filter(Boolean).join(" ");
-  }
+  return classes.filter(Boolean).join(" ");
+}
 
 // --- Type Definitions ---
 
@@ -26,7 +27,7 @@ type Review = {
   comment: string;
 };
 
-type Product = {
+export type Product = {
   id: number;
   title: string;
   description: string;
@@ -39,69 +40,6 @@ type Product = {
   reviews: Review[];
 };
 
-// --- Dummy Data ---
-
-const dummyProduct: Product = {
-  id: 1,
-  title: "Printed T-Shirt",
-  description: "A cool printed t-shirt for your everyday look.",
-  details:
-    "This printed t-shirt is made from high-quality cotton, ensuring comfort and durability. Its unique design resonates with modern fashion trends and makes it perfect for casual outings or special events. The fabric is breathable, and the fit is tailored for a contemporary look.",
-  rating: 4.5,
-  realPrice: 1999,
-  discountPrice: 1499,
-  images: [
-    "/models/kathakali_mask_man.png",
-    "/teedesigns/kathakali_mask.png",
-  ],
-  category: "This Week Collection",
-  reviews: [
-    {
-      name: "Alice",
-      rating: 5,
-      comment: "Absolutely love this t-shirt!",
-    },
-    {
-      name: "Bob",
-      rating: 4,
-      comment: "Very comfortable and stylish.",
-    },
-  ],
-};
-
-const similarProducts: Product[] = [
-  {
-    ...dummyProduct,
-    id: 2,
-    title: "Printed T-Shirt 2",
-    images: ["/teedesigns/warli_tribal_art.png"],
-    rating: 4.0,
-    realPrice: 2199,
-    discountPrice: 1699,
-    reviews: [],
-  },
-  {
-    ...dummyProduct,
-    id: 3,
-    title: "Printed T-Shirt 3",
-    images: ["/teedesigns/assam_bihu.png"],
-    rating: 4.8,
-    realPrice: 2499,
-    discountPrice: 1899,
-    reviews: [],
-  },
-  {
-    ...dummyProduct,
-    id: 4,
-    title: "Printed T-Shirt 4",
-    images: ["/teedesigns/gond_motif_art.png"],
-    rating: 4.2,
-    realPrice: 2799,
-    discountPrice: 1999,
-    reviews: [],
-  },
-];
-
 // --- Selector Options ---
 
 const COLORS = [
@@ -110,12 +48,7 @@ const COLORS = [
   { value: "green", label: "Green", hex: "#00ff00" },
 ];
 const SIZES = {
-  options: [
-    { label: "S" },
-    { label: "M" },
-    { label: "L" },
-    { label: "XL" },
-  ],
+  options: [{ label: "S" }, { label: "M" }, { label: "L" }, { label: "XL" }],
 };
 const FABRICS = {
   options: [
@@ -137,28 +70,120 @@ const FABRICS = {
 const formatPrice = (price: number) => `₹${price}`;
 
 // --- Page Component Props ---
+
 interface PageProps {
   params: {
     id: string;
   };
 }
 
-// --- Main Component ---
-export default function ProductDetail({ params }: PageProps) {
-  // For demonstration, we use dummyProduct regardless of the id.
-  const product = dummyProduct;
+type DBProduct = {
+  id: string;
+  title: string;
+  description: string;
+  details: string;
+  category: string;
+  realPrice: number;
+  discountPrice: number;
+  images: string[];
+  availableSizes: string[];
+  availableFabrics: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
-  // State to manage selected options and the selected image from the gallery.
-  const [options, setOptions] = useState({
-    color: COLORS[0],
-    size: SIZES.options[0],
-    fabric: FABRICS.options[0],
-    selectedImage: product.images[0],
-  });
+// --- Main Component ---
+
+export default function ProductDetail({ params }: PageProps) {
+  const [product, setProduct] = useState<Product | null>(null);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Options state is initialized once the product is fetched
+  const [options, setOptions] = useState<{
+    color: { value: string; label: string; hex: string };
+    size: { label: string };
+    fabric: {
+      value: string;
+      label: string;
+      description: string;
+      price: number;
+    };
+    selectedImage: string;
+  } | null>(null);
+
+  // Fixed useEffect implementation
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        const productId = params.id;
+        // Fix 1: Proper Prisma findUnique syntax and type declaration
+        const product = await db.product.findUnique({
+          where: { id: productId },
+        });
+
+        if (!product) {
+          setError("Product not found");
+          return;
+        }
+
+        // Fix 2: Proper type conversion from DBProduct to Product
+        const productData: Product = {
+          ...product,
+          // Add missing properties with safe defaults
+          reviews: product.reviews || [],
+          rating: product.rating || 0,
+          // Convert string arrays to proper format if needed
+          availableSizes: product.availableSizes || [],
+          availableFabrics: product.availableFabrics || [],
+        };
+
+        setProduct(productData);
+
+        // Fix 3: Correct Prisma findMany syntax
+        const similarProducts = await db.product.findMany({
+          where: {
+            category: product.category,
+            id: { not: productId },
+          },
+        });
+
+        // Fix 4: Proper type conversion for similar products
+        setSimilarProducts(
+          similarProducts.map((sp: DBProduct) => ({
+            ...sp,
+            // reviews: sp.reviews || [],
+            // rating: sp.rating || 0,
+          })) as Product[]
+        );
+
+        // Initialize options safely
+        setOptions({
+          color: COLORS[0],
+          size: SIZES.options[0],
+          fabric: FABRICS.options[0],
+          selectedImage: product.images[0],
+        });
+      } catch (err) {
+        console.error(err);
+        setError("Error loading product data");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProduct();
+  }, [params.id]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (error || !product || !options) {
+    return <div>{error || "Product not found"}</div>;
+  }
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
-    
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Side: Image Gallery */}
@@ -181,7 +206,9 @@ export default function ProductDetail({ params }: PageProps) {
                     : "border-gray-300"
                 )}
                 onClick={() =>
-                  setOptions((prev) => ({ ...prev, selectedImage: img }))
+                  setOptions((prev) =>
+                    prev ? { ...prev, selectedImage: img } : null
+                  )
                 }
               />
             ))}
@@ -215,7 +242,7 @@ export default function ProductDetail({ params }: PageProps) {
                   <button
                     key={color.label}
                     onClick={() =>
-                      setOptions((prev) => ({ ...prev, color }))
+                      setOptions((prev) => (prev ? { ...prev, color } : null))
                     }
                     className={cn(
                       "relative flex cursor-pointer items-center justify-center rounded-full p-0.5 border-2 border-transparent hover:border-gray-400 transition-all",
@@ -241,7 +268,9 @@ export default function ProductDetail({ params }: PageProps) {
                       label: "Custom",
                       hex: e.target.value,
                     };
-                    setOptions((prev) => ({ ...prev, color: customColor }));
+                    setOptions((prev) =>
+                      prev ? { ...prev, color: customColor } : null
+                    );
                   }}
                   className="h-8 w-8 rounded cursor-pointer"
                 />
@@ -271,7 +300,7 @@ export default function ProductDetail({ params }: PageProps) {
                         size.label === options.size.label && "bg-zinc-100"
                       )}
                       onClick={() =>
-                        setOptions((prev) => ({ ...prev, size }))
+                        setOptions((prev) => (prev ? { ...prev, size } : null))
                       }
                     >
                       <Check
@@ -293,7 +322,7 @@ export default function ProductDetail({ params }: PageProps) {
             <RadioGroup
               value={options.fabric}
               onChange={(val) => {
-                setOptions((prev) => ({ ...prev, fabric: val }));
+                setOptions((prev) => (prev ? { ...prev, fabric: val } : null));
               }}
             >
               <Label>Fabric</Label>
