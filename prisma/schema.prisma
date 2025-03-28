@@ -118,3 +118,18 @@ model BillingAddress {
   phoneNumber String?
   orders      Order[]
 }
+
+model Product {
+  id               String         @id @default(cuid())
+  title            String
+  description      String
+  details          String
+  category         String
+  realPrice        Float
+  discountPrice    Float
+  images           String[]       // Supports multiple image URLs
+  availableSizes   TshirtSize[]   // Uses the enum defined in your schema
+  availableFabrics Fabric[]       // Uses the enum defined in your schema
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
