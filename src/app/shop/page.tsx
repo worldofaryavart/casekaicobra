@@ -39,7 +39,6 @@ export default async function ShopPage() {
     // Type the result of the database query
     const products: DBProduct[] = await db.product.findMany();
 
-    console.log("products are : ", products);
 
     // Transform the database results into the Product type
     const formattedProducts: Product[] = products.map((product: DBProduct) => ({
@@ -51,8 +50,6 @@ export default async function ShopPage() {
       image: product.images[0],
       category: product.category,
     }));
-
-    console.log("formattedProduct is : ", formattedProducts);
 
     return <Shop products={formattedProducts} categories={categories} />;
   } catch (error) {
