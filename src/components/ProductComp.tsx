@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup } from "@headlessui/react";
+import { useRouter } from "next/navigation"; // Added for navigation
 import { COLORS, FABRICS, SIZES } from "@/validators/option-validator";
 
 // Helper function for joining class names
@@ -43,6 +44,8 @@ const formatPrice = (priceInPaise: number) =>
   `₹${(priceInPaise / 100).toFixed(2)}`;
 
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
+  const router = useRouter();
+
   // Change fabric state to store a string value
   const [options, setOptions] = useState<{
     color: { value: string; label: string; hex: string };
@@ -60,6 +63,22 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
   const selectedFabric = FABRICS.options.find(
     (option) => option.value === options.fabric
   );
+
+  // Handler for the Buy Now button
+  const handleBuy = () => {
+    console.log("Product ID:", product.id);
+    console.log("Selected Color:", options.color);
+    console.log("Selected Fabric:", options.fabric);
+    console.log("Selected Size:", options.size);
+    
+    const params = new URLSearchParams({
+      productId: product.id,
+      color: options.color.label, // using the label; change as needed
+      fabric: options.fabric,
+      size: options.size.label,
+    });
+    router.push(`/checkout?${params.toString()}`);
+  };
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
@@ -228,7 +247,10 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
             </RadioGroup>
           </div>
 
-          <Button className="bg-indigo-700 text-white py-2 px-4 rounded hover:bg-indigo-800">
+          <Button
+            onClick={handleBuy}
+            className="bg-indigo-700 text-white py-2 px-4 rounded hover:bg-indigo-800"
+          >
             Buy Now
           </Button>
         </div>
