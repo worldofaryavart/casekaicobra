@@ -36,25 +36,30 @@ type DBProduct = {
 
 type ProductProps = {
   product: DBProduct;
-  similarProducts: DBProduct[]; // Expecting an array
+  similarProducts: DBProduct[];
 };
 
 const formatPrice = (priceInPaise: number) =>
   `₹${(priceInPaise / 100).toFixed(2)}`;
 
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
-  // Initialize options using default values from the product and validators.
+  // Change fabric state to store a string value
   const [options, setOptions] = useState<{
     color: { value: string; label: string; hex: string };
     size: { label: string };
-    fabric: { value: string; label: string; price: number };
+    fabric: string; // Store fabric as its value string
     selectedImage: string;
   }>({
     color: COLORS[0],
     size: SIZES.options[0],
-    fabric: FABRICS.options[0],
+    fabric: FABRICS.options[0].value, // Using the fabric's value (e.g., "cotton")
     selectedImage: product.images[0],
   });
+
+  // Find the currently selected fabric object
+  const selectedFabric = FABRICS.options.find(
+    (option) => option.value === options.fabric
+  );
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
@@ -186,12 +191,12 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                 setOptions((prev) => ({ ...prev, fabric: val }))
               }
             >
-              <Label>Fabric</Label>
+              <Label>Fabric: {selectedFabric?.label}</Label>
               <div className="mt-3 space-y-4">
                 {FABRICS.options.map((option) => (
                   <RadioGroup.Option
                     key={option.value}
-                    value={option}
+                    value={option.value} // use the primitive value here
                     className={({ active, checked }) =>
                       cn(
                         "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none",
