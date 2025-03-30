@@ -136,16 +136,26 @@ model Product {
   title            String
   description      String
   details          String
-  category         String
+  // Make the field optional for now:
+  categoryId       String?        
+  category         Category?      @relation(fields: [categoryId], references: [id])
   realPrice        Float
   discountPrice    Float
-  images           String[]       // Supports multiple image URLs
-  availableSizes   TshirtSize[]   // Uses the enum defined in your schema
-  availableFabrics Fabric[]       // Uses the enum defined in your schema
+  images           String[]       
+  availableSizes   TshirtSize[]   
+  availableFabrics Fabric[]       
   availableColors  TshirtColor[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
-  // Add the following field to complete the relation:
   configurations   Configuration[]
 }
+
+
+
+model Category {
+  id       String     @id @default(cuid())
+  name     String
+  products Product[]
+}
+
