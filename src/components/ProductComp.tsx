@@ -20,17 +20,24 @@ function cn(...classes: (string | boolean | undefined | null)[]): string {
   return classes.filter(Boolean).join(" ");
 }
 
+type Category = {
+  id: string;
+  name: string;
+};
+
+// allowing category to be null.
 type DBProduct = {
   id: string;
   title: string;
   description: string;
   details: string;
-  category: string;
+  category: Category | null;  // Allow null if not connected
   realPrice: number;
   discountPrice: number;
   images: string[];
   availableSizes: string[];
   availableFabrics: string[];
+  availableColors: string[];
   createdAt: Date;
   updatedAt: Date;
 };
