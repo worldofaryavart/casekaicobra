@@ -1,18 +1,26 @@
 import { db } from "@/db";
 import Shop from "@/components/Shop";
 
-// Define a type for the product as returned by the database
+// Define a type for Category
+type Category = {
+  id: string;
+  name: string;
+};
+
+// Define the type for the product as returned by the database,
+// allowing category to be null.
 type DBProduct = {
   id: string;
   title: string;
   description: string;
   details: string;
-  category: string;
+  category: Category | null;  // Allow null if not connected
   realPrice: number;
   discountPrice: number;
   images: string[];
   availableSizes: string[];
   availableFabrics: string[];
+  availableColors: string[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -28,27 +36,26 @@ type Product = {
   category: string;
 };
 
-const categories = [
-  "This Week Collection",
-  "Festival Special",
-  "Summer Special",
-];
-
 export default async function ShopPage() {
   try {
-    // Type the result of the database query
-    const products: DBProduct[] = await db.product.findMany();
+    // Fetch categories (returns array of Category objects)
+    const categories: Category[] = await db.category.findMany();
 
+    // Fetch products including the related category
+    const products: DBProduct[] = await db.product.findMany({
+      include: { category: true },
+    });
 
-    // Transform the database results into the Product type
-    const formattedProducts: Product[] = products.map((product: DBProduct) => ({
+    // Transform the DB product data to your front‑end Product type
+    const formattedProducts: Product[] = products.map((product) => ({
       id: product.id,
       title: product.title,
       description: product.description,
       realPrice: product.realPrice,
       discountPrice: product.discountPrice,
-      image: product.images[0],
-      category: product.category,
+      image: product.images[0], // use the first image as preview
+      // If category is null, fallback to "Uncategorized"
+      category: product.category ? product.category.name : "Uncategorized",
     }));
 
     return <Shop products={formattedProducts} categories={categories} />;

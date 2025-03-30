@@ -1,8 +1,7 @@
-import { Star } from "lucide-react";
 import Link from "next/link";
 
 type Product = {
-  id: string; // Changed from number to string
+  id: string;
   title: string;
   description: string;
   image: string;
@@ -11,12 +10,17 @@ type Product = {
   discountPrice: number;
 };
 
+type Category = {
+  id: string;
+  name: string;
+};
+
 export default function Shop({
   products,
   categories,
 }: {
   products: Product[];
-  categories: string[];
+  categories: Category[];
 }) {
   return (
     <div className="min-h-screen w-full bg-white py-8">
@@ -26,12 +30,12 @@ export default function Shop({
         </h1>
         {categories.map((cat) => {
           const filteredProducts = products.filter(
-            (prod) => prod.category === cat
+            (prod) => prod.category === cat.name
           );
           return (
-            <section key={cat} className="mb-12">
+            <section key={cat.id} className="mb-12">
               <h2 className="text-2xl font-semibold text-black mb-4">
-                {cat}
+                {cat.name}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {filteredProducts.map((product: Product) => (
