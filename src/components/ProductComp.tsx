@@ -12,26 +12,19 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup } from "@headlessui/react";
-import { useRouter } from "next/navigation"; // Added for navigation
-import { COLORS, FABRICS, SIZES } from "@/validators/option-validator";
-
-// Helper function for joining class names
-function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
+import { useRouter } from "next/navigation";
 
 type Category = {
   id: string;
   name: string;
 };
 
-// allowing category to be null.
 type DBProduct = {
   id: string;
   title: string;
   description: string;
   details: string;
-  category: Category | null;  // Allow null if not connected
+  category: Category | null;
   realPrice: number;
   discountPrice: number;
   images: string[];
@@ -50,24 +43,46 @@ type ProductProps = {
 const formatPrice = (priceInPaise: number) =>
   `₹${(priceInPaise / 100).toFixed(2)}`;
 
+// Helper function for joining class names
+function cn(...classes: (string | boolean | undefined | null)[]): string {
+  return classes.filter(Boolean).join(" ");
+}
+
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
   const router = useRouter();
 
-  // Change fabric state to store a string value
+  // Map the product detail arrays to option objects
+  const colors = product.availableColors.map((c) => ({
+    value: c,
+    label: c,
+    hex: c, // using the string as the hex value or color name
+  }));
+
+  const sizes = product.availableSizes.map((s) => ({
+    label: s,
+  }));
+
+  const fabrics = product.availableFabrics.map((f) => ({
+    value: f,
+    label: f,
+    price: 0, // since no price is provided, defaulting to 0
+  }));
+
+  // Set initial state using the mapped arrays
   const [options, setOptions] = useState<{
     color: { value: string; label: string; hex: string };
     size: { label: string };
-    fabric: string; // Store fabric as its value string
+    fabric: string;
     selectedImage: string;
   }>({
-    color: COLORS[0],
-    size: SIZES.options[0],
-    fabric: FABRICS.options[0].value, // Using the fabric's value (e.g., "cotton")
+    color: colors[0],
+    size: sizes[0],
+    fabric: fabrics[0].value,
     selectedImage: product.images[0],
   });
 
   // Find the currently selected fabric object
-  const selectedFabric = FABRICS.options.find(
+  const selectedFabric = fabrics.find(
     (option) => option.value === options.fabric
   );
 
@@ -77,10 +92,10 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
     console.log("Selected Color:", options.color);
     console.log("Selected Fabric:", options.fabric);
     console.log("Selected Size:", options.size);
-    
+
     const params = new URLSearchParams({
       productId: product.id,
-      color: options.color.label, // using the label; change as needed
+      color: options.color.label,
       fabric: options.fabric,
       size: options.size.label,
     });
@@ -136,7 +151,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
             <div className="flex flex-col gap-3">
               <Label>Color: {options.color.label}</Label>
               <div className="flex flex-wrap gap-2">
-                {COLORS.map((color) => (
+                {colors.map((color) => (
                   <button
                     key={color.label}
                     onClick={() => setOptions((prev) => ({ ...prev, color }))}
@@ -186,7 +201,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  {SIZES.options.map((size) => (
+                  {sizes.map((size) => (
                     <DropdownMenuItem
                       key={size.label}
                       className={cn(
@@ -219,10 +234,10 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
             >
               <Label>Fabric: {selectedFabric?.label}</Label>
               <div className="mt-3 space-y-4">
-                {FABRICS.options.map((option) => (
+                {fabrics.map((option) => (
                   <RadioGroup.Option
                     key={option.value}
-                    value={option.value} // use the primitive value here
+                    value={option.value}
                     className={({ active, checked }) =>
                       cn(
                         "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none",
@@ -269,7 +284,8 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
         <p className="text-gray-700">{product.details}</p>
       </div>
 
-      {/* Similar Products Section (Uncomment if needed)
+      {/*
+      Similar Products Section (Uncomment if needed)
       <div className="mt-12">
         <h2 className="text-2xl font-bold text-black mb-4">Similar Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
