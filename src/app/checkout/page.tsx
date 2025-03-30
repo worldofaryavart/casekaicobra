@@ -37,7 +37,6 @@ const CheckoutPage = async ({ searchParams }: PageProps) => {
       color,
       fabric,
       size,
-      // You can add additional custom fields as needed.
     };
   } else {
     return notFound();

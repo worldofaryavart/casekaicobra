@@ -52,16 +52,28 @@ enum Fabric {
 }
 
 model Configuration {
-  id              String         @id @default(cuid())
-  width           Int
-  height          Int
-  imageUrl        String
+  id              String      @id @default(cuid())
+  // For custom orders, you might have extra details:
+  width           Int?       
+  height          Int?
+  imageUrl        String?    // e.g. a design image or mockup
+  croppedImageUrl String?
+
+  // Common options used in both shop and custom orders:
   color           TshirtColor?
   size            TshirtSize?
   fabric          Fabric?
-  croppedImageUrl String?
+
+  // Indicates whether the configuration is custom or based on a shop product.
+  isCustom        Boolean     @default(true)
+
+  // For shop orders, you link to the product
+  productId       String?     
+  product         Product?    @relation(fields: [productId], references: [id])
+
   Order           Order[]
 }
+
 
 model User {
   id        String   @id @default(cuid())
@@ -86,8 +98,8 @@ model Order {
   billingAddress     BillingAddress?  @relation(fields: [billingAddressId], references: [id])
   paymentMethod      PaymentMethod    @default(stripe)
   paymentStatus      PaymentStatus    @default(initiated)
-  paymentIntentId    String?          // ID from payment provider
-  trackingId         String?          // For Shipping tracking
+  paymentIntentId    String?          // from payment provider
+  trackingId         String?          // for shipping tracking
   createdAt          DateTime         @default(now())
   updated            DateTime         @updatedAt
 
@@ -130,6 +142,10 @@ model Product {
   images           String[]       // Supports multiple image URLs
   availableSizes   TshirtSize[]   // Uses the enum defined in your schema
   availableFabrics Fabric[]       // Uses the enum defined in your schema
+  availableColors  TshirtColor[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  // Add the following field to complete the relation:
+  configurations   Configuration[]
 }
