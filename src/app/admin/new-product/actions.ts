@@ -8,7 +8,7 @@ export type CreateProductArgs = {
   title: string
   description: string
   details: string
-  category: string
+  category: string  // changed from string[] to string (the category id)
   realPrice: number
   discountPrice: number
   availableSizes: TshirtSize[]  // values should match your enum (e.g. "xs", "s", etc.)
@@ -21,7 +21,7 @@ export async function createProduct(args: CreateProductArgs) {
     title,
     description,
     details,
-    category,
+    category, // this is now the category id
     realPrice,
     discountPrice,
     availableSizes,
@@ -34,7 +34,9 @@ export async function createProduct(args: CreateProductArgs) {
       title,
       description,
       details,
-      category,
+      category: {
+        connect: { id: category },
+      },
       realPrice,
       discountPrice,
       images: imageUrls, // Assuming your schema defines images as String[]

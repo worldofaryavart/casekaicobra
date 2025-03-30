@@ -151,8 +151,6 @@ model Product {
   configurations   Configuration[]
 }
 
-
-
 model Category {
   id       String     @id @default(cuid())
   name     String

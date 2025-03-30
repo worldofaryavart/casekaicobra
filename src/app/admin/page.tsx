@@ -77,6 +77,11 @@ const Page = async () => {
               Add New Product
             </div>
           </Link>
+          <Link href="/admin/new-category">
+            <div className="px-4 py-2 bg-green-600 text-white rounded">
+              Add New Category
+            </div>
+          </Link>
           {/* You can add more links here for additional admin features */}
         </nav>
       </aside>
