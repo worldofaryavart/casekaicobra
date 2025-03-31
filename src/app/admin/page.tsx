@@ -78,8 +78,23 @@ const Page = async () => {
             </div>
           </Link>
           <Link href="/admin/new-category">
-            <div className="px-4 py-2 bg-green-600 text-white rounded">
+            <div className="px-4 py-2 bg-yellow-600 text-white rounded">
               Add New Category
+            </div>
+          </Link>
+          <Link href="/admin/new-color">
+            <div className="px-4 py-2 bg-yellow-600 text-white rounded">
+              Add New Color
+            </div>
+          </Link>
+          <Link href="/admin/new-fabric">
+            <div className="px-4 py-2 bg-yellow-600 text-white rounded">
+              Add New Fabric
+            </div>
+          </Link>
+          <Link href="/admin/new-size">
+            <div className="px-4 py-2 bg-yellow-600 text-white rounded">
+              Add New Size
             </div>
           </Link>
           {/* You can add more links here for additional admin features */}

@@ -1,18 +1,18 @@
 'use server'
 
 import { db } from '@/db'
-import { TshirtSize, Fabric } from '@prisma/client'
 import { revalidatePath } from 'next/cache'
 
 export type CreateProductArgs = {
   title: string
   description: string
   details: string
-  category: string  // changed from string[] to string (the category id)
+  category: string  // category id
   realPrice: number
   discountPrice: number
-  availableSizes: TshirtSize[]  // values should match your enum (e.g. "xs", "s", etc.)
-  availableFabrics: Fabric[]     // e.g. "polyester", "cotton", etc.
+  availableSizes: string[]      // array of TshirtSize ids
+  availableFabrics: string[]    // array of TshirtFabric ids
+  availableColors: string[]     // array of TshirtColor ids
   imageUrls: string[]
 }
 
@@ -21,11 +21,12 @@ export async function createProduct(args: CreateProductArgs) {
     title,
     description,
     details,
-    category, // this is now the category id
+    category, // category id
     realPrice,
     discountPrice,
     availableSizes,
     availableFabrics,
+    availableColors,
     imageUrls,
   } = args
 
@@ -39,13 +40,20 @@ export async function createProduct(args: CreateProductArgs) {
       },
       realPrice,
       discountPrice,
-      images: imageUrls, // Assuming your schema defines images as String[]
-      availableSizes,    // Stored as array of TshirtSize
-      availableFabrics,  // Stored as array of Fabric
+      images: imageUrls,
+      availableSizes: {
+        connect: availableSizes.map(id => ({ id })),
+      },
+      availableFabrics: {
+        connect: availableFabrics.map(id => ({ id })),
+      },
+      availableColors: {
+        connect: availableColors.map(id => ({ id })),
+      },
     },
   })
 
-  // Optionally revalidate the page listing products
+  // Revalidate the page listing products
   revalidatePath('/shop')
 
   return product

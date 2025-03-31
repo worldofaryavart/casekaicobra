@@ -9,12 +9,39 @@ import { createProduct } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
 
 type CategoryType = {
-    id: string;
-    name: string;
-    // add other properties if needed
-  };
+  id: string;
+  name: string;
+};
 
-const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
+type SizeType = {
+  id: string;
+  label: string;
+  value: string;
+};
+
+type ColorType = {
+  id: string;
+  label: string;
+  value: string;
+  hex?: string | null;
+  tw?: string | null;
+};
+
+type FabricType = {
+  id: string;
+  label: string;
+  value: string;
+  price?: number | null;
+};
+
+type NewProductFormProps = {
+  categories: CategoryType[];
+  sizes: SizeType[];
+  colors: ColorType[];
+  fabrics: FabricType[];
+};
+
+const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -22,10 +49,11 @@ const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [details, setDetails] = useState("");
-  const [category, setCategory] = useState(""); // will hold category id
+  const [category, setCategory] = useState(""); // category id
   const [realPrice, setRealPrice] = useState<number>(0);
   const [discountPrice, setDiscountPrice] = useState<number>(0);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [availableFabrics, setAvailableFabrics] = useState<string[]>([]);
 
   // Image state for previewing files before upload
@@ -43,11 +71,12 @@ const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
           title,
           description,
           details,
-          category, // now the category id is sent here
+          category, // sends the category id
           realPrice,
           discountPrice,
-          availableSizes: availableSizes as any, // ensure these match your TshirtSize enum
-          availableFabrics: availableFabrics as any, // ensure these match your Fabric enum
+          availableSizes,
+          availableColors,
+          availableFabrics,
           imageUrls: uploadedUrls,
         });
       }
@@ -167,12 +196,11 @@ const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
             className="mt-1 block w-full border border-gray-300 rounded-md p-2"
           >
             <option value="">Select Category</option>
-            {categories &&
-              categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -212,24 +240,53 @@ const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
             Available Sizes
           </label>
           <div className="mt-2 flex flex-wrap gap-4">
-            {["xs", "s", "m", "l", "xl", "xxl"].map((size) => (
-              <label key={size} className="inline-flex items-center">
+            {sizes.map((size) => (
+              <label key={size.id} className="inline-flex items-center">
                 <input
                   type="checkbox"
                   name="availableSizes"
-                  value={size}
+                  value={size.id}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setAvailableSizes((prev) => [...prev, size]);
+                      setAvailableSizes((prev) => [...prev, size.id]);
                     } else {
                       setAvailableSizes((prev) =>
-                        prev.filter((s) => s !== size)
+                        prev.filter((s) => s !== size.id)
                       );
                     }
                   }}
                   className="form-checkbox"
                 />
-                <span className="ml-2 uppercase">{size}</span>
+                <span className="ml-2">{size.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Available Colors */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            Available Colors
+          </label>
+          <div className="mt-2 flex flex-wrap gap-4">
+            {colors.map((color) => (
+              <label key={color.id} className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  name="availableColors"
+                  value={color.id}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAvailableColors((prev) => [...prev, color.id]);
+                    } else {
+                      setAvailableColors((prev) =>
+                        prev.filter((c) => c !== color.id)
+                      );
+                    }
+                  }}
+                  className="form-checkbox"
+                />
+                <span className="ml-2">{color.label}</span>
               </label>
             ))}
           </div>
@@ -241,24 +298,24 @@ const NewProductForm = ({ categories }: { categories: CategoryType[] }) => {
             Available Fabrics
           </label>
           <div className="mt-2 flex flex-wrap gap-4">
-            {["polyester", "cotton", "polycotton", "dotKnit"].map((fabric) => (
-              <label key={fabric} className="inline-flex items-center">
+            {fabrics.map((fabric) => (
+              <label key={fabric.id} className="inline-flex items-center">
                 <input
                   type="checkbox"
                   name="availableFabrics"
-                  value={fabric}
+                  value={fabric.id}
                   onChange={(e) => {
                     if (e.target.checked) {
-                      setAvailableFabrics((prev) => [...prev, fabric]);
+                      setAvailableFabrics((prev) => [...prev, fabric.id]);
                     } else {
                       setAvailableFabrics((prev) =>
-                        prev.filter((f) => f !== fabric)
+                        prev.filter((f) => f !== fabric.id)
                       );
                     }
                   }}
                   className="form-checkbox"
                 />
-                <span className="ml-2 capitalize">{fabric}</span>
+                <span className="ml-2">{fabric.label}</span>
               </label>
             ))}
           </div>
