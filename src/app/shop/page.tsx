@@ -7,20 +7,34 @@ type Category = {
   name: string;
 };
 
-// Define the type for the product as returned by the database,
-// allowing category to be null.
+// Updated DBProduct type reflecting many‑to‑many relations
 type DBProduct = {
   id: string;
   title: string;
   description: string;
   details: string;
-  category: Category | null;  // Allow null if not connected
+  category: Category | null; // Allow null if not connected
   realPrice: number;
   discountPrice: number;
   images: string[];
-  availableSizes: string[];
-  availableFabrics: string[];
-  availableColors: string[];
+  availableSizes: {
+    id: string;
+    label: string;
+    value: string;
+  }[];
+  availableFabrics: {
+    id: string;
+    label: string;
+    value: string;
+    price?: number | null;
+  }[];
+  availableColors: {
+    id: string;
+    label: string;
+    value: string;
+    hex?: string | null;
+    tw?: string | null;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -41,9 +55,14 @@ export default async function ShopPage() {
     // Fetch categories (returns array of Category objects)
     const categories: Category[] = await db.category.findMany();
 
-    // Fetch products including the related category
+    // Fetch products including the related category and option relations
     const products: DBProduct[] = await db.product.findMany({
-      include: { category: true },
+      include: {
+        category: true,
+        availableSizes: true,
+        availableFabrics: true,
+        availableColors: true,
+      },
     });
 
     // Transform the DB product data to your front‑end Product type
