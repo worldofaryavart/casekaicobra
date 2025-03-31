@@ -19,6 +19,7 @@ export const SIZES = {
     { label: "XXL", value: "xxl" },
   ],
 } as const;
+  
 
 export const FABRICS = {
   name: "fabric",

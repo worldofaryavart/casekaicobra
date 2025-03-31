@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// You can still keep enums that make sense to be static:
 enum OrderStatus {
   fulfilled
   shipped
@@ -28,29 +29,6 @@ enum PaymentStatus {
   refunded
 }
 
-enum TshirtSize {
-  xs
-  s
-  m
-  l
-  xl
-  xxl
-}
-
-enum TshirtColor {
-  black
-  navy_blue
-  white
-  red
-}
-
-enum Fabric {
-  polyester
-  cotton
-  polycotton
-  dotKnit
-}
-
 model Configuration {
   id              String      @id @default(cuid())
   // For custom orders, you might have extra details:
@@ -59,10 +37,13 @@ model Configuration {
   imageUrl        String?    // e.g. a design image or mockup
   croppedImageUrl String?
 
-  // Common options used in both shop and custom orders:
-  color           TshirtColor?
-  size            TshirtSize?
-  fabric          Fabric?
+  // Replacing enums with relations:
+  colorId         String?    
+  color           TshirtColor? @relation(fields: [colorId], references: [id])
+  sizeId          String?    
+  size            TshirtSize?  @relation(fields: [sizeId], references: [id])
+  fabricId        String?    
+  fabric          TshirtFabric? @relation(fields: [fabricId], references: [id])
 
   // Indicates whether the configuration is custom or based on a shop product.
   isCustom        Boolean     @default(true)
@@ -73,7 +54,6 @@ model Configuration {
 
   Order           Order[]
 }
-
 
 model User {
   id        String   @id @default(cuid())
@@ -142,9 +122,10 @@ model Product {
   realPrice        Float
   discountPrice    Float
   images           String[]       
-  availableSizes   TshirtSize[]   
-  availableFabrics Fabric[]       
-  availableColors  TshirtColor[]
+  // Change these from enum arrays to many-to-many relations with the new models:
+  availableSizes   TshirtSize[]   @relation("ProductSizes")
+  availableFabrics TshirtFabric[] @relation("ProductFabrics")
+  availableColors  TshirtColor[]  @relation("ProductColors")
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -157,3 +138,38 @@ model Category {
   products Product[]
 }
 
+/// The fields here include label, value and additional info such as a hex code.
+model TshirtColor {
+  id       String   @id @default(cuid())
+  label    String
+  value    String
+  tw       String?  // optional additional field (e.g. Tailwind CSS class)
+  hex      String?  // optional hexadecimal color code
+
+  // Reverse relations:
+  configurations Configuration[]
+  products       Product[] @relation("ProductColors")
+}
+
+/// New model for tshirt sizes.
+model TshirtSize {
+  id       String   @id @default(cuid())
+  label    String
+  value    String
+
+  // Reverse relations:
+  configurations Configuration[]
+  products       Product[] @relation("ProductSizes")
+}
+
+/// New model for tshirt fabrics.
+model TshirtFabric {
+  id       String   @id @default(cuid())
+  label    String
+  value    String
+  price    Float?   // Optional extra cost for the fabric
+
+  // Reverse relations:
+  configurations Configuration[]
+  products       Product[] @relation("ProductFabrics")
+}
