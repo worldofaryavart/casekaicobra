@@ -46,7 +46,7 @@ model Configuration {
   fabric          TshirtFabric? @relation(fields: [fabricId], references: [id])
 
   // Indicates whether the configuration is custom or based on a shop product.
-  isCustom        Boolean     @default(true)
+  isCustom        Boolean     @default(false)
 
   // For shop orders, you link to the product
   productId       String?     

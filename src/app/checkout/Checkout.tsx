@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useMutation } from "@tanstack/react-query";
-import { Check, CreditCard, ArrowRight, Truck, Wallet } from "lucide-react";
+import { ArrowRight, Truck, Wallet } from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -18,30 +18,43 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import TShirt from "@/components/Tshirt2";
 import LoginModal from "@/components/LoginModal";
-import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
-import { formatPrice } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
-import { Separator } from "@radix-ui/react-dropdown-menu";
-import { createCODOrder } from "./actions";
 import Input from "@/components/ui/input";
+import { createCODOrder } from "./actions";
+// Import your TShirt component if available
+// import TShirt from "@/components/TShirt";
 
-// Define a type for configuration data as passed to Checkout.
-// It supports both full objects (from the DB) or plain strings from query parameters.
+// Helper function to format price (adjust as needed)
+const formatPrice = (price: number) =>
+  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
+    price
+  );
+
 type CheckoutConfiguration = {
   id: string;
-  color?:
-    | { label: string; value: string; hex?: string | null; tw?: string | null }
-    | string;
-  size?: { label: string; value: string } | string;
-  fabric?: { label: string; value: string; price?: number | null } | string;
-  croppedImageUrl?: string | null;
+  isCustom: boolean;
   width?: number | null;
   height?: number | null;
+  imageUrl?: string | null;
+  croppedImageUrl?: string | null;
+  color?:
+    | string
+    | { label: string; value: string; hex?: string | null; tw?: string | null }
+    | null;
+  size?: { label: string; value: string } | string | null;
+  fabric?:
+    | { label: string; value: string; price?: number | null }
+    | string
+    | null;
+  product?: {
+    title: string;
+    discountPrice: number;
+    images: string[];
+  } | null;
 };
 
-type PaymentMethod = "stripe" | "paypal" | "upi" | "cod";
+type PaymentMethod = "upi" | "cod";
 
 const Checkout = ({
   configuration,
@@ -51,6 +64,8 @@ const Checkout = ({
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useKindeBrowserClient();
+
+  console.log("configuration is: ", configuration);
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -68,54 +83,55 @@ const Checkout = ({
     phoneNumber: "",
   });
 
-  // Extract configuration fields with support for both object and string types.
-  const configColor =
-    typeof configuration.color === "string"
-      ? {
-          label: configuration.color,
-          value: configuration.color,
-          hex: configuration.color,
-        }
-      : configuration.color ?? {
-          label: "Default",
-          value: "default",
-          hex: "#000000",
-        };
-  const configSize =
-    typeof configuration.size === "string"
-      ? { label: configuration.size, value: configuration.size }
-      : configuration.size ?? { label: "Standard", value: "standard" };
-  const configFabric =
-    typeof configuration.fabric === "string"
-      ? { label: configuration.fabric, value: configuration.fabric, price: 0 }
-      : configuration.fabric ?? {
-          label: "Default",
-          value: "default",
-          price: 0,
-        };
+  // Calculate summary values based on whether the configuration is custom or not.
+  const isCustom = configuration.isCustom;
+  const imageSrc = isCustom
+    ? configuration.croppedImageUrl || configuration.imageUrl || ""
+    : configuration.product?.images[0] || "";
+  const displayedWidth = isCustom ? configuration.width : null;
+  const displayedHeight = isCustom ? configuration.height : null;
 
-  const { id, croppedImageUrl, width, height } = configuration;
+  // Normalize display values for fabric, color and size. They might be plain strings or objects.
+  const fabricDisplay =
+    configuration.fabric && typeof configuration.fabric === "object"
+      ? configuration.fabric.label
+      : configuration.fabric || "";
+  const colorDisplay =
+    configuration.color && typeof configuration.color === "object"
+      ? configuration.color.label
+      : configuration.color || "";
+  const sizeDisplay =
+    configuration.size && typeof configuration.size === "object"
+      ? configuration.size.label
+      : configuration.size || "";
 
-  // Price calculation based on fabric value
-  const calculatePrice = () => {
-    let totalPrice = BASE_PRICE;
-    const fabricValue = configFabric.value.toLowerCase();
-
-    if (fabricValue === "cotton") totalPrice += PRODUCT_PRICES.fabric.cotton;
-    else if (fabricValue === "polyester")
-      totalPrice += PRODUCT_PRICES.fabric.polyester;
-    else if (fabricValue === "polycotton")
-      totalPrice += PRODUCT_PRICES.fabric.polycotton;
-    else if (fabricValue === "dotknit")
-      totalPrice += PRODUCT_PRICES.fabric.dotKnit;
-
-    return totalPrice;
-  };
+  // Determine prices.
+  let basePrice = 0;
+  let totalPrice = 0;
+  if (isCustom) {
+    // For custom orders, you might use a base price from the related product if it exists.
+    basePrice = configuration.product ? configuration.product.discountPrice : 0;
+    totalPrice = basePrice;
+  } else if (configuration.product) {
+    basePrice = configuration.product.discountPrice;
+    totalPrice = basePrice;
+    // If fabric upgrade exists with an extra cost, add it.
+    if (
+      configuration.fabric &&
+      typeof configuration.fabric === "object" &&
+      configuration.fabric.price
+    ) {
+      totalPrice += configuration.fabric.price;
+    }
+  }
 
   const { mutate: processCODOrder } = useMutation({
     mutationKey: ["cod-order"],
-    mutationFn: createCODOrder,
-    onSuccess: ({ orderId }) => {
+    mutationFn: async ({ configId }: { configId: string }) => {
+      // Call your createCODOrder action here.
+      return await createCODOrder({ configId });
+    },
+    onSuccess: ({ orderId }: { orderId: string }) => {
       if (orderId) router.push(`/thank-you?orderId=${orderId}`);
       else throw new Error("Unable to create COD order.");
     },
@@ -131,12 +147,12 @@ const Checkout = ({
 
   const handleCheckout = () => {
     if (!user) {
-      if (id) localStorage.setItem("configurationId", id);
+      localStorage.setItem("configurationId", configuration.id);
       setIsLoginModalOpen(true);
       return;
     }
 
-    if (!id) {
+    if (!configuration.id) {
       toast({
         title: "Error",
         description: "Configuration ID not found",
@@ -147,9 +163,18 @@ const Checkout = ({
 
     switch (selectedPayment) {
       case "cod":
-        processCODOrder({ configId: id });
+        processCODOrder({ configId: configuration.id });
         break;
+      // Add more payment methods if needed.
     }
+  };
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   if (loading) {
@@ -173,23 +198,6 @@ const Checkout = ({
     );
   }
 
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setShippingAddress((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  // Map option data for order summary display using our configuration
-  const colorDisplay = configColor.label;
-  const sizeDisplay = configSize.label;
-  const fabricDisplay = configFabric.label;
-  const totalPrice = calculatePrice();
-
-  // For TShirt component, derive a color value (using hex if available)
-  const tshirtColor = configColor.hex ? configColor.hex : "black";
-
   return (
     <>
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
@@ -208,6 +216,7 @@ const Checkout = ({
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Order Summary Card */}
           <div className="lg:col-span-1">
             <Card>
               <CardHeader>
@@ -215,61 +224,90 @@ const Checkout = ({
               </CardHeader>
               <CardContent className="flex flex-col items-center">
                 <div className="w-48 h-48 relative mb-4">
-                  <TShirt
-                    color={tshirtColor}
-                    imgSrc={croppedImageUrl || ""}
-                    width={width || 0}
-                    height={height || 0}
-                  />
+                  {isCustom ? (
+                    // If you have a TShirt component, you can replace the Image below with that.
+                    <Image
+                      src={imageSrc}
+                      alt="Custom T-Shirt"
+                      fill
+                      className="object-contain"
+                    />
+                  ) : (
+                    <Image
+                      src={imageSrc}
+                      alt="Custom T-Shirt"
+                      fill
+                      className="object-contain"
+                    />
+                  )}
+                  {/* <Image
+                    src="https://utfs.io/f/7724ed9b-d6d3-406b-b957-3380198fcdd2-meqmn3.png"
+                    alt="Custom T-Shirt"
+                    fill
+                    className="object-contain"
+                  /> */}
                 </div>
 
-                <h3 className="font-semibold text-lg">{sizeDisplay} T-Shirt</h3>
+                <h3 className="font-semibold text-lg">
+                  {isCustom
+                    ? `${sizeDisplay} Custom T-Shirt`
+                    : configuration.product?.title}
+                </h3>
 
-                <div className="w-full mt-6">
-                  <div className="flex justify-between py-2">
+                <div className="w-full mt-6 space-y-2">
+                  <div className="flex justify-between py-1">
                     <span>Fabric:</span>
                     <span className="font-medium capitalize">
                       {fabricDisplay}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2">
+                  <div className="flex justify-between py-1">
                     <span>Color:</span>
                     <span className="font-medium capitalize">
                       {colorDisplay}
                     </span>
                   </div>
-                  <div className="flex justify-between py-2">
+                  <div className="flex justify-between py-1">
                     <span>Size:</span>
                     <span className="font-medium">{sizeDisplay}</span>
                   </div>
-
-                  <Separator className="my-4" />
-
-                  <div className="flex justify-between py-2">
-                    <span>Base price:</span>
-                    <span>{formatPrice(BASE_PRICE / 100)}</span>
+                  <div className="flex justify-between py-1">
+                    <span>Discount Price:</span>
+                    <span>{formatPrice(basePrice)}</span>
                   </div>
-
-                  {fabricDisplay && (
-                    <div className="flex justify-between py-2">
-                      <span>Fabric upgrade:</span>
-                      <span>
-                        {formatPrice((totalPrice - BASE_PRICE) / 100)}
-                      </span>
-                    </div>
-                  )}
-
-                  <Separator className="my-4" />
-
-                  <div className="flex justify-between py-2 font-bold">
+                  {configuration.fabric &&
+                    typeof configuration.fabric === "object" &&
+                    configuration.fabric.price && (
+                      <div className="flex justify-between py-1">
+                        <span>Fabric upgrade:</span>
+                        <span>{formatPrice(configuration.fabric.price)}</span>
+                      </div>
+                    )}
+                  <div className="flex justify-between py-1 font-bold">
                     <span>Total:</span>
-                    <span>{formatPrice(totalPrice / 100)}</span>
+                    <span>{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
               </CardContent>
+              <CardFooter>
+                <div>
+                  <h4 className="font-semibold">Shipping Address:</h4>
+                  <p>{shippingAddress.name}</p>
+                  <p>{shippingAddress.street}</p>
+                  <p>
+                    {shippingAddress.city}, {shippingAddress.postalCode}
+                  </p>
+                  <p>
+                    {shippingAddress.country}
+                    {shippingAddress.state && `, ${shippingAddress.state}`}
+                  </p>
+                  <p>{shippingAddress.phoneNumber}</p>
+                </div>
+              </CardFooter>
             </Card>
           </div>
 
+          {/* Shipping & Payment Section */}
           <div className="lg:col-span-2">
             <Card className="mb-4">
               <CardHeader>
@@ -280,7 +318,7 @@ const Checkout = ({
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Full Name - full width */}
+                  {/* Full Name */}
                   <div>
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -294,8 +332,7 @@ const Checkout = ({
                       className="my-custom-class"
                     />
                   </div>
-
-                  {/* Street Address - full width */}
+                  {/* Street Address */}
                   <div>
                     <Label htmlFor="street">Street Address</Label>
                     <Input
@@ -308,8 +345,7 @@ const Checkout = ({
                       required
                     />
                   </div>
-
-                  {/* City and Postal Code in one row */}
+                  {/* City and Postal Code */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city">City</Label>
@@ -336,8 +372,7 @@ const Checkout = ({
                       />
                     </div>
                   </div>
-
-                  {/* Country and State in one row */}
+                  {/* Country and State */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="country">Country</Label>
@@ -363,8 +398,7 @@ const Checkout = ({
                       />
                     </div>
                   </div>
-
-                  {/* Phone Number - full width */}
+                  {/* Phone Number */}
                   <div>
                     <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
                     <Input
@@ -381,7 +415,6 @@ const Checkout = ({
                   </div>
                 </div>
               </CardContent>
-              {/* CardFooter can be added here if needed */}
             </Card>
 
             <Card>
@@ -460,7 +493,9 @@ const Checkout = ({
               <CardFooter className="flex justify-between">
                 <Button
                   variant="outline"
-                  onClick={() => router.push(`/configure/preview?id=${id}`)}
+                  onClick={() =>
+                    router.push(`/configure/preview?id=${configuration.id}`)
+                  }
                 >
                   Back to Preview
                 </Button>
