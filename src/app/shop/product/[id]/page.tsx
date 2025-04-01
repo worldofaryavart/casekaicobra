@@ -1,6 +1,6 @@
 import React from "react";
 import { db } from "@/db";
-import Product from "@/components/ProductComp";
+import Product from "./ProductComp";
 
 interface PageProps {
   params: {

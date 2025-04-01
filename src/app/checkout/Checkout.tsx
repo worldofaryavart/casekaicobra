@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { Check, CreditCard, ArrowRight, Truck, Wallet } from "lucide-react";
@@ -22,77 +22,95 @@ import TShirt from "@/components/Tshirt2";
 import LoginModal from "@/components/LoginModal";
 import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { formatPrice } from "@/lib/utils";
-import { COLORS, SIZES } from "@/validators/option-validator";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import { Separator } from "@radix-ui/react-dropdown-menu";
-import { Configuration } from "@prisma/client";
-import { createCODOrder, createStripeCheckoutSession} from "./actions";
+import { createCODOrder } from "./actions";
+import Input from "@/components/ui/input";
+
+// Define a type for configuration data as passed to Checkout.
+// It supports both full objects (from the DB) or plain strings from query parameters.
+type CheckoutConfiguration = {
+  id: string;
+  color?:
+    | { label: string; value: string; hex?: string | null; tw?: string | null }
+    | string;
+  size?: { label: string; value: string } | string;
+  fabric?: { label: string; value: string; price?: number | null } | string;
+  croppedImageUrl?: string | null;
+  width?: number | null;
+  height?: number | null;
+};
 
 type PaymentMethod = "stripe" | "paypal" | "upi" | "cod";
 
-const Checkout = ({ configuration }: { configuration: Configuration }) => {
+const Checkout = ({
+  configuration,
+}: {
+  configuration: CheckoutConfiguration;
+}) => {
   const router = useRouter();
   const { toast } = useToast();
   const { user } = useKindeBrowserClient();
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [selectedPayment, setSelectedPayment] =
-    useState<PaymentMethod>("stripe");
+  const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
+  const [shippingAddress, setShippingAddress] = useState({
+    name:
+      user?.given_name && user?.family_name
+        ? `${user.given_name} ${user.family_name}`
+        : "", // Pre-fill name if available
+    street: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    state: "",
+    phoneNumber: "",
+  });
 
-  const { id, color, size, fabric, croppedImageUrl, width, height } =
-    configuration;
+  // Extract configuration fields with support for both object and string types.
+  const configColor =
+    typeof configuration.color === "string"
+      ? {
+          label: configuration.color,
+          value: configuration.color,
+          hex: configuration.color,
+        }
+      : configuration.color ?? {
+          label: "Default",
+          value: "default",
+          hex: "#000000",
+        };
+  const configSize =
+    typeof configuration.size === "string"
+      ? { label: configuration.size, value: configuration.size }
+      : configuration.size ?? { label: "Standard", value: "standard" };
+  const configFabric =
+    typeof configuration.fabric === "string"
+      ? { label: configuration.fabric, value: configuration.fabric, price: 0 }
+      : configuration.fabric ?? {
+          label: "Default",
+          value: "default",
+          price: 0,
+        };
 
-  // Calculate price based on selected fabric pricing
+  const { id, croppedImageUrl, width, height } = configuration;
+
+  // Price calculation based on fabric value
   const calculatePrice = () => {
-    if (!configuration) return BASE_PRICE;
-
     let totalPrice = BASE_PRICE;
-    const { fabric } = configuration;
+    const fabricValue = configFabric.value.toLowerCase();
 
-    if (fabric === "cotton") totalPrice += PRODUCT_PRICES.fabric.cotton;
-    else if (fabric === "polyester")
+    if (fabricValue === "cotton") totalPrice += PRODUCT_PRICES.fabric.cotton;
+    else if (fabricValue === "polyester")
       totalPrice += PRODUCT_PRICES.fabric.polyester;
-    else if (fabric === "polycotton")
+    else if (fabricValue === "polycotton")
       totalPrice += PRODUCT_PRICES.fabric.polycotton;
-    else if (fabric === "dotKnit") totalPrice += PRODUCT_PRICES.fabric.dotKnit;
+    else if (fabricValue === "dotknit")
+      totalPrice += PRODUCT_PRICES.fabric.dotKnit;
 
     return totalPrice;
   };
-
-  // Payment handling mutations
-  const { mutate: processStripePayment } = useMutation({
-    mutationKey: ["stripe-checkout"],
-    mutationFn: createStripeCheckoutSession,
-    onSuccess: ({ url }) => {
-      if (url) router.push(url);
-      else throw new Error("Unable to retrieve Stripe payment URL.");
-    },
-    onError: () => {
-      toast({
-        title: "Payment Error",
-        description:
-          "There was an error processing your Stripe payment. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // const { mutate: processUPIPayment } = useMutation({
-  //   mutationKey: ["upi-checkout"],
-  //   mutationFn: createUPICheckoutSession,
-  //   onSuccess: ({ url }) => {
-  //     if (url) router.push(url);
-  //     else throw new Error("Unable to retrieve UPI payment URL.");
-  //   },
-  //   onError: () => {
-  //     toast({
-  //       title: "Payment Error",
-  //       description: "There was an error processing your UPI payment. Please try again.",
-  //       variant: "destructive",
-  //     });
-  //   },
-  // });
 
   const { mutate: processCODOrder } = useMutation({
     mutationKey: ["cod-order"],
@@ -104,7 +122,8 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
     onError: () => {
       toast({
         title: "Order Error",
-        description: "There was an error processing your Cash on Delivery order. Please try again.",
+        description:
+          "There was an error processing your Cash on Delivery order. Please try again.",
         variant: "destructive",
       });
     },
@@ -127,19 +146,12 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
     }
 
     switch (selectedPayment) {
-      case "stripe":
-        processStripePayment({ configId: id });
-        break;
-      // case "upi":
-      //   processUPIPayment({ configId: id });
-      //   break;
       case "cod":
         processCODOrder({ configId: id });
         break;
     }
   };
 
-  // Display loading state
   if (loading) {
     return (
       <div className="container mx-auto flex flex-col items-center justify-center min-h-screen">
@@ -149,7 +161,6 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
     );
   }
 
-  // If configuration couldn't be loaded
   if (!configuration) {
     return (
       <div className="container mx-auto flex flex-col items-center justify-center min-h-screen">
@@ -162,16 +173,22 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
     );
   }
 
-  // Get product details
-  const colorObj = COLORS.find(
-    (supportedColor) => supportedColor.value === color
-  );
-  const colorValue = colorObj ? colorObj.value : "black";
-  const { label: sizeLabel } = SIZES.options.find(
-    ({ value }) => value === size
-  ) || { label: "Standard" };
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
+  // Map option data for order summary display using our configuration
+  const colorDisplay = configColor.label;
+  const sizeDisplay = configSize.label;
+  const fabricDisplay = configFabric.label;
   const totalPrice = calculatePrice();
+
+  // For TShirt component, derive a color value (using hex if available)
+  const tshirtColor = configColor.hex ? configColor.hex : "black";
 
   return (
     <>
@@ -199,27 +216,31 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
               <CardContent className="flex flex-col items-center">
                 <div className="w-48 h-48 relative mb-4">
                   <TShirt
-                    color={colorValue}
+                    color={tshirtColor}
                     imgSrc={croppedImageUrl || ""}
-                    width={width as number}
-                    height={height as number}
+                    width={width || 0}
+                    height={height || 0}
                   />
                 </div>
 
-                <h3 className="font-semibold text-lg">{sizeLabel} T-Shirt</h3>
+                <h3 className="font-semibold text-lg">{sizeDisplay} T-Shirt</h3>
 
                 <div className="w-full mt-6">
                   <div className="flex justify-between py-2">
                     <span>Fabric:</span>
-                    <span className="font-medium capitalize">{fabric}</span>
+                    <span className="font-medium capitalize">
+                      {fabricDisplay}
+                    </span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span>Color:</span>
-                    <span className="font-medium capitalize">{color}</span>
+                    <span className="font-medium capitalize">
+                      {colorDisplay}
+                    </span>
                   </div>
                   <div className="flex justify-between py-2">
                     <span>Size:</span>
-                    <span className="font-medium">{sizeLabel}</span>
+                    <span className="font-medium">{sizeDisplay}</span>
                   </div>
 
                   <Separator className="my-4" />
@@ -229,7 +250,7 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
                     <span>{formatPrice(BASE_PRICE / 100)}</span>
                   </div>
 
-                  {fabric && (
+                  {fabricDisplay && (
                     <div className="flex justify-between py-2">
                       <span>Fabric upgrade:</span>
                       <span>
@@ -250,6 +271,119 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
           </div>
 
           <div className="lg:col-span-2">
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle>Shipping Address</CardTitle>
+                <CardDescription>
+                  Enter or confirm your shipping details
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Full Name - full width */}
+                  <div>
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      type="text"
+                      placeholder="e.g., John Doe"
+                      value={shippingAddress.name}
+                      onChange={handleAddressChange}
+                      required
+                      className="my-custom-class"
+                    />
+                  </div>
+
+                  {/* Street Address - full width */}
+                  <div>
+                    <Label htmlFor="street">Street Address</Label>
+                    <Input
+                      id="street"
+                      name="street"
+                      type="text"
+                      placeholder="e.g., 123 Main St, Apt 4B"
+                      value={shippingAddress.street}
+                      onChange={handleAddressChange}
+                      required
+                    />
+                  </div>
+
+                  {/* City and Postal Code in one row */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        name="city"
+                        type="text"
+                        placeholder="e.g., Anytown"
+                        value={shippingAddress.city}
+                        onChange={handleAddressChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="postalCode">Postal Code / ZIP</Label>
+                      <Input
+                        id="postalCode"
+                        name="postalCode"
+                        type="text"
+                        placeholder="e.g., 12345"
+                        value={shippingAddress.postalCode}
+                        onChange={handleAddressChange}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Country and State in one row */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="country">Country</Label>
+                      <Input
+                        id="country"
+                        name="country"
+                        type="text"
+                        placeholder="e.g., United States"
+                        value={shippingAddress.country}
+                        onChange={handleAddressChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="state">State / Province (Optional)</Label>
+                      <Input
+                        id="state"
+                        name="state"
+                        type="text"
+                        placeholder="e.g., California"
+                        value={shippingAddress.state}
+                        onChange={handleAddressChange}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone Number - full width */}
+                  <div>
+                    <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
+                    <Input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      type="tel"
+                      placeholder="e.g., +1 555-123-4567"
+                      value={shippingAddress.phoneNumber}
+                      onChange={handleAddressChange}
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      May be used for delivery updates.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+              {/* CardFooter can be added here if needed */}
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Select Payment Method</CardTitle>
@@ -265,44 +399,6 @@ const Checkout = ({ configuration }: { configuration: Configuration }) => {
                   }
                   className="grid grid-cols-1 gap-4"
                 >
-                  <div
-                    className={`flex items-center space-x-2 rounded-md border p-4 ${
-                      selectedPayment === "stripe"
-                        ? "border-2 border-primary"
-                        : ""
-                    }`}
-                  >
-                    <RadioGroupItem value="stripe" id="stripe" />
-                    <Label
-                      htmlFor="stripe"
-                      className="flex items-center space-x-2 cursor-pointer flex-1"
-                    >
-                      <CreditCard className="h-5 w-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="font-medium">Credit/Debit Card</p>
-                        <p className="text-sm text-muted-foreground">
-                          Pay securely using Stripe
-                        </p>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Image
-                          src="/svglogos/visa-svgrepo-com.svg"
-                          alt="Visa"
-                          width={32}
-                          height={24}
-                          className="h-6 w-auto"
-                        />
-                        <Image
-                          src="/svglogos/mastercard-svgrepo-com.svg"
-                          alt="Mastercard"
-                          width={32}
-                          height={24}
-                          className="h-6 w-auto"
-                        />
-                      </div>
-                    </Label>
-                  </div>
-
                   <div
                     className={`flex items-center space-x-2 rounded-md border p-4 ${
                       selectedPayment === "upi" ? "border-2 border-primary" : ""

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { ChevronsUpDown, Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -13,6 +12,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { RadioGroup } from "@headlessui/react";
 import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
+import { useToast } from "@/components/ui/use-toast";
+import { createConfiguration } from "./actions"; 
 
 // Updated Category type
 type Category = {
@@ -61,21 +63,26 @@ function cn(...classes: (string | boolean | undefined | null)[]): string {
 }
 
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
+  const { toast } = useToast();
   const router = useRouter();
 
-  // Map availableColors, sizes, and fabrics to the options used by the selectors
+  // Map availableColors, sizes, and fabrics to the options used by the selectors.
+  // We now include the id so that we can pass it to our action.
   const colors = product.availableColors.map((c) => ({
+    id: c.id,
     value: c.value,
     label: c.label,
     hex: c.hex || c.value, // fallback if hex is missing
   }));
 
   const sizes = product.availableSizes.map((s) => ({
+    id: s.id,
     label: s.label,
     value: s.value,
   }));
 
   const fabrics = product.availableFabrics.map((f) => ({
+    id: f.id,
     value: f.value,
     label: f.label,
     price: f.price || 0,
@@ -83,16 +90,17 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
 
   // Create fallback objects if any array is empty
   const defaultColor =
-    colors.length > 0 ? colors[0] : { value: "", label: "", hex: "#ffffff" };
-  const defaultSize = sizes.length > 0 ? sizes[0] : { label: "", value: "" };
-  const defaultFabric = fabrics.length > 0 ? fabrics[0].value : "";
+    colors.length > 0 ? colors[0] : { id: "", value: "", label: "", hex: "#ffffff" };
+  const defaultSize = sizes.length > 0 ? sizes[0] : { id: "", label: "", value: "" };
+  const defaultFabric =
+    fabrics.length > 0 ? fabrics[0] : { id: "", value: "", label: "", price: 0 };
   const defaultImage = product.images.length > 0 ? product.images[0] : "";
 
   // Set initial state using the mapped arrays with fallbacks
   const [options, setOptions] = useState<{
-    color: { value: string; label: string; hex: string };
-    size: { label: string; value: string };
-    fabric: string;
+    color: { id: string; value: string; label: string; hex: string };
+    size: { id: string; label: string; value: string };
+    fabric: { id: string; value: string; label: string; price: number };
     selectedImage: string;
   }>({
     color: defaultColor,
@@ -101,10 +109,21 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
     selectedImage: defaultImage,
   });
 
-  // Find the currently selected fabric object
-  const selectedFabric = fabrics.find(
-    (option) => option.value === options.fabric
-  );
+  const { mutate: createConfig } = useMutation({
+    mutationKey: ["create-configuration"],
+    mutationFn: createConfiguration,
+    onSuccess: (data: { url: string }) => {
+      if (data.url) router.push(data.url);
+      else throw new Error("Unable to create configuration.");
+    },
+    onError: () => {
+      toast({
+        title: "Something went wrong",
+        description: "There was an error on our end. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Handler for the Buy Now button
   const handleBuy = () => {
@@ -112,15 +131,16 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
     console.log("Selected Color:", options.color);
     console.log("Selected Fabric:", options.fabric);
     console.log("Selected Size:", options.size);
-
-    const params = new URLSearchParams({
+  
+    createConfig({
       productId: product.id,
-      color: options.color.label,
-      fabric: options.fabric,
-      size: options.size.label,
+      colorId: options.color.id,
+      sizeId: options.size.id,
+      fabricId: options.fabric.id,
+      imageUrl: options.selectedImage,
     });
-    router.push(`/checkout?${params.toString()}`);
   };
+  
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
@@ -173,7 +193,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
               <div className="flex flex-wrap gap-2">
                 {colors.map((color) => (
                   <button
-                    key={color.label}
+                    key={color.id}
                     onClick={() => setOptions((prev) => ({ ...prev, color }))}
                     className={cn(
                       "relative flex cursor-pointer items-center justify-center rounded-full p-0.5 border-2 border-transparent hover:border-gray-400 transition-all",
@@ -195,6 +215,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                   value={options.color.hex}
                   onChange={(e) => {
                     const customColor = {
+                      id: "custom",
                       value: "custom",
                       label: "Custom",
                       hex: e.target.value,
@@ -223,7 +244,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                 <DropdownMenuContent>
                   {sizes.map((size) => (
                     <DropdownMenuItem
-                      key={size.label}
+                      key={size.id}
                       className={cn(
                         "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
                         size.label === options.size.label && "bg-zinc-100"
@@ -252,12 +273,12 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                 setOptions((prev) => ({ ...prev, fabric: val }))
               }
             >
-              <Label>Fabric: {selectedFabric?.label}</Label>
+              <Label>Fabric: {options.fabric.label}</Label>
               <div className="mt-3 space-y-4">
                 {fabrics.map((option) => (
                   <RadioGroup.Option
-                    key={option.value}
-                    value={option.value}
+                    key={option.id}
+                    value={option}
                     className={({ active, checked }) =>
                       cn(
                         "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none",

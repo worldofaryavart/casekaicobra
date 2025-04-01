@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import Shop from "@/components/Shop";
+import Shop from "./Shop";
 
 // Define a type for Category
 type Category = {
