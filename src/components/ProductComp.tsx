@@ -31,8 +31,19 @@ type DBProduct = {
   discountPrice: number;
   images: string[];
   availableSizes: { id: string; label: string; value: string }[];
-  availableFabrics: { id: string; label: string; value: string; price?: number | null }[];
-  availableColors: { id: string; label: string; value: string; hex?: string | null; tw?: string | null }[];
+  availableFabrics: {
+    id: string;
+    label: string;
+    value: string;
+    price?: number | null;
+  }[];
+  availableColors: {
+    id: string;
+    label: string;
+    value: string;
+    hex?: string | null;
+    tw?: string | null;
+  }[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -70,17 +81,24 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
     price: f.price || 0,
   }));
 
-  // Set initial state using the mapped arrays
+  // Create fallback objects if any array is empty
+  const defaultColor =
+    colors.length > 0 ? colors[0] : { value: "", label: "", hex: "#ffffff" };
+  const defaultSize = sizes.length > 0 ? sizes[0] : { label: "", value: "" };
+  const defaultFabric = fabrics.length > 0 ? fabrics[0].value : "";
+  const defaultImage = product.images.length > 0 ? product.images[0] : "";
+
+  // Set initial state using the mapped arrays with fallbacks
   const [options, setOptions] = useState<{
     color: { value: string; label: string; hex: string };
     size: { label: string; value: string };
     fabric: string;
     selectedImage: string;
   }>({
-    color: colors[0],
-    size: sizes[0],
-    fabric: fabrics[0].value,
-    selectedImage: product.images[0],
+    color: defaultColor,
+    size: defaultSize,
+    fabric: defaultFabric,
+    selectedImage: defaultImage,
   });
 
   // Find the currently selected fabric object
