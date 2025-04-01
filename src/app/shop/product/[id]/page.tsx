@@ -11,10 +11,15 @@ interface PageProps {
 export default async function ProductDetail({ params }: PageProps) {
   const productId = params.id;
 
-  // Include the category relation so that product.category exists.
+  // Include the category and option relations so that product has all required fields.
   const product = await db.product.findUnique({
     where: { id: productId },
-    include: { category: true },
+    include: { 
+      category: true,
+      availableSizes: true,
+      availableFabrics: true,
+      availableColors: true,
+    },
   });
 
   // Check if product exists before proceeding
@@ -22,17 +27,20 @@ export default async function ProductDetail({ params }: PageProps) {
     return <div>Product not found</div>;
   }
 
-  // Use product.categoryId for filtering and include the category for similar products as well.
+  // For similar products, filter by the same category (if exists) and exclude the current product.
   const similarProducts = await db.product.findMany({
     where: {
-      // Use the categoryId for filtering similar products
-      categoryId: product.categoryId,
+      // Use product.category?.id for filtering; if product has no category, this filter is omitted.
+      ...(product.category ? { categoryId: product.category.id } : {}),
       id: { not: productId },
     },
-    include: { category: true },
+    include: {
+      category: true,
+      availableSizes: true,
+      availableFabrics: true,
+      availableColors: true,
+    },
   });
-
-  console.log("product detail is : ", product);
 
   return (
     <div>

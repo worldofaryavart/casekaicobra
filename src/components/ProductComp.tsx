@@ -14,11 +14,13 @@ import {
 import { RadioGroup } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 
+// Updated Category type
 type Category = {
   id: string;
   name: string;
 };
 
+// Updated DBProduct type reflecting option objects
 type DBProduct = {
   id: string;
   title: string;
@@ -28,9 +30,9 @@ type DBProduct = {
   realPrice: number;
   discountPrice: number;
   images: string[];
-  availableSizes: string[];
-  availableFabrics: string[];
-  availableColors: string[];
+  availableSizes: { id: string; label: string; value: string }[];
+  availableFabrics: { id: string; label: string; value: string; price?: number | null }[];
+  availableColors: { id: string; label: string; value: string; hex?: string | null; tw?: string | null }[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -40,8 +42,7 @@ type ProductProps = {
   similarProducts: DBProduct[];
 };
 
-const formatPrice = (priceInPaise: number) =>
-  `₹${(priceInPaise / 100).toFixed(2)}`;
+const formatPrice = (price: number) => `₹${price.toFixed(2)}`;
 
 // Helper function for joining class names
 function cn(...classes: (string | boolean | undefined | null)[]): string {
@@ -51,27 +52,28 @@ function cn(...classes: (string | boolean | undefined | null)[]): string {
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
   const router = useRouter();
 
-  // Map the product detail arrays to option objects
+  // Map availableColors, sizes, and fabrics to the options used by the selectors
   const colors = product.availableColors.map((c) => ({
-    value: c,
-    label: c,
-    hex: c, // using the string as the hex value or color name
+    value: c.value,
+    label: c.label,
+    hex: c.hex || c.value, // fallback if hex is missing
   }));
 
   const sizes = product.availableSizes.map((s) => ({
-    label: s,
+    label: s.label,
+    value: s.value,
   }));
 
   const fabrics = product.availableFabrics.map((f) => ({
-    value: f,
-    label: f,
-    price: 0, // since no price is provided, defaulting to 0
+    value: f.value,
+    label: f.label,
+    price: f.price || 0,
   }));
 
   // Set initial state using the mapped arrays
   const [options, setOptions] = useState<{
     color: { value: string; label: string; hex: string };
-    size: { label: string };
+    size: { label: string; value: string };
     fabric: string;
     selectedImage: string;
   }>({
@@ -138,10 +140,10 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
           <p className="text-gray-700">{product.description}</p>
           <div className="flex items-center space-x-2">
             <span className="text-gray-500 line-through">
-              ₹{product.realPrice}
+              {formatPrice(product.realPrice)}
             </span>
             <span className="text-black font-bold">
-              ₹{product.discountPrice}
+              {formatPrice(product.discountPrice)}
             </span>
           </div>
 
@@ -283,37 +285,6 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
         <h2 className="text-2xl font-bold text-black mb-4">Product Details</h2>
         <p className="text-gray-700">{product.details}</p>
       </div>
-
-      {/*
-      Similar Products Section (Uncomment if needed)
-      <div className="mt-12">
-        <h2 className="text-2xl font-bold text-black mb-4">Similar Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {similarProducts.map((prod) => (
-            <Link key={prod.id} href={`/shop/product/${prod.id}`}>
-              <div className="border rounded-lg shadow-sm p-4 flex flex-col hover:shadow-md transition">
-                <img
-                  src={prod.images[0]}
-                  alt={prod.title}
-                  className="mb-4 rounded object-cover"
-                />
-                <h3 className="text-xl font-bold text-black mb-2">
-                  {prod.title}
-                </h3>
-                <div className="mt-2">
-                  <span className="text-gray-500 line-through mr-2">
-                    {formatPrice(prod.realPrice)}
-                  </span>
-                  <span className="text-black font-bold">
-                    {formatPrice(prod.discountPrice)}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-      */}
     </div>
   );
 };
