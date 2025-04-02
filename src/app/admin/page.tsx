@@ -34,7 +34,6 @@ const Page = async () => {
   // Fetch orders from the last 7 days
   const orders = await db.order.findMany({
     where: {
-      isPaid: true,
       createdAt: {
         gte: new Date(new Date().setDate(new Date().getDate() - 7)),
       },
