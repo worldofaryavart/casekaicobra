@@ -1,41 +1,57 @@
 "use server";
 
-import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { db } from "@/db";
-import { stripe } from "@/lib/stripe";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Order, PaymentMethod, PaymentStatus } from "@prisma/client";
-import { v4 as uuidv4 } from "uuid";
 
-// Helper function to get configuration and calculate price
+// Define the expected shipping address data type
+type ShippingAddressData = {
+  name: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  state?: string;
+  phoneNumber?: string;
+};
+
+// Helper: Get configuration (with product and fabric) and calculate price.
 const getConfigurationAndPrice = async (configId: string) => {
-  // Include the fabric relation to access its value
   const configuration = await db.configuration.findUnique({
     where: { id: configId },
-    include: { fabric: true },
+    include: { fabric: true, product: true },
   });
 
   if (!configuration) {
-    throw new Error("No such configuration found");
+    throw new Error("No configuration found");
   }
 
-  const fabric = configuration.fabric;
-  let price = BASE_PRICE;
-  
-  // Compare using the fabric's value (ensuring it’s lowercase for consistency)
-  if (fabric?.value.toLowerCase() === "cotton") price += PRODUCT_PRICES.fabric.cotton;
-  else if (fabric?.value.toLowerCase() === "polyester") price += PRODUCT_PRICES.fabric.polyester;
-  else if (fabric?.value.toLowerCase() === "polycotton") price += PRODUCT_PRICES.fabric.polycotton;
-  else if (fabric?.value.toLowerCase() === "dotknit") price += PRODUCT_PRICES.fabric.dotKnit;
+  let basePrice = 0;
+  let totalPrice = 0;
 
-  return { configuration, price };
+  if (configuration.isCustom) {
+    // For custom orders, use product discount price if available
+    basePrice = configuration.product ? configuration.product.discountPrice : 0;
+    totalPrice = basePrice;
+  } else if (configuration.product) {
+    // For shop orders, add fabric upgrade cost if available.
+    basePrice = configuration.product.discountPrice;
+    totalPrice = basePrice;
+    if (configuration.fabric && configuration.fabric.price) {
+      totalPrice += configuration.fabric.price;
+    }
+  }
+
+  return { configuration, totalPrice };
 };
 
-// Helper function to get or create an order
+// Helper: Check if an order already exists for this user/configuration.
+// If not, create a new one.
 const getOrCreateOrder = async (
   userId: string,
   configId: string,
-  price: number,
+  totalPrice: number,
+  shippingAddressId: string,
   paymentMethod: string
 ) => {
   const existingOrder = await db.order.findFirst({
@@ -51,17 +67,26 @@ const getOrCreateOrder = async (
 
   return await db.order.create({
     data: {
-      amount: price / 100,
+      amount: totalPrice,
       userId,
       configurationId: configId,
+      shippingAddressId,
       paymentMethod: paymentMethod as PaymentMethod,
-      paymentStatus: (paymentMethod === "cod" ? "pending" : "initiated") as PaymentStatus,
+      paymentStatus:
+        paymentMethod === "cod" ? ("pending" as PaymentStatus) : ("initiated" as PaymentStatus),
     },
   });
 };
 
-// 4. Cash on Delivery
-export const createCODOrder = async ({ configId }: { configId: string }) => {
+// Main function to create a Cash on Delivery order.
+export const createCODOrder = async ({
+  configId,
+  shippingAddress: shippingAddressData,
+}: {
+  configId: string;
+  shippingAddress: ShippingAddressData;
+}) => {
+  // Get the current user from your Kinde session
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -69,19 +94,28 @@ export const createCODOrder = async ({ configId }: { configId: string }) => {
     throw new Error("You need to be logged in");
   }
 
-  const { configuration, price } = await getConfigurationAndPrice(configId);
+  const userId = user.id;
 
-  // Create or get order with COD payment method
-  const order = await getOrCreateOrder(user.id, configId, price, "cod");
+  // Fetch configuration and calculate the price.
+  const { configuration, totalPrice } = await getConfigurationAndPrice(configId);
 
-  // For COD, we just need to create the order with the pending status
-  await db.order.update({
-    where: { id: order.id },
+  // Save the shipping address provided by the user.
+  const shippingAddress = await db.shippingAddress.create({
     data: {
-      paymentIntentId: `cod_${uuidv4()}`,
-      paymentStatus: "pending",
+      name: shippingAddressData.name,
+      street: shippingAddressData.street,
+      city: shippingAddressData.city,
+      postalCode: shippingAddressData.postalCode,
+      country: shippingAddressData.country,
+      state: shippingAddressData.state,
+      phoneNumber: shippingAddressData.phoneNumber,
     },
   });
 
+  // Check if an order already exists for this configuration and user.
+  // If not, create a new order.
+  const order = await getOrCreateOrder(userId, configId, totalPrice, shippingAddress.id, "cod");
+
+  // Return the order id so the client can redirect to the thank-you page.
   return { orderId: order.id };
 };

@@ -4,24 +4,47 @@ import { useQuery } from "@tanstack/react-query";
 import { getPaymentStatus } from "./actions";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import PhonePreview from "@/components/PhonePreview";
 import { formatPrice } from "@/lib/utils";
 import TShirt from "@/components/Tshirt2";
+import {
+  Order,
+  Configuration,
+  ShippingAddress,
+  TshirtColor,
+  Product,
+  TshirtFabric,
+  TshirtSize,
+  BillingAddress,
+} from "@prisma/client";
+import Image from "next/image";
+
+type ExtendedOrder = Order & {
+  configuration: Configuration & {
+    product: Product | null;
+    fabric: TshirtFabric | null;
+    color: TshirtColor | null;
+    size: TshirtSize | null;
+  };
+  shippingAddress: ShippingAddress | null;
+  billingAddress: BillingAddress | null;
+};
+
+// Define the type for our query response
+type PaymentStatusResponse = ExtendedOrder | false;
 
 const ThankYou = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "";
 
-  const { data } = useQuery({
-    queryKey: ["get-payment-status"],
+  // Provide the type to useQuery so that data is recognized as either order object or false.
+  const { data, isLoading } = useQuery<PaymentStatusResponse>({
+    queryKey: ["get-payment-status", orderId],
     queryFn: async () => await getPaymentStatus({ orderId }),
     retry: true,
     retryDelay: 500,
   });
 
-  console.log("data using query is ", data);
-
-  if (data === undefined) {
+  if (isLoading || data === undefined) {
     return (
       <div className="w-full mt-24 flex justify-center">
         <div className="flex flex-col items-center gap-2">
@@ -33,21 +56,35 @@ const ThankYou = () => {
     );
   }
 
-  // if (data === false) {
-  //   console.log(data)
-  //   return (
-  //     <div className='w-full mt-24 flex justify-center'>
-  //       <div className='flex flex-col items-center gap-2'>
-  //         <Loader2 className='h-8 w-8 animate-spin text-zinc-500' />
-  //         <h3 className='font-semibold text-xl'>Verifying your payment...</h3>
-  //         <p>This might take a moment.</p>
-  //       </div>
-  //     </div>
-  //   )
-  // }
+  // Check if payment is still pending or verification is in progress.
+  if (data === false) {
+    return (
+      <div className="w-full mt-24 flex justify-center">
+        <div className="flex flex-col items-center gap-2">
+          <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+          <h3 className="font-semibold text-xl">Verifying your payment...</h3>
+          <p>This might take a moment.</p>
+        </div>
+      </div>
+    );
+  }
 
-  const { configuration, billingAddress, shippingAddress, amount } = data;
-  const { color } = configuration;
+  // Destructure order details from the query result.
+  const { configuration, shippingAddress, amount, isPaid } = data;
+
+  // Determine the image source from configuration.
+  const imgSrc =
+    configuration.croppedImageUrl ||
+    configuration.imageUrl ||
+    configuration.product?.images?.[0] ||
+    "";
+
+  // Determine payment status display text.
+  const paymentDisplay = isPaid ? "Paid" : "Pending";
+
+  // Extract color; if color is an object, use its value.
+  // Determine color display - TypeScript-safe version
+  const color = configuration.color?.value || "";
 
   return (
     <div className="bg-white">
@@ -73,19 +110,16 @@ const ThankYou = () => {
               You made a great choice!
             </h4>
             <p className="mt-2 text-sm text-zinc-600">
-              We at CHICHORÉ believe that a phone case doesn't only need to look
-              good, but also last you for the years to come. We offer a 5-year
-              print guarantee: If you case isn't of the highest quality, we'll
-              replace it for free.
+              We at CHICHORÉ believe that a T-Shirt not only looks great but is
+              built to last.
             </p>
           </div>
         </div>
 
-        <div className="flex space-x-6 overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
-          <TShirt
-            color={color!}
-            imgSrc={configuration.croppedImageUrl || ""}
-          />
+        <div className="flex justify-center items-center overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
+          <div className="relative w-64 h-64">
+            <Image src={imgSrc} alt="T-Shirt" fill className="object-contain" />
+          </div>
         </div>
 
         <div>
@@ -99,18 +133,7 @@ const ThankYou = () => {
                   <span className="block">
                     {shippingAddress?.postalCode} {shippingAddress?.city}
                   </span>
-                </address>
-              </div>
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">Billing address</p>
-              <div className="mt-2 text-zinc-700">
-                <address className="not-italic">
-                  <span className="block">{billingAddress?.name}</span>
-                  <span className="block">{billingAddress?.street}</span>
-                  <span className="block">
-                    {billingAddress?.postalCode} {billingAddress?.city}
-                  </span>
+                  <span className="block">{shippingAddress?.country}</span>
                 </address>
               </div>
             </div>
@@ -119,9 +142,8 @@ const ThankYou = () => {
           <div className="grid grid-cols-2 gap-x-6 border-t border-zinc-200 py-10 text-sm">
             <div>
               <p className="font-medium text-zinc-900">Payment status</p>
-              <p className="mt-2 text-zinc-700">Paid</p>
+              <p className="mt-2 text-zinc-700">{paymentDisplay}</p>
             </div>
-
             <div>
               <p className="font-medium text-zinc-900">Shipping Method</p>
               <p className="mt-2 text-zinc-700">

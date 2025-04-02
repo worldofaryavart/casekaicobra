@@ -76,7 +76,7 @@ model Order {
   shippingAddressId  String?
   billingAddressId   String?
   billingAddress     BillingAddress?  @relation(fields: [billingAddressId], references: [id])
-  paymentMethod      PaymentMethod    @default(stripe)
+  paymentMethod      PaymentMethod    @default(upi)
   paymentStatus      PaymentStatus    @default(initiated)
   paymentIntentId    String?          // from payment provider
   trackingId         String?          // for shipping tracking

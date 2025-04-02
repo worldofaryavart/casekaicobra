@@ -22,15 +22,8 @@ import LoginModal from "@/components/LoginModal";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
-// Import your TShirt component if available
-// import TShirt from "@/components/TShirt";
 
-// Helper function to format price (adjust as needed)
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
-    price
-  );
-
+// Your Checkout configuration type
 type CheckoutConfiguration = {
   id: string;
   isCustom: boolean;
@@ -54,7 +47,19 @@ type CheckoutConfiguration = {
   } | null;
 };
 
+// Payment method type
 type PaymentMethod = "upi" | "cod";
+
+// Shipping address type expected by the server action
+type ShippingAddressData = {
+  name: string;
+  street: string;
+  city: string;
+  postalCode: string;
+  country: string;
+  state?: string;
+  phoneNumber?: string;
+};
 
 const Checkout = ({
   configuration,
@@ -70,11 +75,12 @@ const Checkout = ({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
-  const [shippingAddress, setShippingAddress] = useState({
+
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
     name:
       user?.given_name && user?.family_name
         ? `${user.given_name} ${user.family_name}`
-        : "", // Pre-fill name if available
+        : "",
     street: "",
     city: "",
     postalCode: "",
@@ -91,7 +97,7 @@ const Checkout = ({
   const displayedWidth = isCustom ? configuration.width : null;
   const displayedHeight = isCustom ? configuration.height : null;
 
-  // Normalize display values for fabric, color and size. They might be plain strings or objects.
+  // Normalize display values for fabric, color and size.
   const fabricDisplay =
     configuration.fabric && typeof configuration.fabric === "object"
       ? configuration.fabric.label
@@ -109,13 +115,11 @@ const Checkout = ({
   let basePrice = 0;
   let totalPrice = 0;
   if (isCustom) {
-    // For custom orders, you might use a base price from the related product if it exists.
     basePrice = configuration.product ? configuration.product.discountPrice : 0;
     totalPrice = basePrice;
   } else if (configuration.product) {
     basePrice = configuration.product.discountPrice;
     totalPrice = basePrice;
-    // If fabric upgrade exists with an extra cost, add it.
     if (
       configuration.fabric &&
       typeof configuration.fabric === "object" &&
@@ -125,11 +129,17 @@ const Checkout = ({
     }
   }
 
+  // Updated mutation that now accepts both configId and shippingAddress.
   const { mutate: processCODOrder } = useMutation({
     mutationKey: ["cod-order"],
-    mutationFn: async ({ configId }: { configId: string }) => {
-      // Call your createCODOrder action here.
-      return await createCODOrder({ configId });
+    mutationFn: async ({
+      configId,
+      shippingAddress,
+    }: {
+      configId: string;
+      shippingAddress: ShippingAddressData;
+    }) => {
+      return await createCODOrder({ configId, shippingAddress });
     },
     onSuccess: ({ orderId }: { orderId: string }) => {
       if (orderId) router.push(`/thank-you?orderId=${orderId}`);
@@ -163,7 +173,8 @@ const Checkout = ({
 
     switch (selectedPayment) {
       case "cod":
-        processCODOrder({ configId: configuration.id });
+        // Now passing shippingAddress along with configId.
+        processCODOrder({ configId: configuration.id, shippingAddress });
         break;
       // Add more payment methods if needed.
     }
@@ -224,28 +235,12 @@ const Checkout = ({
               </CardHeader>
               <CardContent className="flex flex-col items-center">
                 <div className="w-48 h-48 relative mb-4">
-                  {isCustom ? (
-                    // If you have a TShirt component, you can replace the Image below with that.
-                    <Image
-                      src={imageSrc}
-                      alt="Custom T-Shirt"
-                      fill
-                      className="object-contain"
-                    />
-                  ) : (
-                    <Image
-                      src={imageSrc}
-                      alt="Custom T-Shirt"
-                      fill
-                      className="object-contain"
-                    />
-                  )}
-                  {/* <Image
-                    src="https://utfs.io/f/7724ed9b-d6d3-406b-b957-3380198fcdd2-meqmn3.png"
-                    alt="Custom T-Shirt"
+                  <Image
+                    src={imageSrc}
+                    alt={isCustom ? "Custom T-Shirt" : "T-Shirt"}
                     fill
                     className="object-contain"
-                  /> */}
+                  />
                 </div>
 
                 <h3 className="font-semibold text-lg">
@@ -273,19 +268,34 @@ const Checkout = ({
                   </div>
                   <div className="flex justify-between py-1">
                     <span>Discount Price:</span>
-                    <span>{formatPrice(basePrice)}</span>
+                    <span>
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(basePrice)}
+                    </span>
                   </div>
                   {configuration.fabric &&
                     typeof configuration.fabric === "object" &&
                     configuration.fabric.price && (
                       <div className="flex justify-between py-1">
                         <span>Fabric upgrade:</span>
-                        <span>{formatPrice(configuration.fabric.price)}</span>
+                        <span>
+                          {new Intl.NumberFormat("en-IN", {
+                            style: "currency",
+                            currency: "INR",
+                          }).format(configuration.fabric.price)}
+                        </span>
                       </div>
                     )}
                   <div className="flex justify-between py-1 font-bold">
                     <span>Total:</span>
-                    <span>{formatPrice(totalPrice)}</span>
+                    <span>
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(totalPrice)}
+                    </span>
                   </div>
                 </div>
               </CardContent>
@@ -318,7 +328,6 @@ const Checkout = ({
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Full Name */}
                   <div>
                     <Label htmlFor="name">Full Name</Label>
                     <Input
@@ -329,10 +338,8 @@ const Checkout = ({
                       value={shippingAddress.name}
                       onChange={handleAddressChange}
                       required
-                      className="my-custom-class"
                     />
                   </div>
-                  {/* Street Address */}
                   <div>
                     <Label htmlFor="street">Street Address</Label>
                     <Input
@@ -345,7 +352,6 @@ const Checkout = ({
                       required
                     />
                   </div>
-                  {/* City and Postal Code */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city">City</Label>
@@ -372,7 +378,6 @@ const Checkout = ({
                       />
                     </div>
                   </div>
-                  {/* Country and State */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="country">Country</Label>
@@ -398,7 +403,6 @@ const Checkout = ({
                       />
                     </div>
                   </div>
-                  {/* Phone Number */}
                   <div>
                     <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
                     <Input
