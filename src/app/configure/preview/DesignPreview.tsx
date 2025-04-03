@@ -1,9 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
-import { cn, formatPrice } from "@/lib/utils";
-import { COLORS, SIZES } from "@/validators/option-validator";
+import { BASE_PRICE } from "@/config/products";
+import { formatPrice } from "@/lib/utils";
 import { Configuration } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Check } from "lucide-react";
@@ -16,7 +15,16 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import LoginModal from "@/components/LoginModal";
 import TShirt from "@/components/Tshirt2";
 
-const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
+interface DesignPreviewProps {
+  configuration: Configuration & {
+    color: { id: string; label: string; value: string; hex?: string } | null;
+    size: { id: string; label: string; value: string } | null;
+    fabric: { id: string; label: string; value: string; price?: number } | null;
+    product?: { id: string; realPrice: number; discountPrice: number } | null;
+  };
+}
+
+const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const router = useRouter();
   const { toast } = useToast();
   const { id, color, size, fabric, croppedImageUrl, width, height } = configuration;
@@ -27,23 +35,13 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   useEffect(() => setShowConfetti(true), []);
 
-  // Use the updated COLORS (assumed to have 'black', 'navy-blue', 'white' with corresponding Tailwind classes)
-  const colorObj = COLORS.find((supportedColor) => supportedColor.value === color);
-  const colorValue = colorObj ? colorObj.value : "black"; // Default to black if color not found
+  // Use the related color value (defaulting to black if missing)
+  const colorValue = color?.hex || "#000000";
+  const sizeLabel = size?.label || "Standard";
 
-  // Get size label from SIZES options
-  const { label: sizeLabel } = SIZES.options.find(
-    ({ value }) => value === size
-  ) || { label: "Standard" };
-
-  // Calculate price based on selected fabric pricing
-  let totalPrice = BASE_PRICE;
-  if (fabric === "cotton") totalPrice += PRODUCT_PRICES.fabric.cotton;
-  else if (fabric === "polyester")
-    totalPrice += PRODUCT_PRICES.fabric.polyester;
-  else if (fabric === "polycotton")
-    totalPrice += PRODUCT_PRICES.fabric.polycotton;
-  else if (fabric === "dotKnit") totalPrice += PRODUCT_PRICES.fabric.dotKnit;
+  // The total price will be computed in the checkout action;
+  // here we show a base price (for display) using BASE_PRICE.
+  const totalPrice = BASE_PRICE + (fabric?.price || 0);
 
   const { mutate: createPaymentSession } = useMutation({
     mutationKey: ["get-checkout-session"],
@@ -63,7 +61,6 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
 
   const handleCheckout = () => {
     if (user) {
-      // createPaymentSession({ configId: id });
       router.push(`/checkout?configId=${id}`);
     } else {
       localStorage.setItem("configurationId", id);
@@ -77,25 +74,22 @@ const DesignPreview = ({ configuration }: { configuration: Configuration }) => {
         aria-hidden="true"
         className="pointer-events-none select-none absolute inset-0 overflow-hidden flex justify-center"
       >
-        <Confetti
-          active={showConfetti}
-          config={{ elementCount: 200, spread: 90 }}
-        />
+        <Confetti active={showConfetti} config={{ elementCount: 200, spread: 90 }} />
       </div>
 
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
-      <div className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:grid-rows-1 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
-        <div className="md:col-span-4 lg:col-span-3 md:row-span-2 md:row-end-2">
+      <div className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
+        <div className="md:col-span-4 lg:col-span-3">
           <TShirt
-            color={colorValue} 
-            imgSrc={croppedImageUrl || ''} 
+            color={colorValue}
+            imgSrc={croppedImageUrl || ""}
             width={width as number}
             height={height as number}
           />
         </div>
 
-        <div className="mt-6 sm:col-span-9 md:row-end-1">
+        <div className="mt-6 sm:col-span-9">
           <h3 className="text-3xl font-bold tracking-tight text-gray-900">
             Your {sizeLabel} T-Shirt
           </h3>

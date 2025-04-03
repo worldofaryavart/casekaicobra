@@ -1,29 +1,45 @@
-import { db } from "@/db"
-import { notFound } from "next/navigation"
-import DesignPreview from './DesignPreview'
+import { db } from "@/db";
+import { notFound } from "next/navigation";
+import DesignPreview from "./DesignPreview";
 
 interface PageProps {
-    searchParams: {
-        [key: string]: string | string[] | undefined 
-    }
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
-const Page = async ({searchParams}: PageProps) => {
-    const { id } = searchParams 
+const Page = async ({ searchParams }: PageProps) => {
+  const { id } = searchParams;
 
-    if (!id || typeof id !=='string') {
-        return notFound
-    }
+  if (!id || typeof id !== "string") {
+    return notFound();
+  }
 
-    const configuration = await db.configuration.findUnique({
-        where: {id},
-    })
+  // Fetch configuration including relations
+  const configuration = await db.configuration.findUnique({
+    where: { id },
+    include: {
+      color: true,
+      size: true,
+      fabric: true,
+      product: true,
+    },
+  });
 
-    if(!configuration) {
-        return notFound()
-    }
+  if (!configuration) {
+    return notFound();
+  }
 
-    return <DesignPreview configuration ={configuration} />
-}
+  // Transform null values to undefined for compatibility with the expected types
+  const safeConfiguration = {
+    ...configuration,
+    color: configuration.color
+      ? { ...configuration.color, hex: configuration.color.hex ?? undefined }
+      : null,
+    fabric: configuration.fabric
+      ? { ...configuration.fabric, price: configuration.fabric.price ?? undefined }
+      : null,
+  };
 
-export default Page
+  return <DesignPreview configuration={safeConfiguration} />;
+};
+
+export default Page;

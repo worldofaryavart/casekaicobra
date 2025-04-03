@@ -1,50 +1,57 @@
 'use server'
 
-import { BASE_PRICE, PRODUCT_PRICES } from '@/config/products'
-import { db } from '@/db'
-import { stripe } from '@/lib/stripe'
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
-import { Order } from '@prisma/client'
+import { db } from '@/db';
+import { stripe } from '@/lib/stripe';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import type { Order } from '@prisma/client';
 
 export const createCheckoutSession = async ({
   configId,
 }: {
-  configId: string
+  configId: string;
 }) => {
   const configuration = await db.configuration.findUnique({
     where: { id: configId },
-  })
+    include: {
+      color: true,
+      size: true,
+      fabric: true,
+      product: true,
+    },
+  });
 
   if (!configuration) {
-    throw new Error('No such configuration found')
+    throw new Error('No such configuration found');
   }
 
-  const { getUser } = getKindeServerSession()
-  const user = await getUser()
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
   if (!user) {
-    throw new Error('You need to be logged in')
+    throw new Error('You need to be logged in');
   }
 
-  const { fabric } = configuration
+  // Use the product price from the related product.
+  // If a discount is available, use it; otherwise, fall back to the real price.
+  let basePrice = 0;
+  if (configuration.product) {
+    basePrice = configuration.product.discountPrice || configuration.product.realPrice;
+  }
+  // Add any extra cost from the selected fabric (if any)
+  let fabricExtra = configuration.fabric?.price ?? 0;
+  let price = basePrice + fabricExtra;
 
-  let price = BASE_PRICE
-  if (fabric === 'polycotton')
-    price += PRODUCT_PRICES.fabric.polycotton
-
-  let order: Order | undefined = undefined
+  let order: Order | undefined = undefined;
 
   const existingOrder = await db.order.findFirst({
     where: {
       userId: user.id,
       configurationId: configuration.id,
     },
-  })
-
-  console.log(user.id, configuration.id)
+  });
 
   if (existingOrder) {
-    order = existingOrder
+    order = existingOrder;
   } else {
     order = await db.order.create({
       data: {
@@ -52,17 +59,17 @@ export const createCheckoutSession = async ({
         userId: user.id,
         configurationId: configuration.id,
       },
-    })
+    });
   }
 
   const product = await stripe.products.create({
     name: 'Custom T-Shirt',
-    images: [configuration.imageUrl],
+    images: [configuration.imageUrl || ''],
     default_price_data: {
       currency: 'INR',
       unit_amount: price,
     },
-  })
+  });
 
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
@@ -75,7 +82,7 @@ export const createCheckoutSession = async ({
       orderId: order.id,
     },
     line_items: [{ price: product.default_price as string, quantity: 1 }],
-  })
+  });
 
-  return { url: stripeSession.url }
-}
+  return { url: stripeSession.url };
+};
