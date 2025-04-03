@@ -6,6 +6,7 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Truck, Wallet } from "lucide-react";
 import Image from "next/image";
+import { BASE_PRICE } from "@/config/products";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ import LoginModal from "@/components/LoginModal";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
+import TShirt from "@/components/Tshirt2";
 
 // Your Checkout configuration type
 type CheckoutConfiguration = {
@@ -94,8 +96,8 @@ const Checkout = ({
   const imageSrc = isCustom
     ? configuration.croppedImageUrl || configuration.imageUrl || ""
     : configuration.product?.images[0] || "";
-  const displayedWidth = isCustom ? configuration.width : null;
-  const displayedHeight = isCustom ? configuration.height : null;
+  const displayedWidth = isCustom ? configuration.width : 0;
+  const displayedHeight = isCustom ? configuration.height : 0;
 
   // Normalize display values for fabric, color and size.
   const fabricDisplay =
@@ -106,6 +108,10 @@ const Checkout = ({
     configuration.color && typeof configuration.color === "object"
       ? configuration.color.label
       : configuration.color || "";
+  const colorHex =
+    typeof configuration.color === "string"
+      ? configuration.color
+      : configuration.color?.hex;
   const sizeDisplay =
     configuration.size && typeof configuration.size === "object"
       ? configuration.size.label
@@ -115,7 +121,7 @@ const Checkout = ({
   let basePrice = 0;
   let totalPrice = 0;
   if (isCustom) {
-    basePrice = configuration.product ? configuration.product.discountPrice : 0;
+    basePrice = BASE_PRICE;
     totalPrice = basePrice;
   } else if (configuration.product) {
     basePrice = configuration.product.discountPrice;
@@ -235,12 +241,21 @@ const Checkout = ({
               </CardHeader>
               <CardContent className="flex flex-col items-center">
                 <div className="w-48 h-48 relative mb-4">
-                  <Image
-                    src={imageSrc}
-                    alt={isCustom ? "Custom T-Shirt" : "T-Shirt"}
-                    fill
-                    className="object-contain"
-                  />
+                  {isCustom ? (
+                    <TShirt
+                      color={colorHex || "#000000"}
+                      imgSrc={imageSrc || ""}
+                      width={displayedWidth || 0}
+                      height={displayedHeight || 0}
+                    />
+                  ) : (
+                    <Image
+                      src={imageSrc}
+                      alt={"T-Shirt"}
+                      fill
+                      className="object-contain"
+                    />
+                  )}
                 </div>
 
                 <h3 className="font-semibold text-lg">
