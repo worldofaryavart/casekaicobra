@@ -121,8 +121,15 @@ const Checkout = ({
   let basePrice = 0;
   let totalPrice = 0;
   if (isCustom) {
-    basePrice = BASE_PRICE;
+    basePrice = BASE_PRICE / 100;
     totalPrice = basePrice;
+    if (
+      configuration.fabric &&
+      typeof configuration.fabric === "object" &&
+      configuration.fabric.price
+    ) {
+      totalPrice += configuration.fabric.price;
+    }
   } else if (configuration.product) {
     basePrice = configuration.product.discountPrice;
     totalPrice = basePrice;
