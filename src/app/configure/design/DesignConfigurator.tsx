@@ -66,7 +66,7 @@ const DesignConfigurator = ({
     },
   });
   
-  const isPending = status === "loading";
+  const isPending = status === "pending";
 
   // Initialize options with the first available option from each array
   const [options, setOptions] = useState<{
