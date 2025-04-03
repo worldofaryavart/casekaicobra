@@ -1,4 +1,3 @@
-// DesignConfigurator.tsx
 "use client";
 
 import HandleComponent from "@/components/HandleComponent";
@@ -9,7 +8,6 @@ import NextImage from "next/image";
 import { Rnd } from "react-rnd";
 import { RadioGroup } from "@headlessui/react";
 import { useRef, useState } from "react";
-import { FABRICS, SIZES, COLORS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -26,25 +24,32 @@ import { useMutation } from "@tanstack/react-query";
 import { saveConfig as _saveConfig, SaveConfigArgs } from "./actions";
 import { useRouter } from "next/navigation";
 import TShirt from "@/components/Tshirt2";
-import { TshirtColor } from "@prisma/client";
+import type { TshirtColor, TshirtSize, TshirtFabric } from "@prisma/client";
 
 interface DesignConfiguratorProps {
   configId: string;
   imageUrl: string;
   imageDimensions: { width: number; height: number };
+  colors: TshirtColor[];
+  sizes: TshirtSize[];
+  fabrics: TshirtFabric[];
 }
 
 const DesignConfigurator = ({
   configId,
   imageUrl,
   imageDimensions,
+  colors,
+  sizes,
+  fabrics,
 }: DesignConfiguratorProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
+  // Log props to verify they are passed correctly
   console.log("DesignConfiguratorProps", configId, imageUrl, imageDimensions);
 
-  const { mutate: saveConfig, isPending } = useMutation({
+  const { mutate: saveConfig, status } = useMutation({
     mutationKey: ["save-config"],
     mutationFn: async (args: SaveConfigArgs) => {
       await Promise.all([saveConfiguration(), _saveConfig(args)]);
@@ -60,15 +65,18 @@ const DesignConfigurator = ({
       router.push(`/configure/preview?id=${configId}`);
     },
   });
+  
+  const isPending = status === "loading";
 
+  // Initialize options with the first available option from each array
   const [options, setOptions] = useState<{
-    color: (typeof COLORS)[number];
-    size: (typeof SIZES.options)[number];
-    fabric: (typeof FABRICS.options)[number];
+    color: TshirtColor;
+    size: TshirtSize;
+    fabric: TshirtFabric;
   }>({
-    color: COLORS[0],
-    size: SIZES.options[0],
-    fabric: FABRICS.options[0],
+    color: colors[0],
+    size: sizes[0],
+    fabric: fabrics[0],
   });
 
   const [renderedDimension, setRenderedDimension] = useState({
@@ -149,26 +157,12 @@ const DesignConfigurator = ({
     return new Blob([byteArray], { type: mimeType });
   }
 
-  function mapColorToEnum(colorValue: string): TshirtColor {
-    // Map your component colors to Prisma enum values
-    const colorMap: Record<string, TshirtColor> = {
-      blue: "navy_blue", // Map blue to navy_blue if needed
-      black: "black",
-      white: "white",
-      // If custom, default to a valid enum value
-      custom: "black",
-    };
-
-    return colorMap[colorValue] || "black"; // Default fallback
-  }
-
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
       <div
         ref={containerRef}
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
-        {/* Change z-index of the Rnd component to be higher than T-shirt */}
         <Rnd
           default={{
             x: 150,
@@ -187,7 +181,7 @@ const DesignConfigurator = ({
             const { x, y } = data;
             setRenderedPosition({ x, y });
           }}
-          className="absolute z-50 border-[3px] border-primary" // Changed z-index from z-20 to z-50
+          className="absolute z-50 border-[3px] border-primary"
           lockAspectRatio
           resizeHandleComponent={{
             bottomRight: <HandleComponent />,
@@ -209,10 +203,9 @@ const DesignConfigurator = ({
           <AspectRatio
             ref={tshirtRef}
             ratio={3 / 4}
-            className="pointer-events-none relative z-10 aspect-[3/4] w-full" // Changed z-index from z-50 to z-10
+            className="pointer-events-none relative z-10 aspect-[3/4] w-full"
           >
-            {/* Render the T-shirt component with the selected color */}
-            <TShirt color={options.color.hex} />
+            <TShirt color={options.color.hex ?? "#000"} />
           </AspectRatio>
         </div>
       </div>
@@ -230,26 +223,27 @@ const DesignConfigurator = ({
             <div className="w-full h-px bg-zinc-200 my-6" />
             <div className="relative mt-4 h-full flex flex-col justify-between">
               <div className="flex flex-col gap-6">
+                {/* Color Selection */}
                 <div className="flex flex-col gap-3">
                   <Label>Color: {options.color.label}</Label>
                   <div className="flex flex-wrap gap-2">
-                    {COLORS.map((color) => (
+                    {colors.map((color) => (
                       <button
-                        key={color.label}
+                        key={color.id}
                         onClick={() =>
                           setOptions((prev) => ({ ...prev, color }))
                         }
                         className={cn(
                           "relative flex cursor-pointer items-center justify-center rounded-full p-0.5 border-2 border-transparent hover:border-gray-400 transition-all",
                           {
-                            "border-black": color.value === options.color.value,
+                            "border-black": color.id === options.color.id,
                           }
                         )}
                         aria-label={color.label}
                       >
                         <span
                           className="h-8 w-8 rounded-full border border-black border-opacity-10"
-                          style={{ backgroundColor: color.hex }}
+                          style={{ backgroundColor: color.hex || "#000" }}
                         />
                       </button>
                     ))}
@@ -258,23 +252,23 @@ const DesignConfigurator = ({
                     <Label className="mr-3 text-sm">Custom:</Label>
                     <input
                       type="color"
-                      value={options.color.hex}
+                      value={options.color.hex || "#000000"}
                       onChange={(e) => {
-                        type ColorOption = (typeof COLORS)[number];
-
-                        const customColor: ColorOption = {
-                          value: "black", // Use a default valid value from the enum
-                          label: "Custom",
-                          tw: "custom",
-                          hex: e.target.value,
-                        };
-                        setOptions((prev) => ({ ...prev, color: customColor }));
+                        // For custom color, we update the current color.
+                        // We assume "black" is always available.
+                        const blackOption =
+                          colors.find((c) => c.value === "black") || colors[0];
+                        setOptions((prev) => ({
+                          ...prev,
+                          color: { ...blackOption, hex: e.target.value },
+                        }));
                       }}
                       className="h-8 w-8 rounded cursor-pointer"
                     />
                   </div>
                 </div>
 
+                {/* Size Selection */}
                 <div className="relative flex flex-col gap-3 w-full">
                   <Label>Size</Label>
                   <DropdownMenu>
@@ -289,12 +283,12 @@ const DesignConfigurator = ({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
-                      {SIZES.options.map((size) => (
+                      {sizes.map((size) => (
                         <DropdownMenuItem
-                          key={size.label}
+                          key={size.id}
                           className={cn(
                             "flex text-sm gap-1 items-center p-1.5 cursor-default hover:bg-zinc-100",
-                            { "bg-zinc-100": size.label === options.size.label }
+                            { "bg-zinc-100": size.id === options.size.id }
                           )}
                           onClick={() =>
                             setOptions((prev) => ({ ...prev, size }))
@@ -303,7 +297,7 @@ const DesignConfigurator = ({
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              size.label === options.size.label
+                              size.id === options.size.id
                                 ? "opacity-100"
                                 : "opacity-0"
                             )}
@@ -315,17 +309,18 @@ const DesignConfigurator = ({
                   </DropdownMenu>
                 </div>
 
+                {/* Fabric Selection */}
                 <RadioGroup
                   value={options.fabric}
-                  onChange={(val) => {
-                    setOptions((prev) => ({ ...prev, fabric: val }));
-                  }}
+                  onChange={(val) =>
+                    setOptions((prev) => ({ ...prev, fabric: val }))
+                  }
                 >
                   <Label>Fabric</Label>
                   <div className="mt-3 space-y-4">
-                    {FABRICS.options.map((option) => (
+                    {fabrics.map((option) => (
                       <RadioGroup.Option
-                        key={option.value}
+                        key={option.id}
                         value={option}
                         className={({ active, checked }) =>
                           cn(
@@ -342,24 +337,17 @@ const DesignConfigurator = ({
                             >
                               {option.label}
                             </RadioGroup.Label>
-                            {option.description && (
+                            {option.price !== null && (
                               <RadioGroup.Description
                                 as="span"
                                 className="text-gray-500"
                               >
-                                {option.description}
+                                {option.price !== undefined &&
+                                  formatPrice(option.price / 100)}
                               </RadioGroup.Description>
                             )}
                           </span>
                         </span>
-                        <RadioGroup.Description
-                          as="span"
-                          className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right"
-                        >
-                          <span className="font-medium text-gray-900">
-                            {formatPrice(option.price / 100)}
-                          </span>
-                        </RadioGroup.Description>
                       </RadioGroup.Option>
                     ))}
                   </div>
@@ -374,7 +362,9 @@ const DesignConfigurator = ({
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">
-                {formatPrice((BASE_PRICE + options.fabric.price) / 100)}
+                {formatPrice(
+                  (BASE_PRICE + (options.fabric.price || 0)) / 100
+                )}
               </p>
               <Button
                 isLoading={isPending}
@@ -383,13 +373,11 @@ const DesignConfigurator = ({
                 onClick={() =>
                   saveConfig({
                     configId,
-                    // Map the color value to a valid TshirtColor enum value
-                    color: mapColorToEnum(options.color.value),
-                    size: options.size.value,
-                    fabric: options.fabric.value,
+                    color: options.color,
+                    size: options.size,
+                    fabric: options.fabric,
                   })
                 }
-                // onClick= {(() => console.log("saveConfig is clicked"))}
                 size="sm"
                 className="w-full"
               >
