@@ -22,6 +22,7 @@ export async function saveConfig({
       color: { connect: { id: color.id } },
       size: { connect: { id: size.id } },
       fabric: { connect: { id: fabric.id } },
+      isCustom: true
     },
   });
 }

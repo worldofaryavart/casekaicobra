@@ -343,7 +343,7 @@ const DesignConfigurator = ({
                                 className="text-gray-500"
                               >
                                 {option.price !== undefined &&
-                                  formatPrice(option.price / 100)}
+                                  formatPrice(option.price)}
                               </RadioGroup.Description>
                             )}
                           </span>
@@ -363,7 +363,7 @@ const DesignConfigurator = ({
             <div className="w-full flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">
                 {formatPrice(
-                  (BASE_PRICE + (options.fabric.price || 0)) / 100
+                  (BASE_PRICE + (options.fabric.price || 0)*100) / 100
                 )}
               </p>
               <Button

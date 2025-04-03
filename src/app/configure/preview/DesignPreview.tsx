@@ -41,31 +41,15 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
 
   // The total price will be computed in the checkout action;
   // here we show a base price (for display) using BASE_PRICE.
-  const totalPrice = BASE_PRICE + (fabric?.price || 0);
-
-  const { mutate: createPaymentSession } = useMutation({
-    mutationKey: ["get-checkout-session"],
-    mutationFn: createCheckoutSession,
-    onSuccess: ({ url }) => {
-      if (url) router.push(url);
-      else throw new Error("Unable to retrieve payment URL.");
-    },
-    onError: () => {
-      toast({
-        title: "Something went wrong",
-        description: "There was an error on our end. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
+  const totalPrice = BASE_PRICE + ((fabric?.price || 0)*100);
 
   const handleCheckout = () => {
-    if (user) {
-      router.push(`/checkout?configId=${id}`);
-    } else {
-      localStorage.setItem("configurationId", id);
-      setIsLoginModalOpen(true);
-    }
+    // if (user) {
+    router.push(`/checkout/${id}`);
+    // } else {
+    //   localStorage.setItem("configurationId", id);
+    //   setIsLoginModalOpen(true);
+    // }
   };
 
   return (
