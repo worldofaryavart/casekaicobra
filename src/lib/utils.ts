@@ -42,6 +42,6 @@ export function constructMetadata({
       creator: '',
     },
     icons,
-    metadataBase: new URL("https://casekaicobra.vercel.app/")
+    metadataBase: new URL("https://www.chichore.com")
   }
 }
