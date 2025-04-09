@@ -253,7 +253,7 @@ const DesignConfigurator = ({
                       </button>
                     ))}
                   </div>
-                  {/* <div className="flex items-center mt-2">
+                  <div className="flex items-center mt-2">
                     <Label className="mr-3 text-sm">Custom:</Label>
                     <input
                       type="color"
@@ -270,7 +270,7 @@ const DesignConfigurator = ({
                       }}
                       className="h-8 w-8 rounded cursor-pointer"
                     />
-                  </div> */}
+                  </div>
                 </div>
 
                 {/* Size Selection */}
