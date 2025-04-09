@@ -26,28 +26,21 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const router = useRouter();
   const { toast } = useToast();
   const { id, color, size, fabric, croppedImageUrl, width, height } = configuration;
-  console.log("Configuration: ", configuration);
-
+  
   const { user } = useKindeBrowserClient();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   useEffect(() => setShowConfetti(true), []);
 
-  // Use the related color value (defaulting to black if missing)
-  const colorValue = color?.hex || "#000000";
+  // Use the related color value (defaulting to white if missing)
+  const colorValue = color?.value || "white";
   const sizeLabel = size?.label || "Standard";
 
-  // The total price will be computed in the checkout action;
-  // here we show a base price (for display) using BASE_PRICE.
+  // The total price will be computed in the checkout action
   const totalPrice = BASE_PRICE + ((fabric?.price || 0)*100);
 
   const handleCheckout = () => {
-    // if (user) {
     router.push(`/checkout/${id}`);
-    // } else {
-    //   localStorage.setItem("configurationId", id);
-    //   setIsLoginModalOpen(true);
-    // }
   };
 
   return (
@@ -61,50 +54,54 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
 
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
-      <div className="mt-20 flex flex-col items-center md:grid text-sm sm:grid-cols-12 sm:gap-x-6 md:gap-x-8 lg:gap-x-12">
-        <div className="md:col-span-4 lg:col-span-3">
-          <TShirt
-            color={colorValue}
-            imgSrc={croppedImageUrl || ""}
-            width={width as number}
-            height={height as number}
-          />
-        </div>
-
-        <div className="mt-6 sm:col-span-9">
-          <h3 className="text-3xl font-bold tracking-tight text-gray-900">
-            Your {sizeLabel} T-Shirt
-          </h3>
-          <div className="mt-3 flex items-center gap-1.5 text-base">
-            <Check className="h-4 w-4 text-green-500" />
-            In stock and ready to ship
+      <div className="mt-8 flex flex-col md:grid md:grid-cols-12 md:gap-x-8 lg:gap-x-12">
+        {/* T-shirt preview - adjusting column span and adding card-like container */}
+        <div className="md:col-span-5 lg:col-span-4 bg-gray-50 rounded-lg p-4 flex items-center justify-center">
+          <div className="w-full max-w-xs">
+            <TShirt
+              color={colorValue}
+              imgSrc={croppedImageUrl || ""}
+              width={width as number}
+              height={height as number}
+            />
           </div>
         </div>
 
-        <div className="sm:col-span-12 md:col-span-9 text-base">
-          <div className="grid grid-cols-1 gap-y-8 border-b border-gray-200 py-8 sm:grid-cols-2 sm:gap-x-6 sm:py-6 md:py-10">
+        {/* Product details */}
+        <div className="mt-6 md:mt-0 md:col-span-7 lg:col-span-8">
+          <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-gray-900">
+            Your {sizeLabel} T-Shirt
+          </h3>
+          <div className="mt-2 flex items-center gap-1.5 text-base">
+            <Check className="h-4 w-4 text-green-500" />
+            <span className="text-green-600">In stock and ready to ship</span>
+          </div>
+          
+          {/* Highlights section */}
+          <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-6 border-b border-gray-200 py-6">
             <div>
               <p className="font-medium text-zinc-950">Highlights</p>
-              <ol className="mt-3 text-zinc-700 list-disc list-inside">
+              <ul className="mt-2 text-zinc-700 list-disc list-inside space-y-1">
                 <li>High-quality, breathable fabric</li>
                 <li>Comfortable fit and design</li>
                 <li>Durable print with eco-friendly inks</li>
                 <li>Machine washable</li>
-              </ol>
+              </ul>
             </div>
             <div>
               <p className="font-medium text-zinc-950">Fabric Details</p>
-              <ol className="mt-3 text-zinc-700 list-disc list-inside">
+              <ul className="mt-2 text-zinc-700 list-disc list-inside space-y-1">
                 <li>Soft and comfortable</li>
                 <li>Long-lasting color and quality</li>
-              </ol>
+              </ul>
             </div>
           </div>
 
-          <div className="mt-8">
-            <div className="bg-gray-50 p-6 sm:rounded-lg sm:p-8">
+          {/* Pricing section */}
+          <div className="mt-6">
+            <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
               <div className="flow-root text-sm">
-                <div className="flex items-center justify-between py-1 mt-2">
+                <div className="flex items-center justify-between py-1">
                   <p className="text-gray-600">Base price</p>
                   <p className="font-medium text-gray-900">
                     {formatPrice(BASE_PRICE / 100)}
@@ -122,8 +119,8 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
               </div>
             </div>
 
-            <div className="mt-8 flex justify-end pb-12">
-              <Button onClick={handleCheckout} className="px-4 sm:px-6 lg:px-8">
+            <div className="mt-6 flex justify-end">
+              <Button onClick={handleCheckout} className="px-4 sm:px-6">
                 Check out <ArrowRight className="h-4 w-4 ml-1.5 inline" />
               </Button>
             </div>

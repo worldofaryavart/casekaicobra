@@ -10,8 +10,7 @@ interface TShirtProps {
 const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
   // Calculate aspect ratio to maintain proportions
   const aspectRatio = width && height ? width / height : 1;
-  console.log("color is : ", color);
-
+  
   // Fix the frontImgUrl logic with proper function syntax
   const getFrontImgUrl = () => {
     if (color === "red") {
@@ -33,35 +32,29 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
     } else if (color === "berry") {
       return "/tshirt-color/berry/berry_front.png";
     } else {
-      return "/tshirt-color/red/white_front.png";
+      return "/tshirt-color/white/white_front.png";
     }
   };
 
   const frontImgUrl = getFrontImgUrl();
   
   return (
-    <div className="relative w-full">
-      <div className="flex items-center justify-center min-h-screen">
+    <div className="relative w-full aspect-square">
+      {/* T-shirt base container - removed min-h-screen */}
+      <div className="flex items-center justify-center h-full">
         <img
           src={frontImgUrl}
           alt="T-shirt front"
           className="w-full h-auto object-contain"
-          style={{
-            width: width ? `${width}px` : "auto",
-            height: height ? `${height}px` : "auto",
-            maxWidth: "100%",
-            maxHeight: "100%",
-          }}
         />
       </div>
 
-      {/* Only render the image overlay if imgSrc is provided */}
+      {/* Overlay design image if provided */}
       {imgSrc && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div
-            className="w-1/2 flex items-center justify-center mt-4"
+          <div 
+            className="w-1/2 flex items-center justify-center"
             style={{
-              // Use actual dimensions and maintain aspect ratio
               aspectRatio: aspectRatio || 1,
               maxWidth: "70%",
               maxHeight: "60%",
@@ -71,12 +64,6 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
               src={imgSrc}
               alt="T-shirt design"
               className="w-full h-full object-contain"
-              style={{
-                width: width ? `${width}px` : "auto",
-                height: height ? `${height}px` : "auto",
-                maxWidth: "100%",
-                maxHeight: "100%",
-              }}
             />
           </div>
         </div>
