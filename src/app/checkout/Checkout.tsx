@@ -72,8 +72,6 @@ const Checkout = ({
   const { toast } = useToast();
   const { user } = useKindeBrowserClient();
 
-  console.log("configuration is: ", configuration);
-
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
@@ -108,10 +106,10 @@ const Checkout = ({
     configuration.color && typeof configuration.color === "object"
       ? configuration.color.label
       : configuration.color || "";
-  const colorHex =
+  const colorValue =
     typeof configuration.color === "string"
       ? configuration.color
-      : configuration.color?.hex;
+      : configuration.color?.value;
   const sizeDisplay =
     configuration.size && typeof configuration.size === "object"
       ? configuration.size.label
@@ -226,10 +224,10 @@ const Checkout = ({
     <>
       <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
-      <div className="container mx-auto px-4 py-10">
-        <div className="flex items-center justify-center space-x-4 mb-4">
-          <h1 className="text-3xl font-bold">Checkout</h1>
-          <div className="relative w-16 h-16">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center space-x-4 mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold">Checkout</h1>
+          <div className="relative w-12 h-12 md:w-16 md:h-16">
             <Image
               src="/bird-1.png"
               alt="bird image"
@@ -239,58 +237,62 @@ const Checkout = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Order Summary Card */}
           <div className="lg:col-span-1">
             <Card>
-              <CardHeader>
+              <CardHeader className="pb-3">
                 <CardTitle>Order Summary</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center">
-                <div className="w-48 h-48 relative mb-4">
+                {/* Fixed height container for the T-shirt with proper aspect ratio */}
+                <div className="w-40 h-40 md:w-48 md:h-48 relative mb-4 bg-gray-50 rounded-lg p-2 flex items-center justify-center">
                   {isCustom ? (
-                    <TShirt
-                      color={colorHex || "#000000"}
-                      imgSrc={imageSrc || ""}
-                      width={displayedWidth || 0}
-                      height={displayedHeight || 0}
-                    />
+                    <div className="w-full h-full">
+                      <TShirt
+                        color={colorValue || "white"}
+                        imgSrc={imageSrc || ""}
+                        width={displayedWidth || 0}
+                        height={displayedHeight || 0}
+                      />
+                    </div>
                   ) : (
                     <Image
                       src={imageSrc}
                       alt={"T-Shirt"}
                       fill
-                      className="object-contain"
+                      className="object-contain p-2"
                     />
                   )}
                 </div>
 
-                <h3 className="font-semibold text-lg">
+                <h3 className="font-semibold text-lg text-center">
                   {isCustom
                     ? `${sizeDisplay} Custom T-Shirt`
                     : configuration.product?.title}
                 </h3>
 
-                <div className="w-full mt-6 space-y-2">
+                <div className="w-full mt-4 space-y-1 border-t pt-4">
                   <div className="flex justify-between py-1">
-                    <span>Fabric:</span>
+                    <span className="text-gray-600">Fabric:</span>
                     <span className="font-medium capitalize">
                       {fabricDisplay}
                     </span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span>Color:</span>
+                    <span className="text-gray-600">Color:</span>
                     <span className="font-medium capitalize">
                       {colorDisplay}
                     </span>
                   </div>
                   <div className="flex justify-between py-1">
-                    <span>Size:</span>
+                    <span className="text-gray-600">Size:</span>
                     <span className="font-medium">{sizeDisplay}</span>
                   </div>
+                  <div className="my-1 h-px bg-gray-100" />
                   <div className="flex justify-between py-1">
-                    <span>Discount Price:</span>
-                    <span>
+                    <span className="text-gray-600">Base Price:</span>
+                    <span className="font-medium">
                       {new Intl.NumberFormat("en-IN", {
                         style: "currency",
                         currency: "INR",
@@ -301,8 +303,8 @@ const Checkout = ({
                     typeof configuration.fabric === "object" &&
                     configuration.fabric.price && (
                       <div className="flex justify-between py-1">
-                        <span>Fabric upgrade:</span>
-                        <span>
+                        <span className="text-gray-600">Fabric upgrade:</span>
+                        <span className="font-medium">
                           {new Intl.NumberFormat("en-IN", {
                             style: "currency",
                             currency: "INR",
@@ -310,7 +312,8 @@ const Checkout = ({
                         </span>
                       </div>
                     )}
-                  <div className="flex justify-between py-1 font-bold">
+                  <div className="my-1 h-px bg-gray-200" />
+                  <div className="flex justify-between py-2 font-bold">
                     <span>Total:</span>
                     <span>
                       {new Intl.NumberFormat("en-IN", {
@@ -321,31 +324,42 @@ const Checkout = ({
                   </div>
                 </div>
               </CardContent>
-              <CardFooter>
-                <div>
-                  <h4 className="font-semibold">Shipping Address:</h4>
-                  <p>{shippingAddress.name}</p>
-                  <p>{shippingAddress.street}</p>
-                  <p>
-                    {shippingAddress.city}, {shippingAddress.postalCode}
-                  </p>
-                  <p>
-                    {shippingAddress.country}
-                    {shippingAddress.state && `, ${shippingAddress.state}`}
-                  </p>
-                  <p>{shippingAddress.phoneNumber}</p>
-                </div>
-              </CardFooter>
+              {(shippingAddress.name || shippingAddress.street) && (
+                <CardFooter className="border-t pt-4">
+                  <div className="w-full">
+                    <h4 className="font-semibold text-gray-900 mb-2">Shipping Address:</h4>
+                    <div className="text-sm space-y-1 text-gray-700">
+                      {shippingAddress.name && <p>{shippingAddress.name}</p>}
+                      {shippingAddress.street && <p>{shippingAddress.street}</p>}
+                      {(shippingAddress.city || shippingAddress.postalCode) && (
+                        <p>
+                          {shippingAddress.city}
+                          {shippingAddress.city && shippingAddress.postalCode ? ", " : ""}
+                          {shippingAddress.postalCode}
+                        </p>
+                      )}
+                      {(shippingAddress.country || shippingAddress.state) && (
+                        <p>
+                          {shippingAddress.country}
+                          {shippingAddress.country && shippingAddress.state ? ", " : ""}
+                          {shippingAddress.state}
+                        </p>
+                      )}
+                      {shippingAddress.phoneNumber && <p>{shippingAddress.phoneNumber}</p>}
+                    </div>
+                  </div>
+                </CardFooter>
+              )}
             </Card>
           </div>
 
           {/* Shipping & Payment Section */}
           <div className="lg:col-span-2">
-            <Card className="mb-4">
-              <CardHeader>
+            <Card className="mb-6">
+              <CardHeader className="pb-3">
                 <CardTitle>Shipping Address</CardTitle>
                 <CardDescription>
-                  Enter or confirm your shipping details
+                  Enter your shipping details
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -426,7 +440,7 @@ const Checkout = ({
                     </div>
                   </div>
                   <div>
-                    <Label htmlFor="phoneNumber">Phone Number (Optional)</Label>
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
                     <Input
                       id="phoneNumber"
                       name="phoneNumber"
@@ -435,8 +449,8 @@ const Checkout = ({
                       value={shippingAddress.phoneNumber}
                       onChange={handleAddressChange}
                     />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      May be used for delivery updates.
+                    <p className="text-xs text-muted-foreground mt-1">
+                      May be used for delivery updates
                     </p>
                   </div>
                 </div>
@@ -444,10 +458,10 @@ const Checkout = ({
             </Card>
 
             <Card>
-              <CardHeader>
-                <CardTitle>Select Payment Method</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle>Payment Method</CardTitle>
                 <CardDescription>
-                  Choose your preferred payment option
+                  Choose how you'd like to pay
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -456,11 +470,13 @@ const Checkout = ({
                   onValueChange={(value) =>
                     setSelectedPayment(value as PaymentMethod)
                   }
-                  className="grid grid-cols-1 gap-4"
+                  className="grid grid-cols-1 gap-3"
                 >
                   <div
-                    className={`flex items-center space-x-2 rounded-md border p-4 ${
-                      selectedPayment === "upi" ? "border-2 border-primary" : ""
+                    className={`flex items-center space-x-2 rounded-md border p-3 transition-all ${
+                      selectedPayment === "upi" 
+                        ? "border-2 border-primary bg-primary/5" 
+                        : "hover:bg-accent"
                     }`}
                   >
                     <RadioGroupItem value="upi" id="upi" />
@@ -471,33 +487,34 @@ const Checkout = ({
                       <Wallet className="h-5 w-5 text-muted-foreground" />
                       <div className="flex-1">
                         <p className="font-medium">UPI</p>
-                        <p className="text-sm text-muted-foreground">
-                          Pay using your UPI apps like Google Pay, PhonePe,
-                          Paytm
+                        <p className="text-xs text-muted-foreground">
+                          Pay using Google Pay, PhonePe, Paytm
                         </p>
                       </div>
                       <div className="flex space-x-1">
                         <Image
                           src="/svglogos/google-pay-or-tez.svg"
                           alt="Google Pay"
-                          width={32}
-                          height={24}
-                          className="h-6 w-auto"
+                          width={28}
+                          height={20}
+                          className="h-5 w-auto"
                         />
                         <Image
                           src="/svglogos/phonepe-1.svg"
                           alt="UPI"
-                          width={32}
-                          height={24}
-                          className="h-6 w-auto"
+                          width={28}
+                          height={20}
+                          className="h-5 w-auto"
                         />
                       </div>
                     </Label>
                   </div>
 
                   <div
-                    className={`flex items-center space-x-2 rounded-md border p-4 ${
-                      selectedPayment === "cod" ? "border-2 border-primary" : ""
+                    className={`flex items-center space-x-2 rounded-md border p-3 transition-all ${
+                      selectedPayment === "cod" 
+                        ? "border-2 border-primary bg-primary/5" 
+                        : "hover:bg-accent"
                     }`}
                   >
                     <RadioGroupItem value="cod" id="cod" />
@@ -508,7 +525,7 @@ const Checkout = ({
                       <Truck className="h-5 w-5 text-muted-foreground" />
                       <div className="flex-1">
                         <p className="font-medium">Cash on Delivery</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-xs text-muted-foreground">
                           Pay when you receive your order
                         </p>
                       </div>
@@ -516,7 +533,7 @@ const Checkout = ({
                   </div>
                 </RadioGroup>
               </CardContent>
-              <CardFooter className="flex justify-between">
+              <CardFooter className="flex justify-between border-t mt-2 pt-4">
                 <Button
                   variant="outline"
                   onClick={() =>

@@ -5,7 +5,7 @@ import { getPaymentStatus } from "./actions";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import TShirt from "@/components/Tshirt2";
+import TShirt from "@/components/Tshirt2"; // Assuming TShirt component exists
 import {
   Order,
   Configuration,
@@ -29,20 +29,20 @@ type ExtendedOrder = Order & {
   billingAddress: BillingAddress | null;
 };
 
-// Define the type for our query response
 type PaymentStatusResponse = ExtendedOrder | false;
 
 const ThankYou = () => {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId") || "";
 
-  // Provide the type to useQuery so that data is recognized as either order object or false.
   const { data, isLoading } = useQuery<PaymentStatusResponse>({
     queryKey: ["get-payment-status", orderId],
     queryFn: async () => await getPaymentStatus({ orderId }),
     retry: true,
     retryDelay: 500,
   });
+
+  console.log("data is : ", data);
 
   if (isLoading || data === undefined) {
     return (
@@ -56,7 +56,6 @@ const ThankYou = () => {
     );
   }
 
-  // Check if payment is still pending or verification is in progress.
   if (data === false) {
     return (
       <div className="w-full mt-24 flex justify-center">
@@ -69,22 +68,19 @@ const ThankYou = () => {
     );
   }
 
-  // Destructure order details from the query result.
   const { configuration, shippingAddress, amount, isPaid } = data;
-
-  // Determine the image source from configuration.
+  console.log("Amount : ", amount);
+  console.log("Shipping Address : ", shippingAddress);
   const imgSrc =
     configuration.croppedImageUrl ||
     configuration.imageUrl ||
     configuration.product?.images?.[0] ||
     "";
-
-  // Determine payment status display text.
   const paymentDisplay = isPaid ? "Paid" : "Pending";
-
-  // Extract color; if color is an object, use its value.
-  // Determine color display - TypeScript-safe version
   const color = configuration.color?.value || "";
+
+  // For custom orders
+  const { isCustom, width, height, croppedImageUrl } = configuration;
 
   return (
     <div className="bg-white">
@@ -106,9 +102,7 @@ const ThankYou = () => {
 
         <div className="mt-10 border-t border-zinc-200">
           <div className="mt-10 flex flex-auto flex-col">
-            <h4 className="font-semibold text-zinc-900">
-              You made a great choice!
-            </h4>
+            <h4 className="font-semibold text-zinc-900">You made a great choice!</h4>
             <p className="mt-2 text-sm text-zinc-600">
               We at CHICHORÉ believe that a T-Shirt not only looks great but is
               built to last.
@@ -116,11 +110,23 @@ const ThankYou = () => {
           </div>
         </div>
 
-        <div className="flex justify-center items-center overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
-          <div className="relative w-64 h-64">
-            <Image src={imgSrc} alt="T-Shirt" fill className="object-contain" />
+        {/* Conditional Rendering based on isCustom */}
+        {isCustom ? (
+          <div className="w-full max-w-xs">
+            <TShirt
+              color={color}
+              imgSrc={croppedImageUrl || ""}
+              width={width as number}
+              height={height as number}
+            />
           </div>
-        </div>
+        ) : (
+          <div className="flex justify-center items-center overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
+            <div className="relative w-64 h-64">
+              <Image src={imgSrc} alt="T-Shirt" fill className="object-contain" />
+            </div>
+          </div>
+        )}
 
         <div>
           <div className="grid grid-cols-2 gap-x-6 py-10 text-sm">
