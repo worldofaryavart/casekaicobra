@@ -10,7 +10,7 @@ interface TShirtProps {
 const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
   // Calculate aspect ratio to maintain proportions
   const aspectRatio = width && height ? width / height : 1;
-  
+
   // Fix the frontImgUrl logic with proper function syntax
   const getFrontImgUrl = () => {
     if (color === "red") {
@@ -37,27 +37,40 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
   };
 
   const frontImgUrl = getFrontImgUrl();
-  
+
   return (
     <div className="relative w-full aspect-square">
       {/* T-shirt base container - removed min-h-screen */}
-      <div className="flex items-center justify-center h-full">
+      {/* <div className="flex items-center justify-center h-full">
         <img
           src={frontImgUrl}
           alt="T-shirt front"
           className="w-full h-auto object-contain"
+        />
+      </div> */}
+      <div className="flex items-center justify-center min-h-screen">
+        <img
+          src={frontImgUrl}
+          alt="T-shirt front"
+          className="w-full h-auto object-contain"
+          style={{
+            width: width ? `${width}px` : "auto",
+            height: height ? `${height}px` : "auto",
+            maxWidth: "100%",
+            maxHeight: "100%",
+          }}
         />
       </div>
 
       {/* Overlay design image if provided */}
       {imgSrc && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div 
+          <div
             className="w-1/2 flex items-center justify-center"
             style={{
               aspectRatio: aspectRatio || 1,
-              maxWidth: "70%",
-              maxHeight: "60%",
+              maxWidth: "65%",
+              maxHeight: "55%",
             }}
           >
             <img
