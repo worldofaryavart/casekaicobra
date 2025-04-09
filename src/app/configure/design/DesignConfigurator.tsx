@@ -157,6 +157,8 @@ const DesignConfigurator = ({
     return new Blob([byteArray], { type: mimeType });
   }
 
+  console.log("colors is : ", options.color);
+
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
       <div
@@ -199,14 +201,17 @@ const DesignConfigurator = ({
             />
           </div>
         </Rnd>
-        <div className="relative w-60 bg-opacity-50 pointer-events-none aspect-[3/4]">
-          <AspectRatio
-            ref={tshirtRef}
-            ratio={3 / 4}
-            className="pointer-events-none relative z-10 aspect-[3/4] w-full"
-          >
-            <TShirt color={options.color.hex ?? "#000"} />
-          </AspectRatio>
+        
+        {/* Main TShirt display area - FIXED */}
+        <div 
+          ref={tshirtRef}
+          className="relative w-4/5 h-4/5 flex items-center justify-center pointer-events-none"
+        >
+          <TShirt 
+            color={options.color.value || "mint-green"} 
+            width={500} 
+            height={600} 
+          />
         </div>
       </div>
 
