@@ -67,7 +67,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
           ) : (
             <>
               <Link
-                href="/api/auth/register"
+                href="/"
                 className={buttonVariants({
                   size: "default",
                   variant: "ghost",
@@ -79,7 +79,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
               </Link>
 
               <Link
-                href="/api/auth/login"
+                href="/login"
                 className={buttonVariants({
                   size: "default",
                   variant: "ghost",

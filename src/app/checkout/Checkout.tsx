@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Truck, Wallet } from "lucide-react";
 import Image from "next/image";
@@ -24,6 +23,7 @@ import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
 import TShirt from "@/components/Tshirt2";
+import { createClient } from "@/utils/supabase/server";
 
 // Your Checkout configuration type
 type CheckoutConfiguration = {
@@ -70,15 +70,17 @@ const Checkout = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useKindeBrowserClient();
-
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  console.log("user", user);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
     name:
-      user?.given_name && user?.family_name
+      user?.name && user?.name
         ? `${user.given_name} ${user.family_name}`
         : "",
     street: "",
@@ -327,25 +329,35 @@ const Checkout = ({
               {(shippingAddress.name || shippingAddress.street) && (
                 <CardFooter className="border-t pt-4">
                   <div className="w-full">
-                    <h4 className="font-semibold text-gray-900 mb-2">Shipping Address:</h4>
+                    <h4 className="font-semibold text-gray-900 mb-2">
+                      Shipping Address:
+                    </h4>
                     <div className="text-sm space-y-1 text-gray-700">
                       {shippingAddress.name && <p>{shippingAddress.name}</p>}
-                      {shippingAddress.street && <p>{shippingAddress.street}</p>}
+                      {shippingAddress.street && (
+                        <p>{shippingAddress.street}</p>
+                      )}
                       {(shippingAddress.city || shippingAddress.postalCode) && (
                         <p>
                           {shippingAddress.city}
-                          {shippingAddress.city && shippingAddress.postalCode ? ", " : ""}
+                          {shippingAddress.city && shippingAddress.postalCode
+                            ? ", "
+                            : ""}
                           {shippingAddress.postalCode}
                         </p>
                       )}
                       {(shippingAddress.country || shippingAddress.state) && (
                         <p>
                           {shippingAddress.country}
-                          {shippingAddress.country && shippingAddress.state ? ", " : ""}
+                          {shippingAddress.country && shippingAddress.state
+                            ? ", "
+                            : ""}
                           {shippingAddress.state}
                         </p>
                       )}
-                      {shippingAddress.phoneNumber && <p>{shippingAddress.phoneNumber}</p>}
+                      {shippingAddress.phoneNumber && (
+                        <p>{shippingAddress.phoneNumber}</p>
+                      )}
                     </div>
                   </div>
                 </CardFooter>
@@ -358,9 +370,7 @@ const Checkout = ({
             <Card className="mb-6">
               <CardHeader className="pb-3">
                 <CardTitle>Shipping Address</CardTitle>
-                <CardDescription>
-                  Enter your shipping details
-                </CardDescription>
+                <CardDescription>Enter your shipping details</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -460,9 +470,7 @@ const Checkout = ({
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle>Payment Method</CardTitle>
-                <CardDescription>
-                  Choose how you'd like to pay
-                </CardDescription>
+                <CardDescription>Choose how you'd like to pay</CardDescription>
               </CardHeader>
               <CardContent>
                 <RadioGroup
@@ -474,8 +482,8 @@ const Checkout = ({
                 >
                   <div
                     className={`flex items-center space-x-2 rounded-md border p-3 transition-all ${
-                      selectedPayment === "upi" 
-                        ? "border-2 border-primary bg-primary/5" 
+                      selectedPayment === "upi"
+                        ? "border-2 border-primary bg-primary/5"
                         : "hover:bg-accent"
                     }`}
                   >
@@ -512,8 +520,8 @@ const Checkout = ({
 
                   <div
                     className={`flex items-center space-x-2 rounded-md border p-3 transition-all ${
-                      selectedPayment === "cod" 
-                        ? "border-2 border-primary bg-primary/5" 
+                      selectedPayment === "cod"
+                        ? "border-2 border-primary bg-primary/5"
                         : "hover:bg-accent"
                     }`}
                   >

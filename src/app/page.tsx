@@ -1,6 +1,5 @@
 "use client";
 
-import EnhancedChichoreLogoComponent from "@/components/EnhancedLogo";
 import { Icons } from "@/components/Icons";
 import ChichoreLogoComponent from "@/components/Logo";
 import MaxWidthWrapper from "@/components/MaxWidthWrapper";

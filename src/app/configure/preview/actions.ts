@@ -1,9 +1,9 @@
-'use server'
+"use server";
 
-import { db } from '@/db';
-import { stripe } from '@/lib/stripe';
-import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
-import type { Order } from '@prisma/client';
+import { db } from "@/db";
+import { stripe } from "@/lib/stripe";
+import { createClient } from "@/utils/supabase/server";
+import type { Order } from "@prisma/client";
 
 export const createCheckoutSession = async ({
   configId,
@@ -21,21 +21,24 @@ export const createCheckoutSession = async ({
   });
 
   if (!configuration) {
-    throw new Error('No such configuration found');
+    throw new Error("No such configuration found");
   }
 
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  console.log("user", user);
 
   if (!user) {
-    throw new Error('You need to be logged in');
+    throw new Error("You need to be logged in");
   }
 
   // Use the product price from the related product.
   // If a discount is available, use it; otherwise, fall back to the real price.
   let basePrice = 0;
   if (configuration.product) {
-    basePrice = configuration.product.discountPrice || configuration.product.realPrice;
+    basePrice =
+      configuration.product.discountPrice || configuration.product.realPrice;
   }
   // Add any extra cost from the selected fabric (if any)
   let fabricExtra = configuration.fabric?.price ?? 0;
@@ -63,10 +66,10 @@ export const createCheckoutSession = async ({
   }
 
   const product = await stripe.products.create({
-    name: 'Custom T-Shirt',
-    images: [configuration.imageUrl || ''],
+    name: "Custom T-Shirt",
+    images: [configuration.imageUrl || ""],
     default_price_data: {
-      currency: 'INR',
+      currency: "INR",
       unit_amount: price,
     },
   });
@@ -74,9 +77,9 @@ export const createCheckoutSession = async ({
   const stripeSession = await stripe.checkout.sessions.create({
     success_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${order.id}`,
     cancel_url: `${process.env.NEXT_PUBLIC_SERVER_URL}/configure/preview?id=${configuration.id}`,
-    payment_method_types: ['card'],
-    mode: 'payment',
-    shipping_address_collection: { allowed_countries: ['IN', 'US'] },
+    payment_method_types: ["card"],
+    mode: "payment",
+    shipping_address_collection: { allowed_countries: ["IN", "US"] },
     metadata: {
       userId: user.id,
       orderId: order.id,

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import { createClient } from "@/utils/supabase/server";
 import { Order, PaymentMethod, PaymentStatus } from "@prisma/client";
 
 // Define the expected shipping address data type
@@ -73,7 +73,9 @@ const getOrCreateOrder = async (
       shippingAddressId,
       paymentMethod: paymentMethod as PaymentMethod,
       paymentStatus:
-        paymentMethod === "cod" ? ("pending" as PaymentStatus) : ("initiated" as PaymentStatus),
+        paymentMethod === "cod"
+          ? ("pending" as PaymentStatus)
+          : ("initiated" as PaymentStatus),
     },
   });
 };
@@ -86,9 +88,10 @@ export const createCODOrder = async ({
   configId: string;
   shippingAddress: ShippingAddressData;
 }) => {
-  // Get the current user from your Kinde session
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  console.log("user", user);
 
   if (!user) {
     throw new Error("You need to be logged in");
@@ -97,7 +100,9 @@ export const createCODOrder = async ({
   const userId = user.id;
 
   // Fetch configuration and calculate the price.
-  const { configuration, totalPrice } = await getConfigurationAndPrice(configId);
+  const { configuration, totalPrice } = await getConfigurationAndPrice(
+    configId
+  );
 
   // Save the shipping address provided by the user.
   const shippingAddress = await db.shippingAddress.create({
@@ -114,7 +119,13 @@ export const createCODOrder = async ({
 
   // Check if an order already exists for this configuration and user.
   // If not, create a new order.
-  const order = await getOrCreateOrder(userId, configId, totalPrice, shippingAddress.id, "cod");
+  const order = await getOrCreateOrder(
+    userId,
+    configId,
+    totalPrice,
+    shippingAddress.id,
+    "cod"
+  );
 
   // Return the order id so the client can redirect to the thank-you page.
   return { orderId: order.id };

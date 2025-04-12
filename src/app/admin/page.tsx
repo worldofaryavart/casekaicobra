@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { db } from "@/db";
 import { formatPrice } from "@/lib/utils";
 import Link from "next/link";
@@ -21,10 +20,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import StatusDropdown from "./StatusDropdown";
+import { createClient } from "@/utils/supabase/server";
 
 const Page = async () => {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  console.log("user", user);
 
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
   if (!user || user.email !== ADMIN_EMAIL) {
@@ -46,14 +48,18 @@ const Page = async () => {
   const lastWeekSum = await db.order.aggregate({
     where: {
       isPaid: true,
-      createdAt: { gte: new Date(new Date().setDate(new Date().getDate() - 7)) },
+      createdAt: {
+        gte: new Date(new Date().setDate(new Date().getDate() - 7)),
+      },
     },
     _sum: { amount: true },
   });
   const lastMonthSum = await db.order.aggregate({
     where: {
       isPaid: true,
-      createdAt: { gte: new Date(new Date().setDate(new Date().getDate() - 30)) },
+      createdAt: {
+        gte: new Date(new Date().setDate(new Date().getDate() - 30)),
+      },
     },
     _sum: { amount: true },
   });

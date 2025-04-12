@@ -1,26 +1,41 @@
 "use server";
 
 import { db } from "@/db";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { BillingAddress, Configuration, Order, Product, ShippingAddress, TshirtColor, TshirtFabric, TshirtSize, User } from "@prisma/client";
+import { createClient } from "@/utils/supabase/server";
+import {
+  BillingAddress,
+  Configuration,
+  Order,
+  Product,
+  ShippingAddress,
+  TshirtColor,
+  TshirtFabric,
+  TshirtSize,
+  User,
+} from "@prisma/client";
 
 export const getPaymentStatus = async ({
   orderId,
 }: {
   orderId: string;
-}): Promise<Order & {
-  configuration: Configuration & {
-    product: Product | null;
-    fabric: TshirtFabric | null;
-    color: TshirtColor | null;
-    size: TshirtSize | null;
-  };
-  shippingAddress: ShippingAddress | null;
-  billingAddress: BillingAddress | null;
-  user: User;
-} | false> => {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+}): Promise<
+  | (Order & {
+      configuration: Configuration & {
+        product: Product | null;
+        fabric: TshirtFabric | null;
+        color: TshirtColor | null;
+        size: TshirtSize | null;
+      };
+      shippingAddress: ShippingAddress | null;
+      billingAddress: BillingAddress | null;
+      user: User;
+    })
+  | false
+> => {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const user = data.user;
+  console.log("user", user);
 
   if (!user?.id || !user.email) {
     throw new Error("You need to be logged in to view this page.");

@@ -1,21 +1,34 @@
+'use client'
+
 import {
   ArrowRight,
-  ShoppingBag,
   ShoppingBagIcon,
-  StoreIcon,
 } from "lucide-react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import Link from "next/link";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import ChichoreLogoComponent from "./Logo";
 import MobileNav from "./MobileNav";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 
-const Navbar = async () => {
-  const { getUser } = getKindeServerSession();
+const Navbar = () => {
+  const [user, setUser] = useState<any>(null);
 
-  const user = await getUser();
-  const isAdmin = user?.email === process.env.ADMIN_EMAIL;
+  useEffect(() => {
+    const supabase = createClient();
+
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    };
+
+    getUser();
+  }, []);
+
+  console.log("user is ", user);
+
+  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
 
   return (
     <nav className="sticky z-[100] h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
@@ -43,9 +56,9 @@ const Navbar = async () => {
                     variant: "ghost",
                   })}
                 >
-                  SignOut
+                  Sign Out
                 </Link>
-                {isAdmin ? (
+                {isAdmin && (
                   <Link
                     href="/admin"
                     className={buttonVariants({
@@ -55,7 +68,7 @@ const Navbar = async () => {
                   >
                     Admin ✨
                   </Link>
-                ) : null}
+                )}
                 <Link
                   href="/shop"
                   className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
@@ -74,7 +87,7 @@ const Navbar = async () => {
             ) : (
               <>
                 <Link
-                  href="/api/auth/register"
+                  href="/"
                   className={buttonVariants({
                     size: "sm",
                     variant: "ghost",
@@ -84,7 +97,7 @@ const Navbar = async () => {
                 </Link>
 
                 <Link
-                  href="/api/auth/login"
+                  href="/login"
                   className={buttonVariants({
                     size: "sm",
                     variant: "ghost",
