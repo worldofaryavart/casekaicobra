@@ -23,17 +23,26 @@ import StatusDropdown from "./StatusDropdown";
 import { createClient } from "@/utils/supabase/server";
 
 const Page = async () => {
+  // Fetch the user using your server-side Supabase client.
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  console.log("user", user);
 
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-  if (!user || user.email !== ADMIN_EMAIL) {
+  const user = data.user;
+
+  console.log("user is", user);
+
+  // Make sure the admin email is set as an environment variable with the NEXT_PUBLIC_ prefix.
+  // For admin checks on the server, use a case-insensitive comparison:
+  const isAdmin =
+    user?.email?.toLowerCase() ===
+    process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
+
+  // If no user is logged in or the user is not the admin, show a 404 page.
+  if (!user || !isAdmin) {
     return notFound();
   }
 
-  // Fetch orders from the last 7 days
+  // Fetch orders from the last 7 days.
   const orders = await db.order.findMany({
     where: {
       createdAt: {
@@ -44,7 +53,7 @@ const Page = async () => {
     include: { user: true, shippingAddress: true },
   });
 
-  // Aggregate revenue data
+  // Aggregate revenue data.
   const lastWeekSum = await db.order.aggregate({
     where: {
       isPaid: true,
@@ -102,7 +111,7 @@ const Page = async () => {
               Add New Size
             </div>
           </Link>
-          {/* You can add more links here for additional admin features */}
+          {/* Additional admin links */}
         </nav>
       </aside>
 

@@ -1,34 +1,25 @@
-'use client'
+"use client";
 
-import {
-  ArrowRight,
-  ShoppingBagIcon,
-} from "lucide-react";
+import { ArrowRight, ShoppingBagIcon } from "lucide-react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 import { buttonVariants } from "./ui/button";
 import Link from "next/link";
 import ChichoreLogoComponent from "./Logo";
 import MobileNav from "./MobileNav";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { useUser } from "@/hooks/useUser";
 
 const Navbar = () => {
-  const [user, setUser] = useState<any>(null);
+  const { user, loading } = useUser();
 
-  useEffect(() => {
-    const supabase = createClient();
+  // Use a fallback or loading state if desired
+  if (loading) return <p>Loading...</p>;
 
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-    };
+  // Make sure the admin email is set as an environment variable with the NEXT_PUBLIC_ prefix
+  const isAdmin =
+    user?.email?.toLowerCase() ===
+    process.env.NEXT_PUBLIC_ADMIN_EMAIL?.toLowerCase();
 
-    getUser();
-  }, []);
-
-  console.log("user is ", user);
-
-  const isAdmin = user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;
+  console.log("user is", user?.email, "isAdmin is", isAdmin);
 
   return (
     <nav className="sticky z-[100] h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
