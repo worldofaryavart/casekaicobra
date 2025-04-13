@@ -10,7 +10,7 @@ export default async function NewColorPage() {
     },
   });
 
-  console.log("categories is : ", colors);
+  console.log("colors is : ", colors);
   return (
     <div className="p-8">
       <Link href="/admin">
