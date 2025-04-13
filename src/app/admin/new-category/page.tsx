@@ -6,7 +6,7 @@ import CategoryTable from "./Table";
 // Define the Category type
 
 
-export default async function NewCategoryForm() {
+export default async function NewCategoryPage() {
   const categories = await db.category.findMany({
     orderBy: {
       name: "asc",

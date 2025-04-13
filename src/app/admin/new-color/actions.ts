@@ -25,3 +25,18 @@ export async function createColor({ label, value, hex, tw }: CreateColorArgs) {
 
   return newColor
 }
+
+export async function deleteColor(id: string) {
+  try {
+    await db.tshirtColor.delete({
+      where: {
+        id: id,
+      },
+    });
+    revalidatePath('/admin');
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting color:", error);
+    return { success: false, error: "Failed to delete color" };
+  }
+}
