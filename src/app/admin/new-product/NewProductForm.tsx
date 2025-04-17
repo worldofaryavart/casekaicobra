@@ -2,11 +2,11 @@
 
 import React, { useState, useRef, FormEvent } from "react";
 import Link from "next/link";
-import { useUploadThing } from "@/lib/uploadthing";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createProduct } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
+import axios from 'axios'; // For uploading the image to Cloudinary
 
 type CategoryType = {
   id: string;
@@ -58,33 +58,34 @@ const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormPr
 
   // Image state for previewing files before upload
   const [imageFiles, setImageFiles] = useState<File[]>([]);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Uploadthing hook for images
-  const { startUpload, isUploading } = useUploadThing("imageUploader", {
-    onClientUploadComplete: (res) => {
-      if (res && res.length > 0) {
-        // Extract URLs from the upload result.
-        const uploadedUrls = res.map((r) => r.url);
-        // Call mutation to create the product in your database.
-        saveProductMutation.mutate({
-          title,
-          description,
-          details,
-          category, // sends the category id
-          realPrice,
-          discountPrice,
-          availableSizes,
-          availableColors,
-          availableFabrics,
-          imageUrls: uploadedUrls,
-        });
-      }
-    },
-    onUploadProgress: (p) => {
-      // Optionally update a progress indicator
-    },
-  });
+  // Function to handle file upload to Cloudinary
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "chichore_preset" // Use the preset from your env
+    ); // Use the preset from your env
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // Cloudinary cloud name
+    if (!cloudName) {
+      console.error("Cloudinary Cloud Name is missing!");
+      throw new Error('Cloudinary Cloud Name is not set!');
+    }
+
+    try {
+      const res = await axios.post(
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, // Cloudinary endpoint
+        formData
+      );
+      return res.data.secure_url; // Return Cloudinary image URL
+    } catch (err) {
+      console.error("Cloudinary upload failed", err);
+      throw new Error('Upload failed');
+    }
+  };
 
   const saveProductMutation = useMutation({
     mutationKey: ["create-product"],
@@ -127,8 +128,23 @@ const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormPr
       toast({ title: "Please add at least one image" });
       return;
     }
-    // Initiate the image upload
-    startUpload(imageFiles, {});
+
+    const uploadedUrls = await Promise.all(
+      imageFiles.map(async (file) => await uploadToCloudinary(file))
+    );
+
+    saveProductMutation.mutate({
+      title,
+      description,
+      details,
+      category, // sends the category id
+      realPrice,
+      discountPrice,
+      availableSizes,
+      availableColors,
+      availableFabrics,
+      imageUrls: uploadedUrls,
+    });
   };
 
   return (
@@ -361,9 +377,8 @@ const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormPr
         <button
           type="submit"
           className="px-4 py-2 bg-green-600 text-white rounded"
-          disabled={isUploading}
         >
-          {isUploading ? "Uploading Images..." : "Create Product"}
+          Create Product
         </button>
       </form>
     </div>

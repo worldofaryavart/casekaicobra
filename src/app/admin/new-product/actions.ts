@@ -10,9 +10,9 @@ export type CreateProductArgs = {
   category: string  // category id
   realPrice: number
   discountPrice: number
-  availableSizes: string[]      // array of TshirtSize ids
-  availableFabrics: string[]    // array of TshirtFabric ids
-  availableColors: string[]     // array of TshirtColor ids
+  availableSizes: string[]     
+  availableFabrics: string[]    
+  availableColors: string[]     
   imageUrls: string[]
 }
 
