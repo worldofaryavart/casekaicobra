@@ -10,6 +10,10 @@ interface PageProps {
 
 const Page = async ({ searchParams }: PageProps) => {
   const { id } = searchParams;
+  console.log("searchParams", searchParams);
+  console.log("id", id);
+  const id_type = typeof id;
+  console.log("id_type", id_type);
 
   if (!id || typeof id !== "string") {
     return notFound();
