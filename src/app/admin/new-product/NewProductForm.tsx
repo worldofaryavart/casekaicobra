@@ -6,7 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createProduct } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
-import axios from 'axios'; // For uploading the image to Cloudinary
+import axios from "axios"; // For uploading the image to Cloudinary
 
 type CategoryType = {
   id: string;
@@ -41,7 +41,12 @@ type NewProductFormProps = {
   fabrics: FabricType[];
 };
 
-const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormProps) => {
+const NewProductForm = ({
+  categories,
+  sizes,
+  colors,
+  fabrics,
+}: NewProductFormProps) => {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -62,29 +67,23 @@ const NewProductForm = ({ categories, sizes, colors, fabrics }: NewProductFormPr
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Function to handle file upload to Cloudinary
-  const uploadToCloudinary = async (file) => {
+  const uploadToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 
-      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "chichore_preset" // Use the preset from your env
-    ); // Use the preset from your env
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "chichore_preset"
+    );
 
-    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME; // Cloudinary cloud name
-    if (!cloudName) {
-      console.error("Cloudinary Cloud Name is missing!");
-      throw new Error('Cloudinary Cloud Name is not set!');
-    }
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) throw new Error("Cloudinary Cloud Name is not set!");
 
-    try {
-      const res = await axios.post(
-        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, // Cloudinary endpoint
-        formData
-      );
-      return res.data.secure_url; // Return Cloudinary image URL
-    } catch (err) {
-      console.error("Cloudinary upload failed", err);
-      throw new Error('Upload failed');
-    }
+    const res = await axios.post<{
+      secure_url: string;
+      /* …other Cloudinary response props if you need them */
+    }>(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, formData);
+
+    return res.data.secure_url;
   };
 
   const saveProductMutation = useMutation({
