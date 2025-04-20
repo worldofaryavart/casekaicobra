@@ -1,7 +1,6 @@
 "use client";
 
 import HandleComponent from "@/components/HandleComponent";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatPrice } from "@/lib/utils";
 import NextImage from "next/image";
@@ -27,18 +26,14 @@ import TShirt from "@/components/Tshirt2";
 import type { TshirtColor, TshirtSize, TshirtFabric } from "@prisma/client";
 
 interface DesignConfiguratorProps {
-  configId: string;
   imageUrl: string;
-  imageDimensions: { width: number; height: number };
   colors: TshirtColor[];
   sizes: TshirtSize[];
   fabrics: TshirtFabric[];
 }
 
 const DesignConfigurator = ({
-  configId,
   imageUrl,
-  imageDimensions,
   colors,
   sizes,
   fabrics,
@@ -47,7 +42,6 @@ const DesignConfigurator = ({
   const router = useRouter();
 
   // Log props to verify they are passed correctly
-  console.log("DesignConfiguratorProps", configId, imageUrl, imageDimensions);
 
   const { mutate: saveConfig, status } = useMutation({
     mutationKey: ["save-config"],
@@ -61,9 +55,9 @@ const DesignConfigurator = ({
         variant: "destructive",
       });
     },
-    onSuccess: () => {
-      router.push(`/configure/preview?id=${configId}`);
-    },
+    // onSuccess: () => {
+    //   router.push(`/configure/preview?id=${configId}`);
+    // },
   });
   
   const isPending = status === "pending";
@@ -80,8 +74,8 @@ const DesignConfigurator = ({
   });
 
   const [renderedDimension, setRenderedDimension] = useState({
-    width: imageDimensions.width / 4,
-    height: imageDimensions.height / 4,
+    width: 200,
+    height: 200,
   });
 
   const [renderedPosition, setRenderedPosition] = useState({
@@ -136,7 +130,7 @@ const DesignConfigurator = ({
       const blob = base64ToBlob(base64Data, "image/png");
       const file = new File([blob], "filename.png", { type: "image/png" });
 
-      await startUpload([file], { configId });
+      // await startUpload([file], { configId });
     } catch (err) {
       toast({
         title: "Something went wrong",
@@ -166,12 +160,12 @@ const DesignConfigurator = ({
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         <Rnd
-          default={{
-            x: 150,
-            y: 205,
-            height: imageDimensions.height / 4,
-            width: imageDimensions.width / 4,
-          }}
+          // default={{
+          //   x: 150,
+          //   y: 205,
+          //   // height: imageDimensions.height / 4,
+          //   // width: imageDimensions.width / 4,
+          // }}
           onResizeStop={(_, __, ref, ___, { x, y }) => {
             setRenderedDimension({
               height: parseInt(ref.style.height.slice(0, -2)),
@@ -375,14 +369,14 @@ const DesignConfigurator = ({
                 isLoading={isPending}
                 disabled={isPending}
                 loadingText="Saving"
-                onClick={() =>
-                  saveConfig({
-                    configId,
-                    color: options.color,
-                    size: options.size,
-                    fabric: options.fabric,
-                  })
-                }
+                // onClick={() =>
+                //   saveConfig({
+                //     configId,
+                //     color: options.color,
+                //     size: options.size,
+                //     fabric: options.fabric,
+                //   })
+                // }
                 size="sm"
                 className="w-full"
               >
