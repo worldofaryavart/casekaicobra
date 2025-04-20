@@ -247,24 +247,6 @@ const DesignConfigurator = ({
                       </button>
                     ))}
                   </div>
-                  <div className="flex items-center mt-2">
-                    <Label className="mr-3 text-sm">Custom:</Label>
-                    <input
-                      type="color"
-                      value={options.color.hex || "#000000"}
-                      onChange={(e) => {
-                        // For custom color, we update the current color.
-                        // We assume "black" is always available.
-                        const blackOption =
-                          colors.find((c) => c.value === "black") || colors[0];
-                        setOptions((prev) => ({
-                          ...prev,
-                          color: { ...blackOption, hex: e.target.value },
-                        }));
-                      }}
-                      className="h-8 w-8 rounded cursor-pointer"
-                    />
-                  </div>
                 </div>
 
                 {/* Size Selection */}
