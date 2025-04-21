@@ -155,8 +155,12 @@ export const createCODOrder = async ({
 
     // Return the order id so the client can redirect to the thank-you page.
     return { orderId: order.id };
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error creating order:", error);
-    throw new Error(`Failed to create order: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create order: ${error.message}`);
+    } else {
+      throw new Error(`Failed to create order: Unknown error`);
+    }
   }
 };
