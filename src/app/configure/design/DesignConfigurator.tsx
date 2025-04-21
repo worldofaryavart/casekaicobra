@@ -17,12 +17,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
 import { BASE_PRICE } from "@/config/products";
-import { useUploadThing } from "@/lib/uploadthing";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { saveConfig as _saveConfig, SaveConfigArgs } from "./actions";
 import { useRouter } from "next/navigation";
 import TShirt from "@/components/Tshirt2";
+import axios from "axios";
 import type { TshirtColor, TshirtSize, TshirtFabric } from "@prisma/client";
 
 interface DesignConfiguratorProps {
@@ -43,12 +43,9 @@ const DesignConfigurator = ({
   const { toast } = useToast();
   const router = useRouter();
 
-  // Log props to verify they are passed correctly
-
   const { mutate: saveConfig, status } = useMutation({
     mutationKey: ["save-config"],
     mutationFn: async (args: SaveConfigArgs) => {
-      // await Promise.all([saveConfiguration(), _saveConfig(args)]);
       const croppedImageUrl = await saveConfiguration();
       await _saveConfig({
         ...args,
@@ -95,7 +92,29 @@ const DesignConfigurator = ({
   const tshirtRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { startUpload } = useUploadThing("imageUploader");
+  // Cloudinary upload helper function
+  const uploadToCloudinary = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append(
+      "upload_preset",
+      process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET ?? "chichore_preset"
+    );
+
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+    if (!cloudName) {
+      throw new Error("Missing Cloudinary cloud name");
+    }
+
+    const res = await axios.post<{
+      secure_url: string;
+    }>(
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
+      formData
+    );
+
+    return res.data.secure_url;
+  };
 
   async function saveConfiguration() {
     try {
@@ -137,18 +156,11 @@ const DesignConfigurator = ({
       const base64Data = base64.split(",")[1];
 
       const blob = base64ToBlob(base64Data, "image/png");
-      const file = new File([blob], "filename.png", { type: "image/png" });
+      const file = new File([blob], "cropped-design.png", { type: "image/png" });
 
-      // await startUpload([file], { configId });
-      const uploadResult = await startUpload([file], {
-        configId,
-      });
-
-      if (uploadResult && uploadResult.length > 0) {
-        return uploadResult[0].url;
-      }
-
-      return null;
+      // Upload to Cloudinary instead of uploadThing
+      const cloudinaryUrl = await uploadToCloudinary(file);
+      return cloudinaryUrl;
     } catch (err) {
       console.error("Error saving configuration: ", err);
       toast({
@@ -183,8 +195,6 @@ const DesignConfigurator = ({
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: mimeType });
   }
-
-  console.log("colors is : ", options.color);
 
   return (
     <div className="relative mt-20 grid grid-cols-1 lg:grid-cols-3 mb-20 pb-20">
