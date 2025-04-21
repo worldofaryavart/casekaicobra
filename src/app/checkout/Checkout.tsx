@@ -71,8 +71,6 @@ const Checkout = ({
   const router = useRouter();
   const { toast } = useToast();
   const {user, loading } = useUser();
-  console.log("user is : ", user);
-  // const [loading, setLoading] = useState<boolean>(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
@@ -164,8 +162,6 @@ const Checkout = ({
 
   const handleCheckout = () => {
     if (!user) {
-      // localStorage.setItem("configurationId", configuration.id);
-      // setIsLoginModalOpen(true);
       router.push("/login?redirect=/checkout");
       return;
     }

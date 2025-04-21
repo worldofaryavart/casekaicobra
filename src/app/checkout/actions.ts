@@ -15,6 +15,29 @@ type ShippingAddressData = {
   phoneNumber?: string;
 };
 
+// Helper: Get or create a user in the Prisma database
+const getOrCreateUser = async (supabaseUser: any) => {
+  // First check if user exists in Prisma DB
+  const existingUser = await db.user.findUnique({
+    where: { id: supabaseUser.id },
+  });
+
+  if (existingUser) {
+    return existingUser;
+  }
+
+  // Get the email from the user object
+  const email = supabaseUser.email || '';
+  
+  // Create a new user if one doesn't exist
+  return await db.user.create({
+    data: {
+      id: supabaseUser.id, // Use the Supabase user ID
+      email: email,
+    },
+  });
+};
+
 // Helper: Get configuration (with product and fabric) and calculate price.
 const getConfigurationAndPrice = async (configId: string) => {
   const configuration = await db.configuration.findUnique({
@@ -90,43 +113,50 @@ export const createCODOrder = async ({
 }) => {
   const supabase = await createClient();
   const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  console.log("user", user);
+  const supabaseUser = data.user;
+  console.log("user", supabaseUser);
 
-  if (!user) {
+  if (!supabaseUser) {
     throw new Error("You need to be logged in");
   }
 
-  const userId = user.id;
+  // Make sure the user exists in the Prisma DB
+  try {
+    const prismaUser = await getOrCreateUser(supabaseUser);
+    const userId = prismaUser.id;
 
-  // Fetch configuration and calculate the price.
-  const { configuration, totalPrice } = await getConfigurationAndPrice(
-    configId
-  );
+    // Fetch configuration and calculate the price.
+    const { configuration, totalPrice } = await getConfigurationAndPrice(
+      configId
+    );
 
-  // Save the shipping address provided by the user.
-  const shippingAddress = await db.shippingAddress.create({
-    data: {
-      name: shippingAddressData.name,
-      street: shippingAddressData.street,
-      city: shippingAddressData.city,
-      postalCode: shippingAddressData.postalCode,
-      country: shippingAddressData.country,
-      state: shippingAddressData.state,
-      phoneNumber: shippingAddressData.phoneNumber,
-    },
-  });
+    // Save the shipping address provided by the user.
+    const shippingAddress = await db.shippingAddress.create({
+      data: {
+        name: shippingAddressData.name,
+        street: shippingAddressData.street,
+        city: shippingAddressData.city,
+        postalCode: shippingAddressData.postalCode,
+        country: shippingAddressData.country,
+        state: shippingAddressData.state,
+        phoneNumber: shippingAddressData.phoneNumber,
+      },
+    });
 
-  // Check if an order already exists for this configuration and user.
-  // If not, create a new order.
-  const order = await getOrCreateOrder(
-    userId,
-    configId,
-    totalPrice,
-    shippingAddress.id,
-    "cod"
-  );
+    // Check if an order already exists for this configuration and user.
+    // If not, create a new order.
+    const order = await getOrCreateOrder(
+      userId,
+      configId,
+      totalPrice,
+      shippingAddress.id,
+      "cod"
+    );
 
-  // Return the order id so the client can redirect to the thank-you page.
-  return { orderId: order.id };
+    // Return the order id so the client can redirect to the thank-you page.
+    return { orderId: order.id };
+  } catch (error) {
+    console.error("Error creating order:", error);
+    throw new Error(`Failed to create order: ${error.message}`);
+  }
 };
