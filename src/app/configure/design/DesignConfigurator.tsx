@@ -30,6 +30,7 @@ interface DesignConfiguratorProps {
   colors: TshirtColor[];
   sizes: TshirtSize[];
   fabrics: TshirtFabric[];
+  configId: string;
 }
 
 const DesignConfigurator = ({
@@ -37,6 +38,7 @@ const DesignConfigurator = ({
   colors,
   sizes,
   fabrics,
+  configId,
 }: DesignConfiguratorProps) => {
   const { toast } = useToast();
   const router = useRouter();
@@ -46,20 +48,27 @@ const DesignConfigurator = ({
   const { mutate: saveConfig, status } = useMutation({
     mutationKey: ["save-config"],
     mutationFn: async (args: SaveConfigArgs) => {
-      await Promise.all([saveConfiguration(), _saveConfig(args)]);
+      // await Promise.all([saveConfiguration(), _saveConfig(args)]);
+      const croppedImageUrl = await saveConfiguration();
+      await _saveConfig({
+        ...args,
+        configId,
+        croppedImageUrl: croppedImageUrl || undefined,
+      });
     },
-    onError: () => {
+    onError: (error) => {
+      console.error("Error saving configuration: ", error);
       toast({
         title: "Something went wrong",
         description: "There was an error on our end. Please try again.",
         variant: "destructive",
       });
     },
-    // onSuccess: () => {
-    //   router.push(`/configure/preview?id=${configId}`);
-    // },
+    onSuccess: () => {
+      router.push(`/configure/preview?id=${configId}`);
+    },
   });
-  
+
   const isPending = status === "pending";
 
   // Initialize options with the first available option from each array
@@ -131,15 +140,39 @@ const DesignConfigurator = ({
       const file = new File([blob], "filename.png", { type: "image/png" });
 
       // await startUpload([file], { configId });
+      const uploadResult = await startUpload([file], {
+        configId,
+      });
+
+      if (uploadResult && uploadResult.length > 0) {
+        return uploadResult[0].url;
+      }
+
+      return null;
     } catch (err) {
+      console.error("Error saving configuration: ", err);
       toast({
         title: "Something went wrong",
         description:
           "There was a problem saving your config, please try again.",
         variant: "destructive",
       });
+      return null;
     }
   }
+
+  const handleContinue = () => {
+    saveConfig({
+      configId,
+      color: options.color,
+      size: options.size,
+      fabric: options.fabric,
+      width: renderedDimension.width,
+      height: renderedDimension.height,
+      positionX: renderedPosition.x,
+      positionY: renderedPosition.y,
+    });
+  };
 
   function base64ToBlob(base64: string, mimeType: string) {
     const byteCharacters = atob(base64);
@@ -160,12 +193,12 @@ const DesignConfigurator = ({
         className="relative h-[37.5rem] overflow-hidden col-span-2 w-full max-w-4xl flex items-center justify-center rounded-lg border-2 border-dashed border-gray-300 p-12 text-center focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
       >
         <Rnd
-          // default={{
-          //   x: 150,
-          //   y: 205,
-          //   // height: imageDimensions.height / 4,
-          //   // width: imageDimensions.width / 4,
-          // }}
+          default={{
+            x: 150,
+            y: 205,
+            height: 200,
+            width: 200,
+          }}
           onResizeStop={(_, __, ref, ___, { x, y }) => {
             setRenderedDimension({
               height: parseInt(ref.style.height.slice(0, -2)),
@@ -195,16 +228,16 @@ const DesignConfigurator = ({
             />
           </div>
         </Rnd>
-        
+
         {/* Main TShirt display area - FIXED */}
-        <div 
+        <div
           ref={tshirtRef}
           className="relative w-4/5 h-4/5 flex items-center justify-center pointer-events-none"
         >
-          <TShirt 
-            color={options.color.value || "mint-green"} 
-            width={500} 
-            height={600} 
+          <TShirt
+            color={options.color.value || "mint-green"}
+            width={500}
+            height={600}
           />
         </div>
       </div>
@@ -344,21 +377,14 @@ const DesignConfigurator = ({
             <div className="w-full flex gap-6 items-center">
               <p className="font-medium whitespace-nowrap">
                 {formatPrice(
-                  (BASE_PRICE + (options.fabric.price || 0)*100) / 100
+                  (BASE_PRICE + (options.fabric.price || 0) * 100) / 100
                 )}
               </p>
               <Button
                 isLoading={isPending}
                 disabled={isPending}
                 loadingText="Saving"
-                // onClick={() =>
-                //   saveConfig({
-                //     configId,
-                //     color: options.color,
-                //     size: options.size,
-                //     fabric: options.fabric,
-                //   })
-                // }
+                onClick={handleContinue}
                 size="sm"
                 className="w-full"
               >

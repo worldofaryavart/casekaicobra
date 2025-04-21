@@ -8,6 +8,11 @@ export type SaveConfigArgs = {
   size: TshirtSize;
   fabric: TshirtFabric;
   configId: string;
+  croppedImageUrl?: string;
+  width?: number;
+  height?: number;
+  positionX?: number;
+  positionY?: number;
 };
 
 export async function saveConfig({
@@ -15,13 +20,21 @@ export async function saveConfig({
   size,
   fabric,
   configId,
+  croppedImageUrl,
+  width,
+  height,
+  positionX,
+  positionY,
 }: SaveConfigArgs) {
   await db.configuration.update({
     where: { id: configId },
     data: {
-      color: { connect: { id: color.id } },
-      size: { connect: { id: size.id } },
-      fabric: { connect: { id: fabric.id } },
+      colorId: color.id,
+      sizeId: size.id,
+      fabricId: fabric.id,
+      croppedImageUrl: croppedImageUrl || undefined,
+      width,     // You'll need to pass these values
+      height,  // from the DesignConfigurator
       isCustom: true
     },
   });

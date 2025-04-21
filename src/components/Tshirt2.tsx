@@ -15,7 +15,7 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
   const getFrontImgUrl = () => {
     if (color === "red") {
       return "/tshirt-color/red/red_front.png";
-    } else if (color === "dark-blue") {
+    } else if (color === "navy-blue") {
       return "/tshirt-color/navy-blue/navy_blue_front.png";
     } else if (color === "black") {
       return "/tshirt-color/black/black_front.png";
@@ -45,7 +45,7 @@ const TShirt = ({ color, imgSrc, width, height }: TShirtProps) => {
         <img
           src={frontImgUrl}
           alt="T-shirt front"
-          className="w-full h-auto object-contain"
+          className="w-full h-full object-contain"
         />
       </div>
 

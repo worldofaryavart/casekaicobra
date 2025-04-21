@@ -1,6 +1,7 @@
 import { db } from "@/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import DesignConfigurator from "./DesignConfigurator";
+import { cookies } from "next/headers";
 
 interface PageProps {
   searchParams: {
@@ -22,6 +23,15 @@ const Page = async ({ searchParams }: PageProps) => {
   const sizes = await db.tshirtSize.findMany();
   const fabrics = await db.tshirtFabric.findMany();
 
+  const newConfig = await db.configuration.create({
+    data: {
+      imageUrl, 
+      isCustom: true,
+    },
+  });
+
+  const configId = newConfig.id;
+
   return (
     // <div>
     //   <img src={imageUrl} alt="Design" width={500} height={500} />
@@ -32,6 +42,7 @@ const Page = async ({ searchParams }: PageProps) => {
       colors={colors}
       sizes={sizes}
       fabrics={fabrics}
+      configId={configId}
     />
   );
 };
