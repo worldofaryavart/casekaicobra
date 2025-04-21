@@ -18,12 +18,12 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import LoginModal from "@/components/LoginModal";
 import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
 import TShirt from "@/components/Tshirt2";
 import { createClient } from "@/utils/supabase/server";
+import { useUser } from "@/hooks/useUser";
 
 // Your Checkout configuration type
 type CheckoutConfiguration = {
@@ -70,19 +70,13 @@ const Checkout = ({
 }) => {
   const router = useRouter();
   const { toast } = useToast();
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
-  console.log("user", user);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const {user, loading } = useUser();
+  console.log("user is : ", user);
+  // const [loading, setLoading] = useState<boolean>(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
-    name:
-      user?.name && user?.name
-        ? `${user.given_name} ${user.family_name}`
-        : "",
+    name: "",
     street: "",
     city: "",
     postalCode: "",
@@ -170,8 +164,9 @@ const Checkout = ({
 
   const handleCheckout = () => {
     if (!user) {
-      localStorage.setItem("configurationId", configuration.id);
-      setIsLoginModalOpen(true);
+      // localStorage.setItem("configurationId", configuration.id);
+      // setIsLoginModalOpen(true);
+      router.push("/login?redirect=/checkout");
       return;
     }
 
@@ -224,8 +219,6 @@ const Checkout = ({
 
   return (
     <>
-      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
-
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center space-x-4 mb-6">
           <h1 className="text-2xl md:text-3xl font-bold">Checkout</h1>

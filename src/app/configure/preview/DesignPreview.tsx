@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import Confetti from "react-dom-confetti";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import LoginModal from "@/components/LoginModal";
 import TShirt from "@/components/Tshirt2";
 
 interface DesignPreviewProps {
@@ -26,7 +25,6 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const { toast } = useToast();
   const { id, color, size, fabric, croppedImageUrl, width, height } = configuration;
   
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   useEffect(() => setShowConfetti(true), []);
 
@@ -50,7 +48,6 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
         <Confetti active={showConfetti} config={{ elementCount: 200, spread: 90 }} />
       </div>
 
-      <LoginModal isOpen={isLoginModalOpen} setIsOpen={setIsLoginModalOpen} />
 
       <div className="mt-8 flex flex-col md:grid md:grid-cols-12 md:gap-x-8 lg:gap-x-12">
         {/* T-shirt preview - adjusting column span and adding card-like container */}
