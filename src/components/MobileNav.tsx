@@ -40,7 +40,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
               </Link>
               {isAdmin ? (
                 <Link
-                  href="/dashboard"
+                  href="/admin"
                   className={buttonVariants({
                     size: "default",
                     variant: "ghost",
@@ -48,7 +48,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
                   })}
                   onClick={() => setIsOpen(false)}
                 >
-                  Dashboard ✨
+                  Admin ✨
                 </Link>
               ) : null}
               <Link
