@@ -27,8 +27,8 @@ const getOrCreateUser = async (supabaseUser: any) => {
   }
 
   // Get the email from the user object
-  const email = supabaseUser.email || '';
-  
+  const email = supabaseUser.email || "";
+
   // Create a new user if one doesn't exist
   return await db.user.create({
     data: {
@@ -53,16 +53,21 @@ const getConfigurationAndPrice = async (configId: string) => {
   let totalPrice = 0;
 
   if (configuration.isCustom) {
-    // For custom orders, use product discount price if available
-    basePrice = configuration.product ? configuration.product.discountPrice : 0;
+    // For custom orders, use BASE_PRICE/100 (which appears to be from your config)
+    // You might need to import BASE_PRICE or define it here
+    basePrice = process.env.BASE_PRICE
+      ? parseInt(process.env.BASE_PRICE)
+      : 0;
     totalPrice = basePrice;
   } else if (configuration.product) {
-    // For shop orders, add fabric upgrade cost if available.
+    // For shop orders, use the product's discounted price
     basePrice = configuration.product.discountPrice;
     totalPrice = basePrice;
-    if (configuration.fabric && configuration.fabric.price) {
-      totalPrice += configuration.fabric.price;
-    }
+  }
+
+  // Add fabric price for both custom and shop orders if fabric is selected
+  if (configuration.fabric && configuration.fabric.price) {
+    totalPrice += configuration.fabric.price;
   }
 
   return { configuration, totalPrice };
@@ -77,6 +82,7 @@ const getOrCreateOrder = async (
   shippingAddressId: string,
   paymentMethod: string
 ) => {
+  console.log("totalPrice", totalPrice);
   const existingOrder = await db.order.findFirst({
     where: {
       userId,
