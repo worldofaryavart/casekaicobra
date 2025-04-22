@@ -35,11 +35,15 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Allow access to homepage and other publicly available routes
-  if (!user && (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/shop")) {
+  // Allow access to homepage, shop page, and product detail pages
+  if (
+    !user &&
+    (request.nextUrl.pathname === "/" ||
+      request.nextUrl.pathname === "/shop" ||
+      request.nextUrl.pathname.startsWith("/shop/product/"))
+  ) {
     return supabaseResponse;
   }
-  
 
   if (
     !user &&
