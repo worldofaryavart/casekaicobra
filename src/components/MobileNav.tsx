@@ -52,6 +52,14 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
                 </Link>
               ) : null}
               <Link
+                href="/shop"
+                className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                onClick={() => setIsOpen(false)}
+              >
+                Shop
+                <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
+              </Link>
+              <Link
                 href="/configure/upload"
                 className={buttonVariants({
                   size: "default",
@@ -60,7 +68,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
                 })}
                 onClick={() => setIsOpen(false)}
               >
-                Create case
+                Get t-shirt
                 <ArrowRight className="ml-1.5 h-5 w-5" />
               </Link>
             </>
