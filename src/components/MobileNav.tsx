@@ -38,19 +38,17 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
               >
                 SignOut
               </Link>
-              {isAdmin ? (
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className={buttonVariants({
-                    size: "default",
+                    size: "sm",
                     variant: "ghost",
-                    className: "w-full justify-center",
                   })}
-                  onClick={() => setIsOpen(false)}
                 >
                   Admin ✨
                 </Link>
-              ) : null}
+              )}
               <Link
                 href="/shop"
                 className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
