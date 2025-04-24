@@ -1,5 +1,3 @@
-// src/app/login/page.tsx
-
 'use client'
 
 import { useRouter } from 'next/navigation'
@@ -11,9 +9,12 @@ const LoginPage = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault()
+    setIsLoading(true)
+    setErrorMessage(null)
 
     const supabase = createClient()
 
@@ -24,23 +25,30 @@ const LoginPage = () => {
 
     if (error) {
       setErrorMessage(error.message)
+      setIsLoading(false)
     } else {
-      router.push('/')
+      // Force a hard refresh to ensure cookies are properly set
+      window.location.href = '/'
     }
   }
 
   const handleGoogleLogin = async () => {
+    setIsLoading(true)
+    setErrorMessage(null)
+    
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' })
+    const { error } = await supabase.auth.signInWithOAuth({ 
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth-callback`
+      }
+    })
 
     if (error) {
       setErrorMessage(error.message)
-    } else {
-      router.push('/')
+      setIsLoading(false)
     }
   }
-
-  console.log("error is ", errorMessage);
 
   return (
     <div className="min-h-screen bg-indigo-50 flex items-center justify-center px-4">
@@ -49,9 +57,10 @@ const LoginPage = () => {
         {/* Google Login Button on Top */}
         <button 
           onClick={handleGoogleLogin} 
-          className="w-full bg-indigo-700 text-white px-4 py-2 rounded mb-6 hover:bg-indigo-800 transition-colors"
+          className="w-full bg-indigo-700 text-white px-4 py-2 rounded mb-6 hover:bg-indigo-800 transition-colors flex justify-center items-center"
+          disabled={isLoading}
         >
-          Sign in with Google
+          {isLoading ? 'Loading...' : 'Sign in with Google'}
         </button>
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
         <form onSubmit={handleLogin}>
@@ -66,6 +75,7 @@ const LoginPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-700"
+              disabled={isLoading}
             />
           </div>
           <div className="mb-6">
@@ -79,13 +89,15 @@ const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-indigo-700"
+              disabled={isLoading}
             />
           </div>
           <button 
             type="submit"
             className="w-full bg-indigo-700 text-white px-4 py-2 rounded hover:bg-indigo-800 transition-colors"
+            disabled={isLoading}
           >
-            Login
+            {isLoading ? 'Loading...' : 'Login'}
           </button>
         </form>
       </div>
