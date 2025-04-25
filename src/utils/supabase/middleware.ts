@@ -2,18 +2,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-// Define allowed domains
-const allowedDomains = [
-  'localhost:3000',
-  'www.chichore.com',
-  'chichore.com'
-];
-
 export async function updateSession(request: NextRequest) {
-  // Check if the request is from an allowed domain
-  const host = request.headers.get('host') || '';
-  const isAllowedDomain = allowedDomains.some(domain => host.includes(domain));
-  
   // Create a response object that we can modify
   let response = NextResponse.next({
     request: {
@@ -74,12 +63,7 @@ export async function updateSession(request: NextRequest) {
 
   // If user is not authenticated and the path is not public, redirect to login
   if (!user && !isPublicPath) {
-    // Get the origin based on the current host
-    let origin = isAllowedDomain 
-      ? `${request.nextUrl.protocol}//${host}`
-      : 'https://www.chichore.com'; // Default to production if host is unknown
-    
-    const redirectUrl = new URL("/login", origin);
+    const redirectUrl = new URL("/login", request.url);
     return NextResponse.redirect(redirectUrl);
   }
 

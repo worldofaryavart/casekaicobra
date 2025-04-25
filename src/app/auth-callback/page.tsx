@@ -41,13 +41,9 @@ const Page = () => {
         if (data?.success) {
             if (configId) {
                 localStorage.removeItem('configurationId')
-                
-                // Use the current origin for the redirect
-                const redirectUrl = `${window.location.origin}/checkout/${configId}`
-                window.location.href = redirectUrl
+                router.push(`/checkout/${configId}`)
             } else {
-                // Use the current origin for the redirect
-                window.location.href = window.location.origin
+                router.push('/')
             }
         } else if (isError) {
             router.push('/login')

@@ -21,9 +21,6 @@ const LoginPage = () => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        redirectTo: `${window.location.origin}/`
-      }
     })
 
     if (error) {
@@ -31,7 +28,7 @@ const LoginPage = () => {
       setIsLoading(false)
     } else {
       // Force a hard refresh to ensure cookies are properly set
-      window.location.href = window.location.origin
+      window.location.href = '/'
     }
   }
 
