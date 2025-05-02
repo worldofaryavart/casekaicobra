@@ -31,5 +31,5 @@ export async function createConfiguration({
   // Revalidate the admin page (or another relevant page)
 
   // Return a URL to redirect the user to the newly created configuration details page
-  return { url: `/checkout/${newConfiguration.id}` }
+  return { url: `/protected/checkout/${newConfiguration.id}` }
 }

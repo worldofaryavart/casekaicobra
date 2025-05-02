@@ -36,7 +36,7 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const totalPrice = BASE_PRICE + ((fabric?.price || 0)*100);
 
   const handleCheckout = () => {
-    router.push(`/checkout/${id}`);
+    router.push(`/protected/checkout/${id}`);
   };
 
   return (

@@ -23,7 +23,6 @@ import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
 import TShirt from "@/components/Tshirt2";
 import { createClient } from "@/utils/supabase/server";
-import { useUser } from "@/hooks/useUser";
 
 // Your Checkout configuration type
 type CheckoutConfiguration = {
@@ -65,12 +64,13 @@ type ShippingAddressData = {
 
 const Checkout = ({
   configuration,
+  user
 }: {
   configuration: CheckoutConfiguration;
+  user: any
 }) => {
   const router = useRouter();
   const { toast } = useToast();
-  const {user, loading } = useUser();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
@@ -192,14 +192,14 @@ const Checkout = ({
     }));
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto flex flex-col items-center justify-center min-h-screen">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="mt-4 text-lg">Loading checkout...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="container mx-auto flex flex-col items-center justify-center min-h-screen">
+  //       <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+  //       <p className="mt-4 text-lg">Loading checkout...</p>
+  //     </div>
+  //   );
+  // }
 
   if (!configuration) {
     return (

@@ -1,18 +1,18 @@
-"use client";
-
 import { ArrowRight, ShoppingBagIcon } from "lucide-react";
 import MaxWidthWrapper from "./MaxWidthWrapper";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
 import Link from "next/link";
 import ChichoreLogoComponent from "./Logo";
 import MobileNav from "./MobileNav";
-import { useUser } from "@/hooks/useUser";
+import { createClient } from "@/utils/supabase/server";
+import { signOutAction } from "@/app/actions";
 
-const Navbar = () => {
-  const { user, loading } = useUser();
+const Navbar = async () => {
+  const supabase = await createClient();
 
-  // Use a fallback or loading state if desired
-  if (loading) return <p>Loading...</p>;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // Make sure the admin email is set as an environment variable with the NEXT_PUBLIC_ prefix
   const isAdmin =
@@ -40,15 +40,14 @@ const Navbar = () => {
           <div className="hidden md:flex h-full items-center space-x-4">
             {user ? (
               <>
-                <Link
-                  href="/api/auth/logout"
-                  className={buttonVariants({
-                    size: "sm",
-                    variant: "ghost",
-                  })}
-                >
-                  Sign Out
-                </Link>
+                <div className="flex items-center gap-4">
+                  Hey, {user.email}!
+                  <form action={signOutAction}>
+                    <Button type="submit" variant={"outline"}>
+                      Sign out
+                    </Button>
+                  </form>
+                </div>
                 {isAdmin && (
                   <Link
                     href="/admin"
@@ -60,25 +59,11 @@ const Navbar = () => {
                     Admin ✨
                   </Link>
                 )}
-                <Link
-                  href="/shop"
-                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Shop
-                  <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
-                </Link>
-                <Link
-                  href="/configure/upload"
-                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Get t-shirt
-                  <ArrowRight className="ml-1.5 h-5 w-5" />
-                </Link>
               </>
             ) : (
               <>
                 <Link
-                  href="/"
+                  href="/sign-up"
                   className={buttonVariants({
                     size: "sm",
                     variant: "ghost",
@@ -88,32 +73,31 @@ const Navbar = () => {
                 </Link>
 
                 <Link
-                  href="/login"
+                  href="/sign-in"
                   className={buttonVariants({
                     size: "sm",
                     variant: "ghost",
                   })}
                 >
-                  Login
-                </Link>
-
-                <div className="h-8 w-px bg-zinc-200" />
-                <Link
-                  href="/shop"
-                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Shop
-                  <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
-                </Link>
-                <Link
-                  href="/configure/upload"
-                  className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  Get t-shirt
-                  <ArrowRight className="ml-1.5 h-5 w-5" />
+                  Sign in
                 </Link>
               </>
             )}
+            <div className="h-8 w-px bg-zinc-200" />
+            <Link
+              href="/shop"
+              className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Shop
+              <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
+            </Link>
+            <Link
+              href="/configure/upload"
+              className="flex items-center justify-center gap-1 bg-indigo-700 hover:bg-indigo-750 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              Get t-shirt
+              <ArrowRight className="ml-1.5 h-5 w-5" />
+            </Link>
           </div>
 
           {/* Mobile Navigation */}

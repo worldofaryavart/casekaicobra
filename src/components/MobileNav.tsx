@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Menu, ShoppingBagIcon, X } from "lucide-react";
-import { buttonVariants } from "./ui/button";
+import { Button, buttonVariants } from "./ui/button";
+import { signOutAction } from "@/app/actions";
 
 type MobileNavProps = {
   user: any; // Replace with your actual user type
@@ -27,17 +28,14 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
         <div className="absolute top-14 inset-x-0 bg-white shadow-lg p-4 flex flex-col space-y-4 z-50">
           {user ? (
             <>
-              <Link
-                href="/api/auth/logout"
-                className={buttonVariants({
-                  size: "default",
-                  variant: "ghost",
-                  className: "w-full justify-center",
-                })}
-                onClick={() => setIsOpen(false)}
-              >
-                SignOut
-              </Link>
+              <div className="flex items-center gap-4">
+                Hey, {user.email}!
+                <form action={signOutAction}>
+                  <Button type="submit" variant={"outline"}>
+                    Sign out
+                  </Button>
+                </form>
+              </div>
               {isAdmin && (
                 <Link
                   href="/admin"
@@ -49,31 +47,11 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
                   Admin ✨
                 </Link>
               )}
-              <Link
-                href="/shop"
-                className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Shop
-                <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
-              </Link>
-              <Link
-                href="/configure/upload"
-                className={buttonVariants({
-                  size: "default",
-                  className:
-                    "w-full justify-center bg-indigo-900 hover:bg-indigo-950",
-                })}
-                onClick={() => setIsOpen(false)}
-              >
-                Get t-shirt
-                <ArrowRight className="ml-1.5 h-5 w-5" />
-              </Link>
             </>
           ) : (
             <>
               <Link
-                href="/"
+                href="/sign-up"
                 className={buttonVariants({
                   size: "default",
                   variant: "ghost",
@@ -85,7 +63,7 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
               </Link>
 
               <Link
-                href="/login"
+                href="/sign-in"
                 className={buttonVariants({
                   size: "default",
                   variant: "ghost",
@@ -93,27 +71,30 @@ const MobileNav = ({ user, isAdmin }: MobileNavProps) => {
                 })}
                 onClick={() => setIsOpen(false)}
               >
-                Login
-              </Link>
-
-              <Link
-                href="/shop"
-                className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Shop
-                <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
-              </Link>
-              <Link
-                href="/configure/upload"
-                className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={() => setIsOpen(false)}
-              >
-                Get t-shirt
-                <ArrowRight className="ml-1.5 h-5 w-5" />
+                Sign in
               </Link>
             </>
           )}
+          <Link
+            href="/shop"
+            className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-750 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            onClick={() => setIsOpen(false)}
+          >
+            Shop
+            <ShoppingBagIcon className="ml-1.5 h-5 w-5" />
+          </Link>
+          <Link
+            href="/configure/upload"
+            className={buttonVariants({
+              size: "default",
+              className:
+                "w-full justify-center bg-indigo-900 hover:bg-indigo-950",
+            })}
+            onClick={() => setIsOpen(false)}
+          >
+            Get t-shirt
+            <ArrowRight className="ml-1.5 h-5 w-5" />
+          </Link>
         </div>
       )}
     </>
