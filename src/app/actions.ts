@@ -133,3 +133,67 @@ export const signOutAction = async () => {
   await supabase.auth.signOut();
   return redirect("/sign-in");
 };
+
+// Google signup
+
+export const signUpGoogleAction = async () => {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+
+  const {data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  if (error) {
+    console.error("Google OAuth error: ", error.message);
+    return encodedRedirect("error", "/sign-up", error.message);
+  }
+
+  if (data?.url) {
+    return redirect(data.url);
+  }
+
+  return encodedRedirect(
+    "error",
+    "/sign-up",
+    "Failed to initiate Google sign-up"
+  );
+};
+
+export const signInGoogleAction = async () => {
+  const supabase = await createClient();
+  const origin = (await headers()).get("origin");
+  
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/callback?redirect_to=/protected`, // Redirect to protected page after successful sign-in
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    },
+  });
+
+  if (error) {
+    console.error("Google OAuth error:", error.message);
+    return encodedRedirect("error", "/sign-in", error.message);
+  }
+
+  if (data?.url) {
+    return redirect(data.url);
+  }
+
+  return encodedRedirect(
+    "error", 
+    "/sign-in", 
+    "Failed to initiate Google sign-in"
+  );
+};
