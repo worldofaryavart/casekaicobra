@@ -112,9 +112,10 @@ const Checkout = ({
   // Determine prices.
   let basePrice = 0;
   let totalPrice = 0;
+  let deliveryCharge = 10;
   if (isCustom) {
     basePrice = BASE_PRICE / 100;
-    totalPrice = basePrice;
+    totalPrice = basePrice + deliveryCharge;
     if (
       configuration.fabric &&
       typeof configuration.fabric === "object" &&
@@ -124,14 +125,14 @@ const Checkout = ({
     }
   } else if (configuration.product) {
     basePrice = configuration.product.discountPrice;
-    totalPrice = basePrice;
-    if (
-      configuration.fabric &&
-      typeof configuration.fabric === "object" &&
-      configuration.fabric.price
-    ) {
-      totalPrice += configuration.fabric.price;
-    }
+    totalPrice = basePrice + deliveryCharge;
+    // if (
+    //   configuration.fabric &&
+    //   typeof configuration.fabric === "object" &&
+    //   configuration.fabric.price
+    // ) {
+    //   totalPrice += configuration.fabric.price;
+    // }
   }
 
   // Updated mutation that now accepts both configId and shippingAddress.
@@ -290,7 +291,7 @@ const Checkout = ({
                       }).format(basePrice)}
                     </span>
                   </div>
-                  {configuration.fabric &&
+                  {/* {configuration.fabric &&
                     typeof configuration.fabric === "object" &&
                     configuration.fabric.price && (
                       <div className="flex justify-between py-1">
@@ -302,7 +303,17 @@ const Checkout = ({
                           }).format(configuration.fabric.price)}
                         </span>
                       </div>
-                    )}
+                    )} */}
+                  <div className="flex justify-between py-1">
+                    <span className="text-gray-600">Base Price:</span>
+                    <span className="font-medium">
+                      {new Intl.NumberFormat("en-IN", {
+                        style: "currency",
+                        currency: "INR",
+                      }).format(deliveryCharge)}
+                    </span>
+                  </div>
+                  
                   <div className="my-1 h-px bg-gray-200" />
                   <div className="flex justify-between py-2 font-bold">
                     <span>Total:</span>
@@ -369,7 +380,7 @@ const Checkout = ({
                       id="name"
                       name="name"
                       type="text"
-                      placeholder="e.g., John Doe"
+                      placeholder="e.g., Aditya Singh"
                       value={shippingAddress.name}
                       onChange={handleAddressChange}
                       required
@@ -381,7 +392,7 @@ const Checkout = ({
                       id="street"
                       name="street"
                       type="text"
-                      placeholder="e.g., 123 Main St, Apt 4B"
+                      placeholder="e.g., 123 Main St, Dehradun"
                       value={shippingAddress.street}
                       onChange={handleAddressChange}
                       required
@@ -394,7 +405,7 @@ const Checkout = ({
                         id="city"
                         name="city"
                         type="text"
-                        placeholder="e.g., Anytown"
+                        placeholder="e.g., Dehradun"
                         value={shippingAddress.city}
                         onChange={handleAddressChange}
                         required
@@ -406,7 +417,7 @@ const Checkout = ({
                         id="postalCode"
                         name="postalCode"
                         type="text"
-                        placeholder="e.g., 12345"
+                        placeholder="e.g., 248015"
                         value={shippingAddress.postalCode}
                         onChange={handleAddressChange}
                         required
@@ -420,7 +431,7 @@ const Checkout = ({
                         id="country"
                         name="country"
                         type="text"
-                        placeholder="e.g., United States"
+                        placeholder="e.g., India"
                         value={shippingAddress.country}
                         onChange={handleAddressChange}
                         required
@@ -432,7 +443,7 @@ const Checkout = ({
                         id="state"
                         name="state"
                         type="text"
-                        placeholder="e.g., California"
+                        placeholder="e.g., Uttarakhand"
                         value={shippingAddress.state}
                         onChange={handleAddressChange}
                       />
@@ -444,7 +455,7 @@ const Checkout = ({
                       id="phoneNumber"
                       name="phoneNumber"
                       type="tel"
-                      placeholder="e.g., +1 555-123-4567"
+                      placeholder="e.g., +91 98329756XX"
                       value={shippingAddress.phoneNumber}
                       onChange={handleAddressChange}
                     />

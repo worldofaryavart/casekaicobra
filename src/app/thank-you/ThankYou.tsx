@@ -166,11 +166,11 @@ const ThankYou = () => {
           </div>
           <div className="flex justify-between">
             <p className="font-medium text-zinc-900">Shipping</p>
-            <p className="text-zinc-700">{formatPrice(0)}</p>
+            <p className="text-zinc-700">{formatPrice(10)}</p>
           </div>
           <div className="flex justify-between">
             <p className="font-medium text-zinc-900">Total</p>
-            <p className="text-zinc-700">{formatPrice(amount)}</p>
+            <p className="text-zinc-700">{formatPrice(amount + 10)}</p>
           </div>
         </div>
       </div>

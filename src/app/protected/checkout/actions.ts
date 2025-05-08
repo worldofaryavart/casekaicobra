@@ -51,6 +51,7 @@ const getConfigurationAndPrice = async (configId: string) => {
 
   let basePrice = 0;
   let totalPrice = 0;
+  let deliveryCharge = 10;
 
   if (configuration.isCustom) {
     // For custom orders, use BASE_PRICE/100 (which appears to be from your config)
@@ -58,17 +59,17 @@ const getConfigurationAndPrice = async (configId: string) => {
     basePrice = process.env.BASE_PRICE
       ? parseInt(process.env.BASE_PRICE)
       : 0;
-    totalPrice = basePrice;
+    totalPrice = basePrice + deliveryCharge;
   } else if (configuration.product) {
     // For shop orders, use the product's discounted price
     basePrice = configuration.product.discountPrice;
-    totalPrice = basePrice;
+    totalPrice = basePrice+ deliveryCharge;
   }
 
   // Add fabric price for both custom and shop orders if fabric is selected
-  if (configuration.fabric && configuration.fabric.price) {
-    totalPrice += configuration.fabric.price;
-  }
+  // if (configuration.fabric && configuration.fabric.price) {
+  //   totalPrice += configuration.fabric.price;
+  // }
 
   return { configuration, totalPrice };
 };

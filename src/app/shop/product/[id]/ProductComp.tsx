@@ -296,14 +296,14 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                         </RadioGroup.Label>
                       </span>
                     </span>
-                    <RadioGroup.Description
+                    {/* <RadioGroup.Description
                       as="span"
                       className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right"
                     >
                       <span className="font-medium text-gray-900">
                         {formatPrice(option.price)}
                       </span>
-                    </RadioGroup.Description>
+                    </RadioGroup.Description> */}
                   </RadioGroup.Option>
                 ))}
               </div>
