@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
-import { BASE_PRICE } from "@/config/products";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { saveConfig as _saveConfig, SaveConfigArgs } from "./actions";
@@ -194,6 +193,12 @@ const DesignConfigurator = ({
     }
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: mimeType });
+  }
+
+  const basePriceEnv = process.env.NEXT_PUBLIC_BASE_PRICE;
+
+  if (!basePriceEnv) {
+    throw new Error("NEXT_PUBLIC_BASE_PRICE is not set in the environment variable.");
   }
 
   return (
@@ -385,11 +390,13 @@ const DesignConfigurator = ({
           <div className="h-px w-full bg-zinc-200" />
           <div className="w-full h-full flex justify-end items-center">
             <div className="w-full flex gap-6 items-center">
-              <p className="font-medium whitespace-nowrap">
+              {/* <p className="font-medium whitespace-nowrap">
                 {formatPrice(
-                  (BASE_PRICE + (options.fabric.price || 0) * 100) / 100
+                  // (BASE_PRICE + (options.fabric.price || 0) * 100) / 100
+                  parseFloat(basePriceEnv)
+
                 )}
-              </p>
+              </p> */}
               <Button
                 isLoading={isPending}
                 disabled={isPending}

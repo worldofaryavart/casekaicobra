@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { BASE_PRICE } from "@/config/products";
 import { formatPrice } from "@/lib/utils";
 import { Configuration } from "@prisma/client";
 import { ArrowRight, Check } from "lucide-react";
@@ -20,11 +19,20 @@ interface DesignPreviewProps {
   };
 }
 
+const basePriceEnv = process.env.NEXT_PUBLIC_BASE_PRICE;
+
+if (!basePriceEnv) {
+  throw new Error(
+    "NEXT_PUBLIC_BASE_PRICE is not set in the environment variable."
+  );
+}
+
 const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const router = useRouter();
   const { toast } = useToast();
-  const { id, color, size, fabric, croppedImageUrl, width, height } = configuration;
-  
+  const { id, color, size, fabric, croppedImageUrl, width, height } =
+    configuration;
+
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   useEffect(() => setShowConfetti(true), []);
 
@@ -33,7 +41,9 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
   const sizeLabel = size?.label || "Standard";
 
   // The total price will be computed in the checkout action
-  const totalPrice = BASE_PRICE + ((fabric?.price || 0)*100);
+  // const totalPrice = BASE_PRICE + ((fabric?.price || 0)*100);
+
+  const totalPrice = parseFloat(basePriceEnv);
 
   const handleCheckout = () => {
     router.push(`/protected/checkout/${id}`);
@@ -45,9 +55,11 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
         aria-hidden="true"
         className="pointer-events-none select-none absolute inset-0 overflow-hidden flex justify-center"
       >
-        <Confetti active={showConfetti} config={{ elementCount: 200, spread: 90 }} />
+        <Confetti
+          active={showConfetti}
+          config={{ elementCount: 200, spread: 90 }}
+        />
       </div>
-
 
       <div className="mt-8 flex flex-col md:grid md:grid-cols-12 md:gap-x-8 lg:gap-x-12">
         {/* T-shirt preview - adjusting column span and adding card-like container */}
@@ -71,7 +83,7 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
             <Check className="h-4 w-4 text-green-500" />
             <span className="text-green-600">In stock and ready to ship</span>
           </div>
-          
+
           {/* Highlights section */}
           <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-6 border-b border-gray-200 py-6">
             <div>
@@ -99,7 +111,7 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
                 <div className="flex items-center justify-between py-1">
                   <p className="text-gray-600">Base price</p>
                   <p className="font-medium text-gray-900">
-                    {formatPrice(BASE_PRICE / 100)}
+                    {formatPrice(parseFloat(basePriceEnv))}
                   </p>
                 </div>
 
@@ -108,7 +120,7 @@ const DesignPreview = ({ configuration }: DesignPreviewProps) => {
                 <div className="flex items-center justify-between py-2">
                   <p className="font-semibold text-gray-900">Order total</p>
                   <p className="font-semibold text-gray-900">
-                    {formatPrice(totalPrice / 100)}
+                    {formatPrice(totalPrice)}
                   </p>
                 </div>
               </div>

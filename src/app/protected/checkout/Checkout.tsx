@@ -125,7 +125,7 @@ const Checkout = ({
   const deliveryCharge = parseFloat(deliveryChargeEnv);
     
   if (isCustom) {
-    let basePrice = parseFloat(basePriceEnv);
+    basePrice = parseFloat(basePriceEnv);
     totalPrice = basePrice + deliveryCharge;
     // if (
     //   configuration.fabric &&
