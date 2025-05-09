@@ -102,7 +102,9 @@ const ThankYou = () => {
 
         <div className="mt-10 border-t border-zinc-200">
           <div className="mt-10 flex flex-auto flex-col">
-            <h4 className="font-semibold text-zinc-900">You made a great choice!</h4>
+            <h4 className="font-semibold text-zinc-900">
+              You made a great choice!
+            </h4>
             <p className="mt-2 text-sm text-zinc-600">
               We at CHICHORÉ believe that a T-Shirt not only looks great but is
               built to last.
@@ -123,7 +125,12 @@ const ThankYou = () => {
         ) : (
           <div className="flex justify-center items-center overflow-hidden mt-4 rounded-xl bg-gray-900/5 ring-1 ring-inset ring-gray-900/10 lg:rounded-2xl">
             <div className="relative w-64 h-64">
-              <Image src={imgSrc} alt="T-Shirt" fill className="object-contain" />
+              <Image
+                src={imgSrc}
+                alt="T-Shirt"
+                fill
+                className="object-contain"
+              />
             </div>
           </div>
         )}
@@ -151,9 +158,9 @@ const ThankYou = () => {
               <p className="mt-2 text-zinc-700">{paymentDisplay}</p>
             </div>
             <div>
-              <p className="font-medium text-zinc-900">Shipping Method</p>
+              <p className="font-medium text-zinc-900">Expected Delivery</p>
               <p className="mt-2 text-zinc-700">
-                DHL, takes up to 3 working days
+                Usually delivered within 4–5 working days.
               </p>
             </div>
           </div>
@@ -161,16 +168,8 @@ const ThankYou = () => {
 
         <div className="space-y-6 border-t border-zinc-200 pt-10 text-sm">
           <div className="flex justify-between">
-            <p className="font-medium text-zinc-900">Subtotal</p>
-            <p className="text-zinc-700">{formatPrice(amount)}</p>
-          </div>
-          <div className="flex justify-between">
-            <p className="font-medium text-zinc-900">Shipping</p>
-            <p className="text-zinc-700">{formatPrice(10)}</p>
-          </div>
-          <div className="flex justify-between">
             <p className="font-medium text-zinc-900">Total</p>
-            <p className="text-zinc-700">{formatPrice(amount + 10)}</p>
+            <p className="text-zinc-700">{formatPrice(amount)}</p>
           </div>
         </div>
       </div>

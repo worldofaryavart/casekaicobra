@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { ArrowRight, Truck, Wallet } from "lucide-react";
 import Image from "next/image";
-import { BASE_PRICE } from "@/config/products";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +21,6 @@ import { RadioGroup, RadioGroupItem } from "@radix-ui/react-radio-group";
 import Input from "@/components/ui/input";
 import { createCODOrder } from "./actions";
 import TShirt from "@/components/Tshirt2";
-import { createClient } from "@/utils/supabase/server";
 
 // Your Checkout configuration type
 type CheckoutConfiguration = {
@@ -110,19 +108,32 @@ const Checkout = ({
       : configuration.size || "";
 
   // Determine prices.
-  let basePrice = 0;
   let totalPrice = 0;
-  let deliveryCharge = 10;
+  let basePrice = 0;
+
+  const deliveryChargeEnv = process.env.NEXT_PUBLIC_FIXED_DELIVERY_CHARGE;
+  const basePriceEnv = process.env.NEXT_PUBLIC_BASE_PRICE;
+
+  if (!deliveryChargeEnv) {
+    throw new Error("NEXT_PUBLIC_FIXED_DELIVERY_CHARGE is not set in the environment variables.");
+  }
+
+  if (!basePriceEnv) {
+    throw new Error("NEXT_PUBLIC_BASE_PRICE is not set in the environment variable.");
+  }
+  
+  const deliveryCharge = parseFloat(deliveryChargeEnv);
+    
   if (isCustom) {
-    basePrice = BASE_PRICE / 100;
+    let basePrice = parseFloat(basePriceEnv);
     totalPrice = basePrice + deliveryCharge;
-    if (
-      configuration.fabric &&
-      typeof configuration.fabric === "object" &&
-      configuration.fabric.price
-    ) {
-      totalPrice += configuration.fabric.price;
-    }
+    // if (
+    //   configuration.fabric &&
+    //   typeof configuration.fabric === "object" &&
+    //   configuration.fabric.price
+    // ) {
+    //   totalPrice += configuration.fabric.price;
+    // }
   } else if (configuration.product) {
     basePrice = configuration.product.discountPrice;
     totalPrice = basePrice + deliveryCharge;
@@ -305,7 +316,7 @@ const Checkout = ({
                       </div>
                     )} */}
                   <div className="flex justify-between py-1">
-                    <span className="text-gray-600">Base Price:</span>
+                    <span className="text-gray-600">Delivery Charge:</span>
                     <span className="font-medium">
                       {new Intl.NumberFormat("en-IN", {
                         style: "currency",

@@ -49,16 +49,27 @@ const getConfigurationAndPrice = async (configId: string) => {
     throw new Error("No configuration found");
   }
 
-  let basePrice = 0;
+  // Determine prices.
   let totalPrice = 0;
-  let deliveryCharge = 10;
+  let basePrice = 0;
+
+  const deliveryChargeEnv = process.env.NEXT_PUBLIC_FIXED_DELIVERY_CHARGE;
+  const basePriceEnv = process.env.NEXT_PUBLIC_BASE_PRICE;
+
+  if (!deliveryChargeEnv) {
+    throw new Error("NEXT_PUBLIC_FIXED_DELIVERY_CHARGE is not set in the environment variables.");
+  }
+
+  if (!basePriceEnv) {
+    throw new Error("NEXT_PUBLIC_BASE_PRICE is not set in the environment variable.");
+  }
+  
+  const deliveryCharge = parseFloat(deliveryChargeEnv);
 
   if (configuration.isCustom) {
     // For custom orders, use BASE_PRICE/100 (which appears to be from your config)
     // You might need to import BASE_PRICE or define it here
-    basePrice = process.env.BASE_PRICE
-      ? parseInt(process.env.BASE_PRICE)
-      : 0;
+    basePrice = parseFloat(basePriceEnv);
     totalPrice = basePrice + deliveryCharge;
   } else if (configuration.product) {
     // For shop orders, use the product's discounted price

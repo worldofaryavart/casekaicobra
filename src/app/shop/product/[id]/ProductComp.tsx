@@ -208,7 +208,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                   </button>
                 ))}
               </div>
-              <div className="flex items-center mt-2">
+              {/* <div className="flex items-center mt-2">
                 <Label className="mr-3 text-sm">Custom:</Label>
                 <input
                   type="color"
@@ -224,7 +224,7 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                   }}
                   className="h-8 w-8 rounded cursor-pointer"
                 />
-              </div>
+              </div> */}
             </div>
 
             {/* Size Selector */}
