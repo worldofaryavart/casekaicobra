@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import StatusDropdown from "./StatusDropdown";
+import { OrderTable } from "./OrderTable";
 import { createClient } from "@/utils/supabase/server";
 
 const Page = async () => {
@@ -50,7 +51,18 @@ const Page = async () => {
       },
     },
     orderBy: { createdAt: "desc" },
-    include: { user: true, shippingAddress: true },
+    include: { 
+      user: true, 
+      shippingAddress: true,
+      configuration: {
+        include: {
+          color: true, 
+          size: true, 
+          fabric: true,
+          product: true,
+        }
+      }
+     },
   });
 
   // Aggregate revenue data.
@@ -63,6 +75,7 @@ const Page = async () => {
     },
     _sum: { amount: true },
   });
+
   const lastMonthSum = await db.order.aggregate({
     where: {
       isPaid: true,
@@ -158,7 +171,7 @@ const Page = async () => {
           </div>
 
           <h1 className="text-4xl font-bold tracking-tight">Incoming Orders</h1>
-          <Table>
+          {/* <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Customer</TableHead>
@@ -192,7 +205,8 @@ const Page = async () => {
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
+          </Table> */}
+          <OrderTable orders={orders} />
         </div>
       </main>
     </div>
