@@ -14,7 +14,7 @@ import { RadioGroup } from "@headlessui/react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
-import { createConfiguration } from "./actions"; 
+import { createConfiguration } from "./actions";
 
 // Updated Category type
 type Category = {
@@ -63,6 +63,7 @@ function cn(...classes: (string | boolean | undefined | null)[]): string {
 }
 
 const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -90,10 +91,15 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
 
   // Create fallback objects if any array is empty
   const defaultColor =
-    colors.length > 0 ? colors[0] : { id: "", value: "", label: "", hex: "#ffffff" };
-  const defaultSize = sizes.length > 0 ? sizes[0] : { id: "", label: "", value: "" };
+    colors.length > 0
+      ? colors[0]
+      : { id: "", value: "", label: "", hex: "#ffffff" };
+  const defaultSize =
+    sizes.length > 0 ? sizes[0] : { id: "", label: "", value: "" };
   const defaultFabric =
-    fabrics.length > 0 ? fabrics[0] : { id: "", value: "", label: "", price: 0 };
+    fabrics.length > 0
+      ? fabrics[0]
+      : { id: "", value: "", label: "", price: 0 };
   const defaultImage = product.images.length > 0 ? product.images[0] : "";
 
   // Set initial state using the mapped arrays with fallbacks
@@ -113,10 +119,12 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
     mutationKey: ["create-configuration"],
     mutationFn: createConfiguration,
     onSuccess: (data: { url: string }) => {
+      setIsLoading(false);
       if (data.url) router.push(data.url);
       else throw new Error("Unable to create configuration.");
     },
     onError: () => {
+      setIsLoading(false);
       toast({
         title: "Something went wrong",
         description: "There was an error on our end. Please try again.",
@@ -127,11 +135,12 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
 
   // Handler for the Buy Now button
   const handleBuy = () => {
+    setIsLoading(true);
     console.log("Product ID:", product.id);
     console.log("Selected Color:", options.color);
     console.log("Selected Fabric:", options.fabric);
     console.log("Selected Size:", options.size);
-  
+
     createConfig({
       productId: product.id,
       colorId: options.color.id,
@@ -140,7 +149,6 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
       imageUrl: options.selectedImage,
     });
   };
-  
 
   return (
     <div className="min-h-screen bg-white p-4 md:p-8 relative">
@@ -312,9 +320,38 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
 
           <Button
             onClick={handleBuy}
+            disabled={isLoading}
             className="bg-indigo-700 text-white py-2 px-4 rounded hover:bg-indigo-800"
           >
-            Buy Now
+            {isLoading ? (
+              <>
+                <span className="mr-2">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                </span>
+                Processing...
+              </>
+            ) : (
+              "Buy Now"
+            )}
           </Button>
         </div>
       </div>

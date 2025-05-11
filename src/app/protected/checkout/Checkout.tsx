@@ -62,14 +62,15 @@ type ShippingAddressData = {
 
 const Checkout = ({
   configuration,
-  user
+  user,
 }: {
   configuration: CheckoutConfiguration;
-  user: any
+  user: any;
 }) => {
   const router = useRouter();
   const { toast } = useToast();
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>("cod");
+  const [isLoading, setIsLoading] = useState(false);
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressData>({
     name: "",
@@ -115,15 +116,19 @@ const Checkout = ({
   const basePriceEnv = process.env.NEXT_PUBLIC_BASE_PRICE;
 
   if (!deliveryChargeEnv) {
-    throw new Error("NEXT_PUBLIC_FIXED_DELIVERY_CHARGE is not set in the environment variables.");
+    throw new Error(
+      "NEXT_PUBLIC_FIXED_DELIVERY_CHARGE is not set in the environment variables."
+    );
   }
 
   if (!basePriceEnv) {
-    throw new Error("NEXT_PUBLIC_BASE_PRICE is not set in the environment variable.");
+    throw new Error(
+      "NEXT_PUBLIC_BASE_PRICE is not set in the environment variable."
+    );
   }
-  
+
   const deliveryCharge = parseFloat(deliveryChargeEnv);
-    
+
   if (isCustom) {
     basePrice = parseFloat(basePriceEnv);
     totalPrice = basePrice + deliveryCharge;
@@ -159,10 +164,12 @@ const Checkout = ({
       return await createCODOrder({ configId, shippingAddress });
     },
     onSuccess: ({ orderId }: { orderId: string }) => {
+      setIsLoading(false);
       if (orderId) router.push(`/thank-you?orderId=${orderId}`);
       else throw new Error("Unable to create COD order.");
     },
     onError: () => {
+      setIsLoading(false);
       toast({
         title: "Order Error",
         description:
@@ -186,6 +193,30 @@ const Checkout = ({
       });
       return;
     }
+
+    const requiredFields = [
+      { field: 'name', label: 'Full Name' },
+      { field: 'street', label: 'Street Address' },
+      { field: 'city', label: 'City' },
+      { field: 'postalCode', label: 'Postal Code' },
+      { field: 'country', label: 'Country' },
+      { field: 'phoneNumber', label: 'Phone Number' }
+    ];
+  
+    const missingFields = requiredFields.filter(
+      ({ field }) => !shippingAddress[field as keyof ShippingAddressData]
+    );
+  
+    if (missingFields.length > 0) {
+      toast({
+        title: "Missing Information",
+        description: `Please provide your ${missingFields.map(f => f.label).join(', ')}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
 
     switch (selectedPayment) {
       case "cod":
@@ -324,7 +355,7 @@ const Checkout = ({
                       }).format(deliveryCharge)}
                     </span>
                   </div>
-                  
+
                   <div className="my-1 h-px bg-gray-200" />
                   <div className="flex justify-between py-2 font-bold">
                     <span>Total:</span>
@@ -558,12 +589,46 @@ const Checkout = ({
                   onClick={() =>
                     router.push(`/configure/preview?id=${configuration.id}`)
                   }
+                  disabled={isLoading}
                 >
                   Back to Preview
                 </Button>
-                <Button onClick={handleCheckout} disabled={!selectedPayment}>
-                  Complete Order
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Button
+                  onClick={handleCheckout}
+                  disabled={!selectedPayment || isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <span className="mr-2">
+                        <svg
+                          className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
+                        </svg>
+                      </span>
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Complete Order
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardFooter>
             </Card>
