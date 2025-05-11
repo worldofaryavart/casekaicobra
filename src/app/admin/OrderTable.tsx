@@ -128,28 +128,26 @@ export function OrderTable({ orders }: OrderTableProps) {
               Purchase Date
             </TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            <TableHead className="text-center">Action</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.map((order) => (
-            <TableRow 
-              key={order.id} 
+            <TableRow
+              key={order.id}
               className="bg-accent cursor-pointer hover:bg-accent/80 transition-colors relative group"
               onClick={() => handleRowClick(order)}
             >
-              {/* Visual indicator that row is clickable */}
-              <div className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">View Details</span>
-              </div>
               <TableCell>
-                <div className="font-medium">
-                  {order.shippingAddress?.name}
-                </div>
+                <div className="font-medium">{order.shippingAddress?.name}</div>
                 <div className="hidden text-sm text-muted-foreground md:inline">
                   {order.user.email}
                 </div>
               </TableCell>
-              <TableCell className="hidden sm:table-cell" onClick={(e) => e.stopPropagation()}>
+              <TableCell
+                className="hidden sm:table-cell"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <StatusDropdown id={order.id} orderStatus={order.status} />
               </TableCell>
               <TableCell className="hidden md:table-cell">
@@ -158,16 +156,27 @@ export function OrderTable({ orders }: OrderTableProps) {
               <TableCell className="text-right">
                 {formatPrice(order.amount)}
               </TableCell>
+              <TableCell className="text-center">
+                <button
+                  className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRowClick(order);
+                  }}
+                >
+                  View Details
+                </button>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
       {/* Order Details Modal */}
-      <OrderDetailsModal 
-        order={selectedOrder} 
-        isOpen={isModalOpen} 
-        onClose={handleCloseModal} 
+      <OrderDetailsModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
       />
     </>
   );
