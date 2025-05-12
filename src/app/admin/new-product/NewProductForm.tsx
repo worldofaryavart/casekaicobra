@@ -131,22 +131,29 @@ const NewProductForm = ({
       return;
     }
 
-    const uploadedUrls = await Promise.all(
-      imageFiles.map(async (file) => await uploadToCloudinary(file))
-    );
+    setIsLoading(true);
 
-    saveProductMutation.mutate({
-      title,
-      description,
-      details,
-      category, // sends the category id
-      realPrice,
-      discountPrice,
-      availableSizes,
-      availableColors,
-      availableFabrics,
-      imageUrls: uploadedUrls,
-    });
+    try {
+      const uploadedUrls = await Promise.all(
+        imageFiles.map((file) => uploadToCloudinary(file))
+      );
+
+      saveProductMutation.mutate({
+        title,
+        description,
+        details,
+        category,
+        realPrice,
+        discountPrice,
+        availableSizes,
+        availableColors,
+        availableFabrics,
+        imageUrls: uploadedUrls,
+      });
+    } catch (err) {
+      setIsLoading(false);
+      toast({ title: "Image upload failed", variant: "destructive" });
+    }
   };
 
   return (
@@ -379,7 +386,7 @@ const NewProductForm = ({
         <button
           type="submit"
           className="px-4 py-2 bg-green-600 text-white rounded"
-          disabled={!isLoading}
+          disabled={isLoading}
         >
           {isLoading ? (
             <>
