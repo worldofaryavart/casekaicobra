@@ -71,18 +71,6 @@ export default function Landing() {
                     <span className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
                   </Link>
                 </div>
-                <div className="flex justify-center">
-                  <Link
-                    className="group relative flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-800 to-indigo-900 text-white px-6 py-3 rounded-lg text-sm font-medium shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 overflow-hidden focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 mt-6 w-full sm:w-auto"
-                    href="/configure/upload"
-                  >
-                    <span className="relative z-10 flex items-center">
-                      Design your t-shirt
-                      <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform duration-300" />
-                    </span>
-                    <span className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-purple-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                  </Link>
-                </div>
               </div>
             </div>
           </div>
