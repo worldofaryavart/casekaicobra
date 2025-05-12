@@ -139,9 +139,15 @@ const NewProductForm = ({
     setIsLoading(true);
 
     try {
-      const uploadedUrls = await Promise.all(
-        imageFiles.map((file) => uploadToCloudinary(file))
-      );
+      // const uploadedUrls = await Promise.all(
+      //   imageFiles.map((file) => uploadToCloudinary(file))
+      // );
+
+      const uploadedUrls = [];
+      for (const file of imageFiles) {
+        const url = await uploadToCloudinary(file);
+        uploadedUrls.push(url);
+      }
 
       saveProductMutation.mutate({
         title,
