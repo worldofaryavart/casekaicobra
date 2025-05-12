@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { createProduct } from "./actions";
 import { useToast } from "@/components/ui/use-toast";
 import axios from "axios"; // For uploading the image to Cloudinary
+import { X } from "lucide-react";
 
 type CategoryType = {
   id: string;
@@ -112,6 +113,10 @@ const NewProductForm = ({
   // Trigger hidden file input click
   const handleAddImageClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setImageFiles((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   // When files are selected, update state for previews
@@ -356,13 +361,20 @@ const NewProductForm = ({
             {imageFiles.map((file, index) => (
               <div
                 key={index}
-                className="w-20 h-20 border rounded overflow-hidden"
+                className="w-20 h-20 border rounded overflow-hidden relative group"
               >
                 <img
                   src={URL.createObjectURL(file)}
                   alt={`preview-${index}`}
                   className="object-cover w-full h-full"
                 />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X size={16} />
+                </button>
               </div>
             ))}
           </div>
