@@ -216,23 +216,6 @@ const Product: React.FC<ProductProps> = ({ product, similarProducts }) => {
                   </button>
                 ))}
               </div>
-              {/* <div className="flex items-center mt-2">
-                <Label className="mr-3 text-sm">Custom:</Label>
-                <input
-                  type="color"
-                  value={options.color.hex}
-                  onChange={(e) => {
-                    const customColor = {
-                      id: "custom",
-                      value: "custom",
-                      label: "Custom",
-                      hex: e.target.value,
-                    };
-                    setOptions((prev) => ({ ...prev, color: customColor }));
-                  }}
-                  className="h-8 w-8 rounded cursor-pointer"
-                />
-              </div> */}
             </div>
 
             {/* Size Selector */}
